@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>GreenMirror</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>net.sf.eclipsecs.core.CheckstyleBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>json</name>
+			<type>2</type>
+			<location>C:/Users/Karim/Dropbox/BO/workspace/GreenMirror/lib/json</location>
+		</link>
+	</linkedResources>
+</projectDescription>
