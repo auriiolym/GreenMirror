@@ -1,37 +1,166 @@
 package greenmirror;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
+import javafx.animation.Transition;
+import javafx.geometry.Point3D;
+
+
+/**
+ * An interface to handle the visual components.
+ * 
+ * @author Karim El Assal
+ */
 public interface VisualComponent {
+    
+    // -- Enumerations -----------------------------------------------------------------------
+
+    public static enum ChangeType {
+        NORMAL,
+        ADD_NODE,
+        REMOVE_NODE,
+    }
+
+    // -- Class usage ------------------------------------------------------------------------
 
     /**
-     * 
-     * @param type
+     * Instantiate a <tt>VisualComponent</tt> according to <tt>type</tt>.
+     * @param type The class name of the <tt>VisualComponent</tt>.
+     * @return     The new <tt>VisualComponent</tt> instance.
      */
-    VisualComponent instantiate(String type);
-
-    JSONObject toJSON();
+    //@ requires type != null;
+    public static VisualComponent instantiate(String type) {
+        
+        try {
+            Class<?> vc = Class.forName("greenmirror.visualcomponents." 
+                    + Character.toUpperCase(type.charAt(0)) + type.substring(1));
+            
+            Object instance = vc.newInstance();
+            return (instance instanceof VisualComponent) ? (VisualComponent) instance : null;
+            
+        } catch (ClassNotFoundException | IllegalAccessException
+                | InstantiationException | ClassCastException e) {
+            return null;
+        }
+    }
+    
+    
+    // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * 
-     * @param of
+     * @return A mapping of the properties of this <tt>VisualComponent</tt>.
      */
-    AbsolutePosition calculatePosition(Placement of);
+    //@ ensures \result != null;
+    /*@ pure */ public Map<String, Object> toMap();
+    
+    /**
+     * @return The GreenMirror <tt>Node</tt> that holds this <tt>VisualComponent</tt>.
+     */
+    /*@ pure */ public Node getGreenMirrorNode();
+    
+    /**
+     * @return The properties that can be changed by a user of GreenMirror.
+     */
+    /*@ pure */ public Map<String, Class<?>> getChangableProperties();
+
+    
+    // -- Setters ----------------------------------------------------------------------------
+    
+    /**
+     * @param node The GreenMirror <tt>Node</tt> that holds this <tt>VisualComponent</tt>.
+     */
+    //@ ensures getGreenMirrorNode() == node; 
+    public void setGreenMirrorNode(Node node);
+    
+    
+    // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * 
-     * @param node
+     * Calculate the absolute <tt>Position</tt> of the specified <tt>Placement</tt> on the 
+     * <tt>VisualComponent</tt>.
+     * @param placement The position of placement which should be calculated.
+     * @return          The absolute <tt>Position</tt>.
      */
-    void setGMNode(Node node);
-
-    Node getGMNode();
+    public Point3D calculatePosition(Placement placement);
 
     /**
-     * 
-     * @param position
+     * Move the <tt>VisualComponent</tt> to the point where its middle position is equal to
+     * <tt>position</tt>.
+     * @param position The middle position of the <tt>VisualComponent</tt>.
      */
-    void setPositionWithMiddle(AbsolutePosition position);
+    //@ requires position != null;
+    public void setPositionWithMiddlePoint(Point3D position);
 
-    void appearanceUpdated();
+    /**
+     * Notify the GreenMirror <tt>Node</tt> that the appearance has been updated.
+     */
+    public default void appearanceUpdated(Map<String, Object> changedValues) {
+        if (getGreenMirrorNode() != null) {
+            getGreenMirrorNode().appearanceUpdated(changedValues);
+        }
+    }
+    /**
+     * Notify the GreenMirror <tt>Node</tt> that the appearance has been updated.
+     */
+    public default void appearanceUpdated(String var, Object val) {
+        if (getGreenMirrorNode() != null) {
+            getGreenMirrorNode().appearanceUpdated(var, val);
+        }
+    }
 
-    VisualComponent clone();
-
+    /**
+     * @return A deep copy of this <tt>VisualComponent</tt>. 
+     */
+    public VisualComponent clone();
+    
+    /**
+     * Apply settings from a <tt>Map</tt> of values (from a JSON object, for example).
+     * @param map               The <tt>Map</tt> with kay-value pairs.
+     * @param changeType        The type of change.
+     * @param animationDuration The duration for the animation of the changes.
+     * @return                  The <tt>Transition</tt> object that applies the changes.
+     */
+    //@ requires map != null && changeType != null && animationDuration >= 0;
+    //@ ensures \result != null;
+    public Transition animateFromMap(Map<String, Object> map, ChangeType changeType, 
+                                        double animationDuration);
+    
+    //@ requires node != null && newValues != null;
+    public static void setFromMap(VisualComponent node, Map<String, Object> newValues) {
+        
+        try {
+            // Loop through all to-be-set entries in newValues.
+            for (Map.Entry<String, Object> entry : newValues.entrySet()) {
+                // Check if it's a valid property.
+                if (node.getChangableProperties().containsKey(entry.getKey())) {
+                    
+                    // Get the variable name and its value.
+                    String variable = entry.getKey();
+                    String variableC = Character.toUpperCase(variable.charAt(0))
+                                            + variable.substring(1);
+                    Object value = entry.getValue();
+                    
+                    // Get the variable type.
+                    Class<?> variableType = node.getChangableProperties().get(variable);
+                    
+                    // Loop through several types.
+                    if (variableType.equals(String.class)) {
+                        node.getClass().getMethod("set" + variableC, variableType)
+                            .invoke(node, String.valueOf(value));
+                    } else
+                    if (variableType.equals(double.class) || variableType.equals(Double.class)) {
+                        node.getClass().getMethod("set" + variableC, variableType)
+                            .invoke(node, Double.valueOf(String.valueOf(value)));
+                    } else
+                    if (variableType.equals(boolean.class) || variableType.equals(Boolean.class)) {
+                        node.getClass().getMethod("is" + variableC, variableType)
+                            .invoke(node, Boolean.valueOf(String.valueOf(value)));
+                    }
+                }
+            }
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            Log.add("Automatic setting of visual component properties failed: ", e);
+        }
+    }
 }

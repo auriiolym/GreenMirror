@@ -1,36 +1,71 @@
 package greenmirror.commands;
 
-import greenmirror.*;
+import greenmirror.Command;
+import greenmirror.CommunicationFormat;
+import groovy.json.JsonOutput;
+
+import java.util.HashMap;
 
 /**
  * The command to create a new sub-queue of visualizations. This command is sent to the server.
  * 
  * Values sent:
- * duration : int        The duration of the previous sub-queue of visualizations.
+ * delay : double       The delay that is added after the previous animations.
  */
 public class FlushCommand extends Command {
 
+    // -- Instance variables -----------------------------------------------------------------
+
+    //@ private invariant duration >= duration;
+    private double delay;
+    
+
+    // -- Constructors -----------------------------------------------------------------------
+
     /**
-     * 
-     * @param duration
+     * Initialize the <tt>Command</tt>.
+     * @param delay The delay that is added after the previous animations.
      */
-    public FlushCommand(Duration duration) {
-        // TODO - implement FlushCommand.FlushCommand
-        throw new UnsupportedOperationException();
+    //@ requires delay >= 0.0;
+    //@ ensures getDelay() == delay;
+    public FlushCommand(double delay) {
+        this.delay = delay;
     }
 
+    
+    // -- Queries ----------------------------------------------------------------------------
+
+    /**
+     * @return The duration of following animations.
+     */
+    //@ ensures \result >= 0;
+    /*@ pure */ public double getDelay() {
+        return delay;
+    }
+    
+    
+    // -- Commands ---------------------------------------------------------------------------
+
+    /**
+     * Prepare the <tt>Command</tt>.
+     */
     public void prepare() {
-        // TODO - implement FlushCommand.prepare
-        throw new UnsupportedOperationException();
+        // Nothing to prepare.
     }
 
     /**
-     * 
-     * @param format
+     * Fetch the raw data that will be sent.
+     * @param format The format in which the data will be.
      */
+    //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
-        // TODO - implement FlushCommand.getFormattedString
-        throw new UnsupportedOperationException();
+        switch (format) {
+        default: case JSON:
+            return JsonOutput.toJson(new HashMap<String, Double>() {
+                {
+                    put("delay", getDelay());
+                }
+            });
+        }
     }
-
 }

@@ -2,9 +2,17 @@ package greenmirror;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The base controller. It contains shared functionality for the client and server 
+ * implementations.
+ * 
+ * @author Karim El Assal
+ */
 public abstract class GreenMirrorController {
 
     // -- Instance variables -----------------------------------------------------------------
@@ -16,12 +24,14 @@ public abstract class GreenMirrorController {
     private NodeList nodes = new NodeList();
     
     /**
-     * The input and output streams from and to the peer.
+     * The socket and input and output streams from and to the peer.
      */
     //@ private invariant getStreamIn() == streamIn;
     private BufferedReader streamIn;
     //@ private invariant getStreamOut() == streamOut;
     private BufferedWriter streamOut;
+    //@ private invariant getSocket() == socket;
+    private Socket socket;
 
     /**
      * All registered <tt>CommandHandler</tt>s.
@@ -53,32 +63,20 @@ public abstract class GreenMirrorController {
     
     /**
      * Get a <tt>NodeList</tt> which only contains the name and/or type specified in 
-     * <tt>identifierArg</tt>. <tt>identifierArg</tt> can have one of these formats (without
-     * quotes): "type:name", "type:" or "name". 
-     * @param identifierArg The name/type identifier.
-     * @return The new list.
+     * <tt>identifierArg</tt>.
+     * @param identifier The name/type identifier. {@link greenmirror.Node.Identifier}
+     * @return           The list.
      */
     //@ requires identifierArg != null;
-    /*@ pure */ public NodeList getNodes(String identifierArg) {
-        NodeList result = new NodeList();
-        
-        Node.Identifier identifier = new Node.Identifier(identifierArg);
-        
-        for (Node node : getNodes()) {
-            if ((identifier.hasType() && !identifier.getType().equals(node.getType()))
-             || (identifier.hasName() && !identifier.getName().equals(node.getName()))) {
-                continue;
-            }
-            result.add(node);
-        }
-        
-        return result;
+    //@ ensures \result != null;
+    /*@ pure */ public NodeList getNodes(String identifier) {
+        return getNodes().withIdentifier(identifier);
     }
 
     /**
      * Get a <tt>Node</tt> by its id.
      * @param id The <tt>Node</tt>'s id.
-     * @result   The <tt>Node</tt> with id <tt>id</tt>.
+     * @return   The <tt>Node</tt> with id <tt>id</tt>.
      */
     //@ requires id != null;
     //TODO: do something with invalid ids.
@@ -103,6 +101,13 @@ public abstract class GreenMirrorController {
      */
     /*@ pure */ public BufferedWriter getStreamOut() {
         return streamOut;
+    }
+
+    /**
+     * @return The socket.
+     */
+    /*@ pure */ public Socket getSocket() {
+        return socket;
     }
 
     /**
@@ -141,10 +146,20 @@ public abstract class GreenMirrorController {
     }
 
     /**
+     * @param socket The socket to set.
+     */
+    //@ ensures getSocket() == socket;
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    /**
      * @param handler The command handler to register.
      */
+    //@ requires handler != null;
     //@ ensures getCommandHandlers().contains(handler);
-    public void registerCommandHandler(CommandHandler handler) {
+    //@ ensures this.equals(handler.getController());
+    public void register(CommandHandler handler) {
         getCommandHandlers().add(handler);
         handler.setController(this);
     }
@@ -161,33 +176,72 @@ public abstract class GreenMirrorController {
     // -- Commands ---------------------------------------------------------------------------
     
     /**
-     * 
-     * @param data
+     * @param data Raw data to send to the peer.
      */
+    //@ requires data != null;
     public void send(String data) {
-        // TODO - implement GreenMirrorController.send
-        throw new UnsupportedOperationException();
+        try {
+            getStreamOut().write(data);
+            getStreamOut().newLine();
+            getStreamOut().flush();
+        } catch (IOException e) {
+            closeStreams();
+        } catch (NullPointerException e) {
+            Log.add("No connection available for sending data. ", e);
+            closeStreams();
+            return;
+        }
+        Log.addVerbose("Data sent to peer: " + data);
+    }
+    
+    /**
+     * @param cmd <tt>Command</tt> to send to the peer.
+     */
+    //@ requires cmd != null;
+    public void send(Command cmd) {
+        if (cmd.getController() == null) {
+            cmd.setController(this);
+        }
+        cmd.prepare();
+        send(cmd.getCommand() + ":" + cmd.getFormattedString(getCommunicationFormat()));
     }
 
     /**
-     * 
-     * @param listener
+     * @param listener The <tt>PeerListener</tt> we're starting to listen.
      */
+    //@ requires listener != null && this.equals(listener.getController());
     public void startPeerListener(PeerListener listener) {
+        assert listener != null && this.equals(listener.getController());
         
-        // TODO - implement GreenMirrorController.startPeerListener
-        throw new UnsupportedOperationException();
+        listener.start();
     }
 
-    public void closeStreams() {
-        // TODO - implement GreenMirrorController.closeStreams
-        throw new UnsupportedOperationException();
+    /**
+     * Close the streams.
+     */
+    //@ ensures getSocket() == null && getStreamIn() == null && getStreamOut() == null;
+    public synchronized void closeStreams() {
+        try {
+            getSocket().close();
+            getStreamIn().close();
+            getStreamOut().close();
+            setSocket(null);
+            setStreamIn(null);
+            setStreamOut(null);
+            
+            Log.add("The connection with the peer has been closed.\n");
+        } catch (IOException e) {
+            Log.add("An IOException occured while closing the connection with the peer: ", e);
+            // Don't do anything further with this.
+        } catch (NullPointerException e) {
+            // Streams have already been closed, don't do anything.
+        }
     }
 
     /**
      * 
      * @param data
      */
-    public abstract void handlePeerData(String data);
+    public abstract void handlePeerData(String data, CommandHandler handler);
 
 }

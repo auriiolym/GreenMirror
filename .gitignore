@@ -1,4 +1,7 @@
-# Windows image file caches
+# binary java files
+bin/
+
+# Windows image file cache
 Thumbs.db
 ehthumbs.db
 

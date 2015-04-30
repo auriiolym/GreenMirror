@@ -1,6 +1,11 @@
 package greenmirror.commands;
 
-import greenmirror.*;
+import greenmirror.Command;
+import greenmirror.CommunicationFormat;
+import greenmirror.Node;
+import groovy.json.JsonOutput;
+
+import java.util.HashMap;
 
 /**
  * The command to add a node. This command is sent to the server.
@@ -10,27 +15,58 @@ import greenmirror.*;
  */
 public class AddNodeCommand extends Command {
 
+    // -- Instance variables -----------------------------------------------------------------
+
+    //@ private invariant node != null;
+    private Node node;
+    
+
+    // -- Constructors -----------------------------------------------------------------------
+
     /**
-     * 
-     * @param node
+     * Initialize the <tt>Command</tt>.
+     * @param node The <tt>Node</tt> that has been added.
      */
+    //@ requires node != null;
+    //@ ensures getNode() == node;
     public AddNodeCommand(Node node) {
-        // TODO - implement AddNodeCommand.AddNodeCommand
-        throw new UnsupportedOperationException();
+        this.node = node;
     }
 
+    
+    // -- Queries ----------------------------------------------------------------------------
+
+    /**
+     * @return The <tt>Node</tt> that has been added.
+     */
+    //@ ensures \result != null;
+    /*@ pure */ public Node getNode() {
+        return node;
+    }
+    
+    
+    // -- Commands ---------------------------------------------------------------------------
+
+    /**
+     * Prepare the <tt>Command</tt>.
+     */
     public void prepare() {
-        // TODO - implement AddNodeCommand.prepare
-        throw new UnsupportedOperationException();
+        // Nothing to prepare.
     }
 
     /**
-     * 
-     * @param format
+     * Fetch the raw data that will be sent.
+     * @param format The format in which the data will be.
      */
+    //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
-        // TODO - implement AddNodeCommand.getFormattedString
-        throw new UnsupportedOperationException();
+        switch (format) {
+        default: case JSON:
+            return JsonOutput.toJson(new HashMap<String, Integer>() {
+                {
+                    put("id", getNode().getId());
+                }
+            });
+        }
     }
-
 }

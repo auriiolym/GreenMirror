@@ -46,11 +46,11 @@ public abstract class Command {
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param pController The controller to set.
+     * @param controller The controller to set.
      */
-    //@ ensures getController() == controllerArg;
-    public void setController(GreenMirrorController controllerArg) {
-        controller = controllerArg;
+    //@ ensures getController() == controller;
+    public void setController(GreenMirrorController controller) {
+        this.controller = controller;
     }
 
     

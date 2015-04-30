@@ -20,7 +20,7 @@ public class AddRelationCommand extends Command {
      */
     public AddRelationCommand(Relation relation) {
         // TODO - implement AddRelationCommand.AddRelationCommand
-        throw new UnsupportedOperationException();
+        return;
     }
 
     public void prepare() {

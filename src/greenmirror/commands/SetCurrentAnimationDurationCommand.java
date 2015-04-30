@@ -7,41 +7,42 @@ import groovy.json.JsonOutput;
 import java.util.HashMap;
 
 /**
- * The command to start all visualizations that are in the queue. 
- * This command is sent to the server.
+ * Sets the animation duration for following animations. This command is sent to the server.
  * 
- * Values sent:
- * delay : double   (in milliseconds) Delays the transition. Defaults to 0.
+ * values sent:
+ * duration : double       The animation duration.
+ * 
+ * @author Karim El Assal
  */
-public class StartTransitionCommand extends Command {
+public class SetCurrentAnimationDurationCommand extends Command {
 
     // -- Instance variables -----------------------------------------------------------------
 
-    //@ private invariant delay >= 0;
-    private double delay;
+    //@ private invariant duration >= duration;
+    private double duration;
     
 
     // -- Constructors -----------------------------------------------------------------------
 
     /**
      * Initialize the <tt>Command</tt>.
-     * @param delay Delays the transition by the given milliseconds.
+     * @param duration The duration of following animations.
      */
-    //@ requires delay >= 0;
-    //@ ensures getDelay() == delay;
-    public StartTransitionCommand(double delay) {
-        this.delay = delay;
+    //@ requires duration >= 0.0;
+    //@ ensures getDuration() == duration;
+    public SetCurrentAnimationDurationCommand(double duration) {
+        this.duration = duration;
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return The delay in milliseconds.
+     * @return The duration of following animations.
      */
     //@ ensures \result >= 0;
-    /*@ pure */ public double getDelay() {
-        return delay;
+    /*@ pure */ public double getDuration() {
+        return duration;
     }
     
     
@@ -64,7 +65,7 @@ public class StartTransitionCommand extends Command {
         default: case JSON:
             return JsonOutput.toJson(new HashMap<String, Double>() {
                 {
-                    put("delay", getDelay());
+                    put("duration", getDuration());
                 }
             });
         }

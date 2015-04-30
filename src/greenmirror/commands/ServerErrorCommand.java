@@ -1,9 +1,11 @@
 package greenmirror.commands;
 
-import greenmirror.*;
+import greenmirror.Command;
+import greenmirror.CommunicationFormat;
 
 /**
- * The command to signal that the server has encountered an error. This command is sent to the client.
+ * The command to signal that the server has encountered an error. 
+ * This command is sent to the client.
  * 
  * Values sent:
  * code : int        The error code

@@ -1,18 +1,18 @@
 package greenmirror.client;
 
-import java.util.List;
+import greenmirror.client.TraceSelector.PreparationException;
 
 /**
- * The interface that defines how trace selectors should be structured.
+ * The interface which defines how model initializers should be structured.
  * 
  * @author Karim El Assal
  */
-public interface TraceSelector {
+public interface ModelInitializer {
     
     // -- Exceptions -------------------------------------------------------------------------
     
     /**
-     * A custom exception for use by the <tt>TraceSelector</tt> implementations.
+     * A custom exception for use by the <tt>ModelInitializer</tt> implementations.
      * 
      * @author Karim El Assal
      */
@@ -37,16 +37,20 @@ public interface TraceSelector {
     public String getParameterSpecification();
     
     /**
-     * @return The trace this selector has selected.
+     * @return The GreenMirror controller.
      */
-    //@ ensures \result != null;
-    public List<String> getTrace();
+    public Client getController();
     
     
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * @param parameters Parameters to store .
+     * @param controller The GreenMirror controller to set.
+     */
+    public void setController(Client controller);
+    
+    /**
+     * @param parameters Parameters to store.
      */
     public void setParameters(String... parameters);
     
@@ -59,4 +63,9 @@ public interface TraceSelector {
      */
     public void prepare() throws PreparationException;
     
+    /**
+     * Execute the model initializer. After executing, the model should be known to the 
+     * application.
+     */
+    public void executeInitializer();
 }
