@@ -503,12 +503,22 @@ public class Node extends Observable {
                 changedValues == null ? getAppearance().toMap() : changedValues));
     }
     
-    public void appearanceUpdated(String var, Object val) {
-        appearanceUpdated(new HashMap<String, Object>() {
-            {
-                put(var, val);
-            }
-        });
+    /**
+     * Notify the observers that the appearance has been updated according to the parameters.
+     * If <tt>null</tt> is passed, all current properties and their values are passed.
+     * @param propertyPairs <String, Object> pairs of <property, newValue> values.
+     */
+    public void appearanceUpdated(Object... propertyPairs) {
+        Map<String, Object> appearanceUpdates = new HashMap<>();
+
+        for (int i = 0; i < propertyPairs.length && i + 1 < propertyPairs.length; i = i + 2) {
+            appearanceUpdates.put(String.valueOf(propertyPairs[i]), propertyPairs[i + 1]);
+        }
+        if (propertyPairs.length == 0) {
+            appearanceUpdates.putAll(getAppearance().toMap());
+        }
+        
+        appearanceUpdated(appearanceUpdates);
     }
 
 }

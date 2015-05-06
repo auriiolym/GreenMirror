@@ -2,7 +2,6 @@ package greenmirror.server;
 
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
-import greenmirror.VisualComponent;
 import greenmirror.commands.AddNodeCommandHandler;
 import greenmirror.commands.FlushCommandHandler;
 import greenmirror.commands.InitializationCommandHandler;
@@ -18,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javafx.animation.Animation;
-import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Transition;
@@ -353,5 +351,34 @@ public class Visualizer extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    
+    
+    /**
+     * A (recursive) debug method for checking which transitions are inside transitions.
+     * @param transitions The main transition. Probably a sequential or parallel one.
+     * @return            A <tt>Map</tt> if it's a <tt>SequentialTransition</tt> of 
+     *                    <tt>ParallelTransition</tt>; a <tt>String</tt> if it's any other
+     *                    (standalone) transition.
+     */
+    public static Object listTransitions(Transition transitions) {
+        Map<String, Object> map = new HashMap<>();
+        List<Object> subTransitions = new LinkedList<>();
+        if (transitions instanceof SequentialTransition) {
+            for (Animation transition : ((SequentialTransition) transitions).getChildren()) {
+                subTransitions.add(listTransitions((Transition) transition));
+            }
+        } else if (transitions instanceof ParallelTransition) {
+            for (Animation transition : ((ParallelTransition) transitions).getChildren()) {
+                subTransitions.add(listTransitions((Transition) transition));
+            }
+        } else {
+            return transitions.getClass().getSimpleName();
+        }
+        map.put(transitions.getClass().getSimpleName(), subTransitions);
+        return map;
+    }
+    
+    
+    
 
 }

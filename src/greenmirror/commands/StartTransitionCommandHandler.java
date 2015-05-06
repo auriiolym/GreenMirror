@@ -5,6 +5,7 @@ import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.server.ServerController;
 import greenmirror.server.Visualizer;
+import groovy.json.JsonOutput;
 
 import java.util.Map;
 
@@ -62,6 +63,11 @@ public class StartTransitionCommandHandler extends CommandHandler {
         Visualizer visualizer = getController().getVisualizer();
         // Set the delay of the visualizations queue.
         visualizer.getVisualizationsQueue().setDelay(Duration.millis(delay));
+        Log.addVerbose("The following transitions are executed: " 
+            + JsonOutput.prettyPrint(JsonOutput.toJson(
+                    Visualizer.listTransitions(visualizer.getVisualizationsQueue())
+              ))
+        );
         // Execute the transitions in the queue.
         visualizer.toNextState(visualizer.getVisualizationsQueue());
         // And reset the queue;

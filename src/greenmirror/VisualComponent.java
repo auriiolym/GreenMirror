@@ -1,6 +1,7 @@
 package greenmirror;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javafx.animation.Transition;
@@ -52,7 +53,32 @@ public interface VisualComponent {
      * @return A mapping of the properties of this <tt>VisualComponent</tt>.
      */
     //@ ensures \result != null;
-    /*@ pure */ public Map<String, Object> toMap();
+    /*@ pure */ public default Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", getClass().getSimpleName());
+        
+        for (Map.Entry<String, Class<?>> property : getChangableProperties().entrySet()) {
+            String var = property.getKey();
+            Class<?> varType = property.getValue();
+            try {
+                // Execute getter.
+                Object result = getClass().getMethod("get" 
+                        + Character.toUpperCase(var.charAt(0)) + var.substring(1)).invoke(this);
+                // Cast the result to a double, int or String.
+                if (varType.equals(double.class) || varType.equals(Double.class)) {
+                    map.put(var, Double.valueOf(String.valueOf(result)));
+                } else
+                if (varType.equals(int.class) || varType.equals(Integer.class)) {
+                    map.put(var, Integer.valueOf(String.valueOf(result)));
+                } else {
+                    map.put(var, String.valueOf(result));
+                }
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();;
+            }
+        }
+        return map;
+    }
     
     /**
      * @return The GreenMirror <tt>Node</tt> that holds this <tt>VisualComponent</tt>.
@@ -103,16 +129,16 @@ public interface VisualComponent {
     /**
      * Notify the GreenMirror <tt>Node</tt> that the appearance has been updated.
      */
-    public default void appearanceUpdated(String var, Object val) {
+    public default void appearanceUpdated(Object... propertyPairs) {
         if (getGreenMirrorNode() != null) {
-            getGreenMirrorNode().appearanceUpdated(var, val);
+            getGreenMirrorNode().appearanceUpdated(propertyPairs);
         }
     }
 
     /**
      * @return A deep copy of this <tt>VisualComponent</tt>. 
      */
-    public VisualComponent clone();
+    //public Object clone();
     
     /**
      * Apply settings from a <tt>Map</tt> of values (from a JSON object, for example).

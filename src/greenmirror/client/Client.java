@@ -192,7 +192,7 @@ public class Client extends GreenMirrorController implements Observer {
         
         // If the appearance has already been set, also notify the server.
         if (node.getAppearance() != null) {
-            node.appearanceUpdated(null);
+            node.appearanceUpdated();
             //send(new SetNodeAppearanceCommand(node, node.getAppearance().toMap()));
             //TODO: check if this is right.
         }
@@ -464,9 +464,7 @@ public class Client extends GreenMirrorController implements Observer {
                     Log.add("The model initializer gave an exception: " + e.getMessage());
                     exit = true;
                 } catch (GroovyRuntimeException e) {
-                    //Log.add("Your Groovy script gave an exception: " + e.getMessage());
-                    Log.add("Your Groovy script gave an exception: " + e.getStackTrace());
-                    e.printStackTrace();
+                    Log.add("Your Groovy script gave an exception: ", e);
                     exit = true;
                 } catch (IllegalArgumentException e) {
                     Log.add("The parameters are not valid: " + e.getMessage());
@@ -544,7 +542,10 @@ public class Client extends GreenMirrorController implements Observer {
                 greenmirror.send(new StartTransitionCommand(0));
                 
             } catch (GroovyRuntimeException e) {
-                Log.add("Your Groovy script gave an exception: ", e);
+                Log.add("Your Groovy initialization script gave an exception: ", e);
+                break;
+            } catch (Exception e) {
+                Log.add("The model initialization gave an exception: ", e);
                 break;
             }
             
@@ -557,7 +558,15 @@ public class Client extends GreenMirrorController implements Observer {
             }
             
             // And execute the trace.
-            greenmirror.executeTrace(traceSelector);
+            try {
+                greenmirror.executeTrace(traceSelector);
+            } catch (GroovyRuntimeException e) {
+                Log.add("Your Groovy trace script gave an exception: ", e);
+                break;
+            } catch (Exception e) {
+                Log.add("The transition gave an exception: ", e);
+                break;
+            }
             
             fullyExecuted = true;
         }

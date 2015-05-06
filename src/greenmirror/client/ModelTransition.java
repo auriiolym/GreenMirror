@@ -2,6 +2,8 @@ package greenmirror.client;
 
 import groovy.lang.Closure;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -186,9 +188,17 @@ public class ModelTransition {
         if (!matcher.matches()) {
             return null;
         }
-        Object[] arguments = new String[getClosure().getMaximumNumberOfParameters()];
-        for (int i = 0; i < arguments.length; i++) {
-            arguments[i] = matcher.group(i);
+
+        List<Object> arguments = new LinkedList<>();
+        Class<?>[] argumentTypes = getClosure().getParameterTypes();
+        for (int i = 0; i < matcher.groupCount(); i++) {
+            // i + 1 because group 0 is the whole string.
+            final String matchedArgument = matcher.group(i + 1);
+            // Cast to integer if the user expects an integer, else keep the String type.
+            arguments.add(
+                    argumentTypes[i] == int.class || argumentTypes[i] == Integer.class
+                    ? Integer.parseInt(matchedArgument) : matchedArgument
+            );
         }
         return getClosure().call(arguments);
     }

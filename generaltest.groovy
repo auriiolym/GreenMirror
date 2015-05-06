@@ -1,37 +1,45 @@
 // General test: initialize, add node, set appearance
-initialize(800, 500, 3000);
+initialize(800, 500, 2000);
 
-Rectangle rect = new Rectangle().withSize(100, 100);
+Rectangle rect = new Rectangle().withSize(100, 100).withFill(Color.BLUE);
 
 addNode(new Node("node1").setAppearance(rect.clone().withPosition(0, 0)));
 addNode(new Node("node2").setAppearance(rect.clone().withPosition(110, 0)));
-addNode(new Node("node3").setAppearance(rect.clone().withPosition(220, 0)));
-addNode(new Node("node4").setAppearance(rect.clone().withPosition(330, 0)));
+addNode(new Node("node3").setAppearance(new Circle().withCenterPosition(270, 50).withRadius(50).withFill(Color.YELLOW)));
+addNode(new Node("rot:node4"));
+node("node4").setAppearance(rect.clone().withPosition(330, 0));
 
-//node("node3").setType("rotationtype");
-//node("node4").setType("rotationtype");
+node("node1").setType("first");
 
 // Test the following: going to a next state when a Node doesn't have an appearance.
-addNode(new Node());
+//addNode(new Node()); // Works!
 
-addTransition('transition1', 4000, 6000, {
+addTransition('transition(\\d*)', 2000, 3000, { Integer i1 -> // document that only int, Integer or String parameter types are allowed.
 
     node("node2").getAppearance()
-                 .adjustX(220)
-                 .adjustY(110)
-                 .adjustRotate(90)
-                 .adjustArcs(60, 60)
+                 .adjustPosition(220, 110) // works
+                 .adjustRotate(90)  // works
+                 .adjustArcs(60, 60) // works
+                 //.adjustFill("linear-gradient(to bottom, red, black)") // can't work (can't transition to gradient or anything other than a Color)
+                 .adjustFill("red") // works
                 ;
-    addNode(new Node("node5").setAppearance(rect.clone().withPosition(440, 0)));
+    addNode(new Node("rot:node5").setAppearance(rect.clone().withPosition(440, 0))); //works
     
-    //flushWithDelay(2000);
-    flush();
-    node("node2").getAppearance().adjustRotate(0);
+    flushWithDelay(2000); // works
+    //flush(); // works
+    // This won't work. The transition is created if the old and new values differ. Because the 'old' value on the server only changes when the transition is executed, the following transition won't be created (the value on the server is still 0).
+    // Solutions: 1. always create a transition (when the value is changed clientside), but only with an ending value (works!); 2. store the values on the server in a property map.
+    node("node2").getAppearance().adjustRotate(0); // works
+    node("node2").getAppearance().adjustArcs(0, 0); // jumps
+    
+    flush(); // works
+    
+    node("node2").getAppearance().adjustPosition(110, 0); // works
     
     //addNode(new Node("node6").setAppearance(rect.clone().withPosition(500, 500)));
     //setAnimationDuration(5000)
     
-    //nodes("rotationtype:").setAppearance(rect.clone().withRotate(720));
+    nodes("rot:").setAppearance(rect.clone().withRotate(720));
     
     
 });

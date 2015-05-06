@@ -3,22 +3,25 @@ package greenmirror.visualcomponents;
 import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.VisualComponent;
-import greenmirror.server.ArcTransition;
-import greenmirror.server.PositionTransition;
+import greenmirror.server.DoublePropertyTransition;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.FillTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.Transition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point3D;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.util.Duration;
 
-// Extends javafx.scene.shape.Rectangle.
+// Extends javafx.scene.shape.Rectangle implements VisualComponent.
 /**
  * The extension of JavaFX's <tt>Rectangle</tt>. It adds features needed by the visualizer.
  * 
@@ -39,36 +42,7 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
     /*@ pure */ public Node getGreenMirrorNode() {
         return (Node) getProperties().get("GreenMirrorNode");
     }
-
-    /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#calculatePosition(greenmirror.Placement)
-     */
-    @Override
-    //@ requires placement != null;
-    /*@ pure */ public Point3D calculatePosition(Placement placement) {
-        // TODO Auto-generated method stub
-        return null;
-    }
     
-    /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#toMap()
-     */
-    @Override
-    /*@ pure */ public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("type", "rectangle");
-        map.put("x", this.getX());
-        map.put("y", this.getY());
-        map.put("width", this.getWidth());
-        map.put("height", this.getHeight());
-        map.put("arcWidth", this.getArcWidth());
-        map.put("arcHeight", this.getArcHeight());
-        map.put("style", this.getStyle());
-        map.put("opacity", this.getOpacity());
-        map.put("rotate", this.getRotate());
-        return map;
-    }
-
     /* (non-Javadoc)
      * @see greenmirror.VisualComponent#getChangableProperties()
      */
@@ -85,8 +59,61 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
                 put("style", String.class);
                 put("opacity", double.class);
                 put("rotate", double.class);
+                put("fill", String.class);
             }
         };
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.VisualComponent#calculatePosition(greenmirror.Placement)
+     */
+    @Override
+    //@ requires placement != null;
+    /*@ pure */ public Point3D calculatePosition(Placement placement) {
+        double posX;
+        double posY;
+        
+        switch (placement) {
+        case MIDDLE:
+            posX = getX() + getWidth() / 2;
+            posY = getY() + getHeight() / 2;
+            break;
+        case CUSTOM:
+            posX = getX() + getWidth() / 2 + placement.getRelativePosition().getX();
+            posY = getY() + getHeight() / 2 + placement.getRelativePosition().getY();
+            break;
+        case EDGE_LEFT_MIDDLE:
+            posX = getX();
+            posY = getY() + getHeight() / 2;
+            break;
+        case EDGE_RIGHT_MIDDLE:
+            posX = getX() + getWidth();
+            posY = getY() + getHeight() / 2;
+            break;
+        case RANDOM:
+            Random random = new Random();
+            double minX = getX();
+            double maxX = getX() + getWidth();
+            double minY = getY();
+            double maxY = getY() + getHeight();
+
+            posX = minX + random.nextDouble() * (maxX - minX);
+            posY = minY + random.nextDouble() * (maxY - minY);
+            break;
+        case NONE: default:
+            return null;
+        }
+        return new Point3D(posX, posY, 0);
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.VisualComponent#clone()
+     */
+    @Override
+    /*@ pure */ public Rectangle clone() {
+        Rectangle cloned = new Rectangle();
+        VisualComponent.setFromMap(cloned, this.toMap());
+        return cloned;
     }
     
     
@@ -154,8 +181,9 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
     }
     
     public Rectangle adjustPosition(double posX, double posY) {
-        adjustX(posX);
-        adjustY(posY);
+        setX(posX);
+        setY(posY);
+        appearanceUpdated("x", posX, "y", posY);
         return this;
     }
     
@@ -199,18 +227,50 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
     }
     
     public Rectangle adjustArcs(double width, double height) {
-        adjustArcWidth(width);
-        adjustArcHeight(height); 
+        setArcWidth(width);
+        setArcHeight(height);
+        appearanceUpdated("arcWidth", width, "arcHeight", height); 
+        return this;
+    }
+    
+    public void setFill(String value) {
+        setFill(Paint.valueOf(value));
+    }
+    
+    public Rectangle withFill(Paint value) {
+        setFill(value);
+        return this;
+    }
+    
+    public Rectangle withFill(String value) {
+        setFill(value);
+        return this;
+    }
+    
+    public Rectangle adjustFill(Paint value) {
+        setFill(value);
+        appearanceUpdated("fill", String.valueOf(value));
+        return this;
+    }
+    
+    public Rectangle adjustFill(String value) {
+        setFill(value);
+        appearanceUpdated("fill", value);
         return this;
     }
 
     
     // -- Commands ---------------------------------------------------------------------------
 
-    public Transition animateFromMap(Map<String, Object> map, ChangeType change,
+    /* (non-Javadoc)
+     * @see greenmirror.VisualComponent#animateFromMap(java.util.Map, 
+     *                              greenmirror.VisualComponent.ChangeType, double)
+     */
+    @Override
+    public Transition animateFromMap(Map<String, Object> map, ChangeType changeType,
                                 double animationDuration) {
         Duration duration = Duration.millis(animationDuration);
-        switch (change) {
+        switch (changeType) {
         default: case ADD_NODE:
             
             // Set all values except opacity.
@@ -221,8 +281,7 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
             // Make FX node 'appear'.
             this.setOpacity(0);
             this.setMouseTransparent(true);
-            FadeTransition transition = new FadeTransition(duration);
-            transition.setNode(this);
+            FadeTransition transition = new FadeTransition(duration, this);
             transition.setFromValue(0);
             transition.setToValue(opacity);
             transition.setOnFinished(new EventHandler<ActionEvent>() {
@@ -237,56 +296,174 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
         case NORMAL:
             ParallelTransition transitions = new ParallelTransition();
             
-            // Check every value and if it has changed. If so, animate the change.
-            // It's easier to do it like this, so we do it like this.
+            // Check per property if we received a change.
+            // The newValues variable is used so the properties are already parsed.
             Rectangle newValues = this.clone();
             VisualComponent.setFromMap(newValues, map);
-            
-            if (newValues.getX() != this.getX()) {
-                PositionTransition poTr = new PositionTransition(duration);
-                poTr.setNode(this);
-                poTr.setFromX(this.getX());
-                poTr.setToX(newValues.getX());
-                transitions.getChildren().add(poTr);
+
+            // A change in x position (Rectangle specific).
+            if (map.containsKey("x")) {
+                transitions.getChildren().add(
+                        new XTransition(duration, this, newValues.getX()));
             }
-            if (newValues.getY() != this.getY()) {
-                PositionTransition poTr = new PositionTransition(duration);
-                poTr.setNode(this);
-                poTr.setFromY(this.getY());
-                poTr.setToY(newValues.getY());
-                transitions.getChildren().add(poTr);
+            // A change in y position (Rectangle specific).
+            if (map.containsKey("y")) {
+                transitions.getChildren().add(
+                        new YTransition(duration, this, newValues.getY()));
             }
-            
-            // A change in rotation.
-            if (newValues.getRotate() != this.getRotate()) {
-                RotateTransition roTr = new RotateTransition(duration);
-                roTr.setNode(this);
-                roTr.setFromAngle(this.getRotate());
+            // A change in arc width (Rectangle specific).
+            if (map.containsKey("arcWidth")) {
+                transitions.getChildren().add(
+                        new ArcWidthTransition(duration, this, newValues.getArcWidth()));
+            }
+            // A change in arc height (Rectangle specific).
+            if (map.containsKey("arcHeight")) {
+                transitions.getChildren().add(
+                        new ArcHeightTransition(duration, this, newValues.getArcHeight()));
+            }
+            // A change in rotation (applies to all JavaFX Nodes).
+            if (map.containsKey("rotate")) {
+                RotateTransition roTr = new RotateTransition(duration, this);
                 roTr.setToAngle(newValues.getRotate());
                 transitions.getChildren().add(roTr);
             }
-            // A change in arcs.
-            if (newValues.getArcHeight() != this.getArcHeight()
-              || newValues.getArcWidth() != this.getArcWidth()) {
-                ArcTransition arTr = new ArcTransition(duration);
-                arTr.setNode(this);
-                arTr.setFromHeight(this.getArcHeight());
-                arTr.setToHeight(newValues.getArcHeight());
-                arTr.setFromWidth(this.getArcWidth());
-                arTr.setToWidth(newValues.getArcWidth());
-                transitions.getChildren().add(arTr);
+            // A change in the fill (applies to Shape JavaFX nodes).
+            if (map.containsKey("fill")) {
+                FillTransition fiTr = new FillTransition(duration, this);
+                fiTr.setToValue(Color.valueOf(newValues.getFill().toString()));
+                transitions.getChildren().add(fiTr);
             }
+            
+            //TODO: add opacity, width and height transition.
             return transitions;
         }
     }
-
-    /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#clone()
+    
+    /**
+     * A <tt>Transition</tt> class that animates the x value of a <tt>Rectangle</tt>.
+     * 
+     * @author Karim El Assal
      */
-    @Override
-    public Rectangle clone() {
-        Rectangle cloned = new Rectangle();
-        VisualComponent.setFromMap(cloned, this.toMap());
-        return cloned;
+    public static class XTransition extends DoublePropertyTransition<Rectangle> {
+        
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#
+         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         */
+        protected XTransition(Duration duration, Rectangle node, Double toValue) {
+            super(duration, node, toValue);
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
+         */
+        @Override
+        protected Double getPropertyValue() {
+            return getNode().getX();
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
+         */
+        @Override
+        protected void setPropertyValue(Double value) {
+            getNode().setX(value);
+        }
+    }
+    
+    /**
+     * A <tt>Transition</tt> class that animates the y value of a <tt>Rectangle</tt>.
+     * 
+     * @author Karim El Assal
+     */
+    public static class YTransition extends DoublePropertyTransition<Rectangle> {
+        
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#
+         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         */
+        protected YTransition(Duration duration, Rectangle node, Double toValue) {
+            super(duration, node, toValue);
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
+         */
+        @Override
+        protected Double getPropertyValue() {
+            return getNode().getY();
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
+         */
+        @Override
+        protected void setPropertyValue(Double value) {
+            getNode().setY(value);
+        }
+    }
+    
+    /**
+     * A <tt>Transition</tt> class that animates the change of the arc height.
+     * 
+     * @author Karim El Assal
+     */
+    public static class ArcHeightTransition extends DoublePropertyTransition<Rectangle> {
+        
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#
+         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         */
+        protected ArcHeightTransition(Duration duration, Rectangle node, Double toValue) {
+            super(duration, node, toValue);
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
+         */
+        @Override
+        protected Double getPropertyValue() {
+            return getNode().getArcHeight();
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
+         */
+        @Override
+        protected void setPropertyValue(Double value) {
+            getNode().setArcHeight(value);
+        }
+    }
+    
+    /**
+     * A <tt>Transition</tt> class that animates the change of the arc width.
+     * 
+     * @author Karim El Assal
+     */
+    public static class ArcWidthTransition extends DoublePropertyTransition<Rectangle> {
+        
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#
+         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         */
+        protected ArcWidthTransition(Duration duration, Rectangle node, Double toValue) {
+            super(duration, node, toValue);
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
+         */
+        @Override
+        protected Double getPropertyValue() {
+            return getNode().getArcWidth();
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
+         */
+        @Override
+        protected void setPropertyValue(Double value) {
+            getNode().setArcWidth(value);
+        }
     }
 }

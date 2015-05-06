@@ -38,6 +38,16 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
      */
     private static final Class<? extends Script> BASECLASS = GreenMirrorGroovyBaseScript.class;
     
+    /**
+     * The imports performed in the Groovy user script.
+     */
+    private static final String[] IMPORTS = new String[]{
+        "greenmirror.visualcomponents.*",
+        "greenmirror.*",
+        "javafx.scene.paint.*",
+    };
+    //TODO: add this.
+    
     
     // -- Instance variables -----------------------------------------------------------------
     
@@ -176,11 +186,15 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
         binding.setVariable("baseclass", BASECLASS.getName());
         // Give this to the base class. It won't be available in the script.
         binding.setVariable("GreenMirrorController", getController());
-        
+
+        // Build statements that'll be added before the script.
+        String importClasses = "";
+        for (String imp : IMPORTS) {
+            importClasses += "import " + imp + ";\n";
+        }
         source = "@BaseScript " + BASECLASS.getName() + " baseclass\n"
                + "import groovy.transform.BaseScript;\n"
-               + "import greenmirror.*;\n"
-               + "import greenmirror.visualcomponents.*;\n"
+               + importClasses
                + source;
         
         // And parse the script.
