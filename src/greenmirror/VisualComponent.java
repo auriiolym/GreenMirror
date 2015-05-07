@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javafx.animation.Transition;
 import javafx.geometry.Point3D;
+import javafx.util.Duration;
 
 
 /**
@@ -83,7 +84,9 @@ public interface VisualComponent {
     /**
      * @return The GreenMirror <tt>Node</tt> that holds this <tt>VisualComponent</tt>.
      */
-    /*@ pure */ public Node getGreenMirrorNode();
+    /*@ pure */ public default Node getGreenMirrorNode() {
+         return (Node) ((javafx.scene.Node) this).getProperties().get("GreenMirrorNode");
+     }
     
     /**
      * @return The properties that can be changed by a user of GreenMirror.
@@ -97,7 +100,32 @@ public interface VisualComponent {
      * @param node The GreenMirror <tt>Node</tt> that holds this <tt>VisualComponent</tt>.
      */
     //@ ensures getGreenMirrorNode() == node; 
-    public void setGreenMirrorNode(Node node);
+    public default void setGreenMirrorNode(Node node) {
+        ((javafx.scene.Node) this).getProperties().put("GreenMirrorNode", node);
+    }
+
+    /**
+     * Set the opacity and return <tt>this</tt>.
+     * @param value The new opacity.
+     * @return      <tt>this</tt>
+     */
+    //@ requires value >= 0;
+    //@ ensures \result == this;
+    public default VisualComponent withOpacity(double value) {
+        ((javafx.scene.Node) this).setOpacity(value);
+        return this;
+    }
+    
+    /**
+     * Set the opacity and notify the Green Mirror node.
+     * @param value The new opacity.
+     */
+    //@ requires value >= 0;
+    //@ ensures getOpacity() == value;
+    public default void adjustOpacity(double value) {
+        ((javafx.scene.Node) this).setOpacity(value);
+        appearanceUpdated("opacity", value);
+    }
     
     
     // -- Commands ---------------------------------------------------------------------------
@@ -114,9 +142,12 @@ public interface VisualComponent {
      * Move the <tt>VisualComponent</tt> to the point where its middle position is equal to
      * <tt>position</tt>.
      * @param position The middle position of the <tt>VisualComponent</tt>.
+     * @param duration The duration of the animation.
      */
     //@ requires position != null;
-    public void setPositionWithMiddlePoint(Point3D position);
+    //@ requires duration != null;
+    //@ ensures \result != null;
+    public Transition animateToPositionWithMiddlePoint(Point3D position, Duration duration);
 
     /**
      * Notify the GreenMirror <tt>Node</tt> that the appearance has been updated.
@@ -134,11 +165,7 @@ public interface VisualComponent {
             getGreenMirrorNode().appearanceUpdated(propertyPairs);
         }
     }
-
-    /**
-     * @return A deep copy of this <tt>VisualComponent</tt>. 
-     */
-    //public Object clone();
+    
     
     /**
      * Apply settings from a <tt>Map</tt> of values (from a JSON object, for example).

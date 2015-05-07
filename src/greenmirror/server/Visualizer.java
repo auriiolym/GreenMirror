@@ -3,6 +3,7 @@ package greenmirror.server;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.commands.AddNodeCommandHandler;
+import greenmirror.commands.AddRelationCommandHandler;
 import greenmirror.commands.FlushCommandHandler;
 import greenmirror.commands.InitializationCommandHandler;
 import greenmirror.commands.SetCurrentAnimationDurationCommandHandler;
@@ -267,6 +268,7 @@ public class Visualizer extends Application {
         getController().register(new FlushCommandHandler());
         getController().register(new AddNodeCommandHandler());
         getController().register(new SetNodeAppearanceCommandHandler());
+        getController().register(new AddRelationCommandHandler());
 
 
         

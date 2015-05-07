@@ -18,14 +18,14 @@ addTransition('transition(\\d*)', 2000, 3000, { Integer i1 -> // document that o
 
     node("node2").getAppearance()
                  .adjustPosition(220, 110) // works
-                 .adjustRotate(90)  // works
+                 .adjustRotate(180)  // works
                  .adjustArcs(60, 60) // works
                  //.adjustFill("linear-gradient(to bottom, red, black)") // can't work (can't transition to gradient or anything other than a Color)
                  .adjustFill("red") // works
                 ;
     addNode(new Node("rot:node5").setAppearance(rect.clone().withPosition(440, 0))); //works
     
-    flushWithDelay(2000); // works
+    flushWithDelay(1000); // works
     //flush(); // works
     // This won't work. The transition is created if the old and new values differ. Because the 'old' value on the server only changes when the transition is executed, the following transition won't be created (the value on the server is still 0).
     // Solutions: 1. always create a transition (when the value is changed clientside), but only with an ending value (works!); 2. store the values on the server in a property map.
@@ -34,12 +34,13 @@ addTransition('transition(\\d*)', 2000, 3000, { Integer i1 -> // document that o
     
     flush(); // works
     
-    node("node2").getAppearance().adjustPosition(110, 0); // works
+    node("node2").getAppearance().adjustPosition(220, 0); // works
+    node("node3").getAppearance().adjustOpacity(0.5);
     
-    //addNode(new Node("node6").setAppearance(rect.clone().withPosition(500, 500)));
-    //setAnimationDuration(5000)
+    setAnimationDuration(1000);
+    node("node5").setAppearance(new Rectangle().withX(110).withSize(100, 100).withFill("black").withArcs(80, 80));
     
-    nodes("rot:").setAppearance(rect.clone().withRotate(720));
+    //nodes("rot:").setAppearance(rect.clone().withRotate(720)); // works (however, all other properties are reset)
     
     
 });

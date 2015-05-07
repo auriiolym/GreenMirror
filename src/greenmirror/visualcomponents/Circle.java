@@ -1,6 +1,5 @@
 package greenmirror.visualcomponents;
 
-import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.VisualComponent;
 import greenmirror.server.DoublePropertyTransition;
@@ -31,14 +30,6 @@ public class Circle extends javafx.scene.shape.Circle implements VisualComponent
     // -- Queries ----------------------------------------------------------------------------
 
     /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#getGreenMirrorNode()
-     */
-    @Override
-    /*@ pure */ public Node getGreenMirrorNode() {
-        return (Node) getProperties().get("GreenMirrorNode");
-    }
-
-    /* (non-Javadoc)
      * @see greenmirror.VisualComponent#getChangableProperties()
      */
     @Override
@@ -64,32 +55,27 @@ public class Circle extends javafx.scene.shape.Circle implements VisualComponent
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#clone()
+    /**
+     * @return A deep copy of <tt>this</tt>.
      */
     @Override
     /*@ pure */ public Circle clone() {
-        // TODO Auto-generated method stub
-        return null;
+        Circle cloned = new Circle();
+        VisualComponent.setFromMap(cloned, this.toMap());
+        return cloned;
     }
     
     // -- Setters ----------------------------------------------------------------------------
-    
-    /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#setPositionWithMiddlePosition(greenmirror.Position)
-     */
-    @Override
-    public void setGreenMirrorNode(Node node) {
-        getProperties().put("GreenMirrorNode", node);
-    }
 
     /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#setPositionWithMiddlePoint(javafx.geometry.Point3D)
+     * @see greenmirror.VisualComponent
+     *          #setPositionWithMiddlePosition(javafx.geometry.Point3D, javafx.util.Duration)
      */
     @Override
-    public void setPositionWithMiddlePoint(Point3D position) {
-        // TODO Auto-generated method stub
-        
+    public Transition animateToPositionWithMiddlePoint(Point3D point, Duration duration) {
+        return new ParallelTransition(
+                new CenterXTransition(duration, this, point.getX()),
+                new CenterYTransition(duration, this, point.getY()));
     }
     
 
@@ -217,8 +203,15 @@ public class Circle extends javafx.scene.shape.Circle implements VisualComponent
                 fiTr.setToValue(Color.valueOf(newValues.getFill().toString()));
                 transitions.getChildren().add(fiTr);
             }
+            // A change in  opacity (applies to all JavaFX Nodes).
+            if (map.containsKey("opacity")) {
+                FadeTransition tr = new FadeTransition(duration, this);
+                tr.setToValue(newValues.getOpacity());
+                transitions.getChildren().add(tr);
+            }
+            
+            return transitions;
         }
-        return null;
     }
     
     /**

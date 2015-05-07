@@ -22,9 +22,7 @@ public abstract class DoublePropertyTransition<E extends javafx.scene.Node & Vis
     
     
     // --- Constructors ----------------------------------------------------------------------
-    public void DoubleePropertyTransition(Duration duration, E node, Double toValue) {
-        
-    }
+    
     public DoublePropertyTransition(Duration duration, E node, Double toValue) {
         setDuration(duration);
         setNode(node);

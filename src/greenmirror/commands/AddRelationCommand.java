@@ -1,40 +1,74 @@
 package greenmirror.commands;
 
-import greenmirror.*;
+import greenmirror.Command;
+import greenmirror.CommunicationFormat;
+import greenmirror.Relation;
+import groovy.json.JsonOutput;
+
+import java.util.HashMap;
 
 /**
  * The command to add a relation. This command is sent to the server.
  * 
  * Values sent:
- * id : String        The id of the relation. This can be constructed from nodeAid-relationName-nodeBid. In any case, it must be a unique identifier.
+ * id : String        The unique id of the relation.
+ * name : String      The name of the relation
  * nodeA : int        The id of the first node.
  * nodeB : int        The id of the second node.
- * rigid : boolean        Whether the relation is rigid or not. This value is optional and defaults to false.
- * temptAppearance : VisualComponent        The temporary appearance of node A.
+ * placement : String The placement data of node A on node B.
+ * rigid : boolean    Whether the relation is rigid or not. This value is optional and defaults to
+ *                    false.
+ * tempAppearance :   VisualComponent        The temporary appearance of node A.
  */
 public class AddRelationCommand extends Command {
+    
+    // --- Instance variables ----------------------------------------------------------------
+    
+    private Relation relation;
+    
 
+    // --- Constructors ----------------------------------------------------------------------
+    
     /**
-     * 
-     * @param relation
+     * Create a new <tt>AddRelationCommand</tt>.
+     * @param relation The newly created <tt>Relation</tt>.
      */
     public AddRelationCommand(Relation relation) {
-        // TODO - implement AddRelationCommand.AddRelationCommand
-        return;
+        this.relation = relation;
     }
 
+    // --- Queries ---------------------------------------------------------------------------
+    
+    /*@ pure */ private Relation getRelation() {
+        return relation;
+    }
+    
+    // --- Setters ---------------------------------------------------------------------------
+
     public void prepare() {
-        // TODO - implement AddRelationCommand.prepare
-        throw new UnsupportedOperationException();
+        // Nothing to prepare.
     }
 
     /**
-     * 
-     * @param format
+     * Fetch the raw data that will be sent.
+     * @param format The format in which the data will be.
      */
+    //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
-        // TODO - implement AddRelationCommand.getFormattedString
-        throw new UnsupportedOperationException();
+        switch (format) {
+        default: case JSON:
+            return JsonOutput.toJson(new HashMap<String, Object>() {
+                {
+                    put("id", getRelation().getId());
+                    put("name", getRelation().getName());
+                    put("nodeA", getRelation().getNodeA().getId());
+                    put("nodeB", getRelation().getNodeB().getId());
+                    put("placement", getRelation().getPlacement().toData());
+                    put("rigid", getRelation().isRigid());
+                    put("tempAppearance", getRelation().getTemporaryAppearanceOfNodeA() == null
+                            ? null : getRelation().getTemporaryAppearanceOfNodeA().toMap());
+                }
+            });
+        }
     }
-
 }

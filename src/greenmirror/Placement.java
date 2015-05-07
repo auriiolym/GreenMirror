@@ -38,6 +38,14 @@ public enum Placement {
         return position;
     }
     
+    /**
+     * @return A plain data representation.
+     */
+    //@ ensures \result != null;
+    /*@ pure */ public String toData() {
+        return name() + ":" + getRelativePosition().getX() + ":" + getRelativePosition().getY();
+    }
+    
 
     // -- Setters ----------------------------------------------------------------------------
     
@@ -53,6 +61,30 @@ public enum Placement {
 
     // -- Class usage ------------------------------------------------------------------------
 
+    /**
+     * @param data The requested <tt>Placement</tt>.
+     * @return     A <tt>Placement</tt> according to <tt>data</tt>; <tt>null</tt> if none was
+     *             found.
+     * @throws IllegalArgumentException     If <tt>data</tt> was invalid.
+     */
+    //@ requires data != null;
+    public static Placement fromData(String data) {
+        String[] dataParts = data.split(":");
+        if (dataParts.length != 3) {
+            throw new IllegalArgumentException("The passed placement data was invalid.");
+        }
+        
+        for (Placement p : values()) {
+            if (p.name().equals(dataParts[0])) {
+                p.setRelativePosition(new RelativePoint(
+                                Double.valueOf(dataParts[1]), 
+                                Double.valueOf(dataParts[2])));
+                return p;
+            }
+        }
+        return null;
+    }
+    
     /**
      * An auxillary type to handle relative positions.
      * 

@@ -1,5 +1,6 @@
 package greenmirror;
 
+
 /**
  * A class to model relations between <tt>Node</tt>s.
  * 
@@ -58,6 +59,17 @@ public class Relation {
     
     
     // -- Queries ----------------------------------------------------------------------------
+    
+    /**
+     * @return A unique id.
+     */
+    /*@ pure */ public String getId() {
+        return (getNodeA() == null ? "" : getNodeA().getId()) + "|"
+              + getName() + "|"
+             + (getNodeB() == null ? "" : getNodeB().getId()) + "|"
+             + getPlacement().toString() + "|"
+             + String.valueOf(isRigid());
+    }
     
     /**
      * @return <tt>Node</tt> A.
@@ -237,8 +249,8 @@ public class Relation {
     /**
      * @param vc The appearance of <tt>Node</tt> A for the duration of this <tt>Relation</tt>.
      */
-    //@ requires placement != null;
-    //@ ensures getPlacement() == placement;
+    //@ requires vc != null;
+    //@ ensures getTemporaryAppearanceOfNodeA() == vc;
     //@ ensures \result == this;    
     public Relation setTemporaryAppearanceOfNodeA(VisualComponent vc) {
         temporaryAppearanceOfNodeA = vc;

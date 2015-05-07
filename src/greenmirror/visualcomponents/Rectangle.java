@@ -1,6 +1,5 @@
 package greenmirror.visualcomponents;
 
-import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.VisualComponent;
 import greenmirror.server.DoublePropertyTransition;
@@ -34,14 +33,6 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
     // -- Constructors -----------------------------------------------------------------------
 
     // -- Queries ----------------------------------------------------------------------------
-
-    /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#getGreenMirrorNode()
-     */
-    @Override
-    /*@ pure */ public Node getGreenMirrorNode() {
-        return (Node) getProperties().get("GreenMirrorNode");
-    }
     
     /* (non-Javadoc)
      * @see greenmirror.VisualComponent#getChangableProperties()
@@ -106,8 +97,8 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
         return new Point3D(posX, posY, 0);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#clone()
+    /**
+     * @return A deep copy of <tt>this</tt>.
      */
     @Override
     /*@ pure */ public Rectangle clone() {
@@ -118,21 +109,16 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
     
     
     // -- Setters ----------------------------------------------------------------------------
-    
-    /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#setPositionWithMiddlePosition(greenmirror.Position)
-     */
-    @Override
-    public void setGreenMirrorNode(Node node) {
-        getProperties().put("GreenMirrorNode", node);
-    }
 
     /* (non-Javadoc)
-     * @see greenmirror.VisualComponent#setPositionWithMiddlePosition(javafx.geometry.Point3D)
+     * @see greenmirror.VisualComponent
+     *          #setPositionWithMiddlePosition(javafx.geometry.Point3D, javafx.util.Duration)
      */
     @Override
-    public void setPositionWithMiddlePoint(Point3D point) {
-        // TODO Auto-generated method stub
+    public Transition animateToPositionWithMiddlePoint(Point3D point, Duration duration) {
+        return new ParallelTransition(
+                new XTransition(duration, this, point.getX() - this.getWidth() / 2),
+                new YTransition(duration, this, point.getY() - this.getHeight() / 2));
     }
     
     
@@ -301,25 +287,31 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
             Rectangle newValues = this.clone();
             VisualComponent.setFromMap(newValues, map);
 
-            // A change in x position (Rectangle specific).
+            // A change in x position (applies to Rectangle JavaFX Nodes).
             if (map.containsKey("x")) {
                 transitions.getChildren().add(
                         new XTransition(duration, this, newValues.getX()));
             }
-            // A change in y position (Rectangle specific).
+            // A change in y position (applies to Rectangle JavaFX Nodes).
             if (map.containsKey("y")) {
                 transitions.getChildren().add(
                         new YTransition(duration, this, newValues.getY()));
             }
-            // A change in arc width (Rectangle specific).
+            // A change in arc width (applies to Rectangle JavaFX Nodes).
             if (map.containsKey("arcWidth")) {
                 transitions.getChildren().add(
                         new ArcWidthTransition(duration, this, newValues.getArcWidth()));
             }
-            // A change in arc height (Rectangle specific).
+            // A change in arc height (applies to Rectangle JavaFX Nodes).
             if (map.containsKey("arcHeight")) {
                 transitions.getChildren().add(
                         new ArcHeightTransition(duration, this, newValues.getArcHeight()));
+            }
+            // A change in fill (applies to Shape JavaFX Nodes).
+            if (map.containsKey("fill")) {
+                FillTransition fiTr = new FillTransition(duration, this);
+                fiTr.setToValue(Color.valueOf(newValues.getFill().toString()));
+                transitions.getChildren().add(fiTr);
             }
             // A change in rotation (applies to all JavaFX Nodes).
             if (map.containsKey("rotate")) {
@@ -327,14 +319,14 @@ public class Rectangle extends javafx.scene.shape.Rectangle implements VisualCom
                 roTr.setToAngle(newValues.getRotate());
                 transitions.getChildren().add(roTr);
             }
-            // A change in the fill (applies to Shape JavaFX nodes).
-            if (map.containsKey("fill")) {
-                FillTransition fiTr = new FillTransition(duration, this);
-                fiTr.setToValue(Color.valueOf(newValues.getFill().toString()));
-                transitions.getChildren().add(fiTr);
+            // A change in  opacity (applies to all JavaFX Nodes).
+            if (map.containsKey("opacity")) {
+                FadeTransition tr = new FadeTransition(duration, this);
+                tr.setToValue(newValues.getOpacity());
+                transitions.getChildren().add(tr);
             }
             
-            //TODO: add opacity, width and height transition.
+            //TODO: add width and height transition.
             return transitions;
         }
     }
