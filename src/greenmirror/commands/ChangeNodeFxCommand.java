@@ -2,6 +2,7 @@ package greenmirror.commands;
 
 import greenmirror.Command;
 import greenmirror.CommunicationFormat;
+import greenmirror.Log;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
 
@@ -9,41 +10,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The command to set the appearance of a node. This command is sent to the server.
+ * The command to change the FX of a node. This command is sent to the server.
+ * Empty values for the FxContainer are not sent.
  * 
  * Values sent:
- * id : int        The node id
- * appearance : VisualComponent        The changed values of the appearance.
+ * id : int          The node id
+ * fx : FxContainer  The new FX.
+ * 
+ * @author Karim El Assal
  */
-public class SetNodeAppearanceCommand extends Command {
+public class ChangeNodeFxCommand extends Command {
 
     // -- Instance variables -----------------------------------------------------------------
 
     //@ private invariant node != null;
     private Node node;
     
-    //TODO: define a getter.
-    private Map<String, Object> changedValues;
-    
 
     // -- Constructors -----------------------------------------------------------------------
 
     /**
      * Initialize the <tt>Command</tt>.
-     * @param node The <tt>Node</tt> of which its appearance has been set.
+     * @param node The <tt>Node</tt> that has been added.
      */
     //@ requires node != null;
     //@ ensures getNode() == node;
-    public SetNodeAppearanceCommand(Node node, Map<String, Object> changedValues) {
+    public ChangeNodeFxCommand(Node node) {
         this.node = node;
-        this.changedValues = changedValues;
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return The <tt>Node</tt> of which its appearance has been set.
+     * @return The <tt>Node</tt> that has been added.
      */
     //@ ensures \result != null;
     /*@ pure */ public Node getNode() {
@@ -64,18 +64,24 @@ public class SetNodeAppearanceCommand extends Command {
      * Fetch the raw data that will be sent.
      * @param format The format in which the data will be.
      */
+    //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
+        Log.add("Node " + getNode().getId() + " FX changed to: " 
+                + getNode().getFxContainer().toString());
+        
         switch (format) {
         default: case JSON:
+            Map<String, Object> fxMap = new HashMap<>();
+            for (Map.Entry<String, Object> entry : getNode().getFxContainer().toMap().entrySet()) {
+                if (entry.getValue() != null) {
+                    fxMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+            
             return JsonOutput.toJson(new HashMap<String, Object>() {
                 {
                     put("id", getNode().getId());
-                    if (getNode().getAppearance() == null) {
-                        put("appearance", null);
-                    } else {
-                        //put("appearance", getNode().getAppearance().toMap());
-                        put("appearance", changedValues);
-                    }
+                    put("fx", fxMap);
                 }
             });
         }

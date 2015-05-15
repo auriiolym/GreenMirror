@@ -1,14 +1,21 @@
 package greenmirror.server;
 
 import greenmirror.CommunicationFormat;
+import greenmirror.FxContainer;
 import greenmirror.Log;
+import greenmirror.Node;
+import greenmirror.Placement;
+import greenmirror.Relation;
 import greenmirror.commands.AddNodeCommandHandler;
 import greenmirror.commands.AddRelationCommandHandler;
+import greenmirror.commands.ChangeNodeFxCommandHandler;
+import greenmirror.commands.EndTransitionCommandHandler;
 import greenmirror.commands.FlushCommandHandler;
 import greenmirror.commands.InitializationCommandHandler;
 import greenmirror.commands.SetCurrentAnimationDurationCommandHandler;
-import greenmirror.commands.SetNodeAppearanceCommandHandler;
-import greenmirror.commands.StartTransitionCommandHandler;
+import greenmirror.commands.SetNodeFxCommandHandler;
+import greenmirror.commands.StartVisualizationCommandHandler;
+import greenmirror.commands.SwitchRelationCommandHandler;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -18,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Transition;
@@ -26,9 +34,11 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 
 // Extends javafx.application.Application.
@@ -60,6 +70,8 @@ public class Visualizer extends Application {
     
     private static final double DEFAULT_ANIMATION_DURATION = 1000.0;
     
+    private static final double DEFAULT_TRANSITION_DELAY = 300.0;
+    
     // -- Class variables --------------------------------------------------------------------
 
     // -- Instance variables -----------------------------------------------------------------
@@ -83,14 +95,18 @@ public class Visualizer extends Application {
     
     private double currentAnimationDuration = -1.0;
     
+    private double currentTransitionDelay = DEFAULT_TRANSITION_DELAY;
+    
     /**
      * The current queue of visualizations.
      */
     //@ private invariant visualizationsQueue != null;
     private SequentialTransition visualizationsQueue;
     
-    //@ private invariant visualizerStates != null;
-    private List<VisualizerState> visualizerStates = new LinkedList<>();
+    //@ private invariant states != null;
+    private List<VisualizerState> states = new LinkedList<>();
+    
+    private int currentStateIndex = 0;
 
     
     // -- Constructors -----------------------------------------------------------------------
@@ -140,6 +156,15 @@ public class Visualizer extends Application {
         return currentAnimationDuration >= 0
                 ? currentAnimationDuration : getDefaultAnimationDuration();
     }
+    
+    /**
+     * @return The currently set delay between transitions.
+     */
+    //@ ensures \result >= 0;
+    /*@ pure */ public double getCurrentTransitionDelay() {
+        return currentTransitionDelay >= 0
+                ? currentTransitionDelay : DEFAULT_TRANSITION_DELAY;
+    }
 
     /**
      * @return The visualizations queue.
@@ -155,9 +180,38 @@ public class Visualizer extends Application {
     //@ requires getVisualizationsQueue() != null;
     //@ requires getVisualizationsQueue().getChildren().size() > 0;
     //@ ensures \result != null;
-    /*@ pure */ public ParallelTransition getCurrentSubVisualizationQueue() {
+    /*@ pure */ private ParallelTransition getCurrentSubVisualizationQueue() {
         ObservableList<Animation> rootTransitions = getVisualizationsQueue().getChildren();
         return (ParallelTransition) rootTransitions.get(rootTransitions.size() - 1);
+    }
+    
+    /**
+     * @return All states of the visualizer.
+     */
+    //@ ensures \result != null;
+    /*@ pure */ private List<VisualizerState> getStates() {
+        return this.states;
+    }
+    
+    /**
+     * @return The amount of states currently stored.
+     */
+    //@ ensures \result >= 0;
+    /*@ pure */ public int getStateCount() {
+        return getStates().size();
+    }
+    
+    //@ ensures \result >= 0;
+    /*@ pure */ public int getCurrentStateIndex() {
+        return this.currentStateIndex;
+    }
+    
+    /*@ pure */ public int getCurrentStateNumber() {
+        return getCurrentStateIndex() + 1;
+    }
+    
+    /*@ pure */ public boolean hasNextState() {
+        return getCurrentStateNumber() < getStateCount();
     }
 
     
@@ -184,8 +238,7 @@ public class Visualizer extends Application {
     /**
      * @param currentAnimationDuration The currentAnimationDuration to set.
      */
-    //@ requires currentAnimationDuration > 0;
-    //@ ensures getCurrentAnimationDuration() == currentAnimationDuration;
+    //@ requires currentAnimationDuration >= -1.0;
     public void setCurrentAnimationDuration(double currentAnimationDuration) {
         this.currentAnimationDuration = currentAnimationDuration;
     }
@@ -209,10 +262,51 @@ public class Visualizer extends Application {
         visualizationsQueue = new SequentialTransition();
         visualizationsQueue.getChildren().add(new ParallelTransition());
     }
+    
+    //@ ensures \old(getCurrentStateIndex()) = getCurrentStateIndex() + 1;
+    public void incrementCurrentStateIndex() {
+        currentStateIndex++;
+    }
 
     
     // -- Commands ---------------------------------------------------------------------------
     
+    /**
+     * Save the current state with the passed <tt>transition</tt> that holds the animations
+     * to go to the next state.
+     * @param transitions
+     */
+    public void saveState(SequentialTransition transition) {
+        VisualizerState vs = new VisualizerState(getController().getNodes(), transition);
+        getStates().add(vs);
+    }
+    
+    /**
+     * Transition to the next state.
+     * @param delay     Delay before showing the transitions.
+     * @param keepGoing Whether to automatically keep going after the transition has finished.
+     */
+    //@ requires delay >= 0;
+    public void toNextState(double delay, boolean keepGoing) {
+        SequentialTransition transition = getStates().get(getCurrentStateIndex()).getTransition();
+        if (keepGoing) {
+            transition.setOnFinished(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent event) {
+                    // Only go on if we have a next state.
+                    if (hasNextState()) {
+                        // Increment the index of the state we're in.
+                        incrementCurrentStateIndex();
+                        toNextState(delay, keepGoing);
+                    }
+                }
+            });
+        } else {
+            transition.setOnFinished(null);
+        }
+        transition.setDelay(Duration.millis(getCurrentTransitionDelay()));
+        setFadeTransitionFxNodesToVisible(transition);
+        transition.playFromStart();
+    }
     
     /**
      * Go to the next state: store the current state with the transitions needed to go to the
@@ -220,9 +314,12 @@ public class Visualizer extends Application {
      * @param transition The (parallel) transitions needed to go to the next state.
      */
     //@ requires transition != null;
-    //@ ensures getVisualizerStates().size() == \old(getVisualizerStates().size()) + 1;
+    //@ ensures getStates().size() == \old(getStates().size()) + 1;
     public void toNextState(SequentialTransition transition) {
-        visualizerStates.add(new VisualizerState(getController().getNodes(), transition));
+        throw new UnsupportedOperationException();
+        
+        /* This is handled in a different way.
+        states.add(new VisualizerState(getController().getNodes(), transition));
         executeOnCorrectThread(() -> {
             // Do something when it's finished.
             transition.setOnFinished(new EventHandler<ActionEvent>() {
@@ -230,8 +327,131 @@ public class Visualizer extends Application {
             
                 }
             });
+            setFadeTransitionFxNodesToVisible(transition);
             transition.playFromStart();
         });
+        */
+    }
+    
+    /**
+     * Set the JavaFX nodes that are in a <tt>FadeTransition</tt> to visible. It recursively 
+     * searches for any <tt>FadeTransition</tt>s.
+     * @param transition Any kind of <tt>Transition</tt>.
+     */
+    //@ requires transition != null;
+    private void setFadeTransitionFxNodesToVisible(Transition transition) {
+        ObservableList<Animation> childTransitions;
+        if (transition instanceof SequentialTransition) {
+            childTransitions = ((SequentialTransition) transition).getChildren();
+        } else
+        if (transition instanceof ParallelTransition) {
+            childTransitions = ((ParallelTransition) transition).getChildren();
+        } else
+        if (transition instanceof FadeTransition) {
+            ((FadeTransition) transition).getNode().setVisible(true);
+            return;
+        } else {
+            return;
+        }
+        for (Animation anim : childTransitions) {
+            setFadeTransitionFxNodesToVisible((Transition) anim);
+        }
+    }
+    
+    /**
+     * Execute the placing of Node A onto Node B according to the settings of a Relation.
+     * @param relation The Relation.
+     * @return         The animation that executes the placement.
+     */
+    public void doPlacement(Relation relation) {
+        // If no placement is set, do nothing.
+        if (relation.getPlacement() == Placement.NONE) {
+            return;
+        }
+        
+        // Shorthand.
+        Node nodeA = relation.getNodeA();
+        
+        // Get the duration of the animation.
+        Duration duration = Duration.millis(getCurrentAnimationDuration());
+    
+        // Calculate the middle point (the new location).
+        Point3D newMiddlePoint = relation.getNodeB().getFxContainer()
+                                                    .calculatePoint(relation.getPlacement());
+        
+        // If no movement will take place, do nothing.
+        if (nodeA.getFxContainer().isPositionSet() 
+               && nodeA.getFxContainer().calculatePoint(Placement.MIDDLE).equals(newMiddlePoint)) {
+            return;
+        }
+        
+        // If the node was already visible, animate it.
+        if (nodeA.getFxContainer().isPositionSet()) {
+            
+            // Create the animation and add it to the returned collection.
+            addToVisualizationsQueue(nodeA.getFxContainer().animateToMiddlePoint(
+                                                                newMiddlePoint, 
+                                                                duration));
+         
+        // If it wasn't visible yet, make it appear at the correct location.
+        } else {
+            executeOnCorrectThread(() -> {
+                // Set the FX node to correct position.
+                nodeA.getFxContainer().setFxToPositionWithMiddlePoint(newMiddlePoint);
+                // Make sure its opacity is set to zero.
+                nodeA.getFxContainer().getFxNode().setOpacity(0);
+            });
+            // Add appearing animation.
+            addToVisualizationsQueue(nodeA.getFxContainer().animateAppearing(duration));
+        }
+        // And set the position of the node (in the model) to the new position.
+        nodeA.getFxContainer().setToPositionWithMiddlePoint(newMiddlePoint);
+
+        // Add a log entry.
+        Log.add("Placement of node " + relation.getNodeA().getId() + " changed to " 
+                + relation.getPlacement().toData() + " on node " 
+                + relation.getNodeB().getId());
+        
+        // Do the same with all nodes that are rigidly connected to Node A.
+        for (Relation rigidRelation : relation.getNodeA().getRelations(-1).withIsRigid(true)) {
+            doPlacement(rigidRelation);
+        }
+    }
+    
+    public void changeFx(Node node, Map<String, Object> newFxMap) {
+
+        // Get the FxContainer.
+        FxContainer fxContainer = node.getFxContainer();
+        Duration duration = Duration.millis(getCurrentAnimationDuration());
+        
+        // Clone it so we can compare old and new values.
+        FxContainer newFx = fxContainer.clone();
+        newFx.setFromMap(newFxMap);
+
+        // If the FX node hasn't been shown yet, set the values
+        if (!fxContainer.isPositionSet()) {
+            fxContainer.setFromMap(newFxMap);
+            // Execute this on FX thread.
+            executeOnCorrectThread(() -> {
+                newFxMap.put("opacity", 0);
+                fxContainer.setFxNodeValuesFromMap(newFxMap);
+            });
+            
+            // If the FX node will be shown, make it 'appear'.
+            if (newFx.isPositionSet()) {
+                addToVisualizationsQueue(fxContainer.animateAppearing(duration));
+            }
+            
+        // If it is already showing, animate the changes.
+        } else {
+            addToVisualizationsQueue(fxContainer.animateFromMap(newFxMap, duration));
+            fxContainer.setFromMap(newFxMap);
+        }
+        
+        // Possibly also re-set the placement of rigidly connected nodes.
+        for (Relation relation : node.getRelations(-1).withIsRigid(true)) {
+            doPlacement(relation);
+        }
     }
     
     
@@ -263,12 +483,15 @@ public class Visualizer extends Application {
         getController().setCommunicationFormat(CommunicationFormat.JSON);
         //TODO: Register CommandHandlers.
         getController().register(new InitializationCommandHandler());
-        getController().register(new StartTransitionCommandHandler());
+        getController().register(new EndTransitionCommandHandler());
         getController().register(new SetCurrentAnimationDurationCommandHandler());
         getController().register(new FlushCommandHandler());
         getController().register(new AddNodeCommandHandler());
-        getController().register(new SetNodeAppearanceCommandHandler());
+        getController().register(new SetNodeFxCommandHandler());
+        getController().register(new ChangeNodeFxCommandHandler());
         getController().register(new AddRelationCommandHandler());
+        getController().register(new StartVisualizationCommandHandler());
+        getController().register(new SwitchRelationCommandHandler());
 
 
         
@@ -347,6 +570,8 @@ public class Visualizer extends Application {
     public void windowClosed() {
         setStage(null);
         getController().getNodes().clear();
+        getStates().clear();
+        currentStateIndex = 0;
         getController().relistenForConnections();
     }
     

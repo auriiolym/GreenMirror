@@ -1,13 +1,13 @@
 package greenmirror;
 
 import greenmirror.commands.AddRelationCommand;
+import greenmirror.commands.ChangeNodeFxCommand;
 import greenmirror.commands.RemoveRelationCommand;
-import greenmirror.commands.SetNodeAppearanceCommand;
+import greenmirror.commands.SetNodeFxCommand;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * 
  * @author Karim El Assal
  */
-public class Node extends Observable {
+public class Node extends Observable implements Observer {
     
     /**
      * A class to generalize the use of the <tt>Node</tt> identifiers. Possible values
@@ -122,10 +122,9 @@ public class Node extends Observable {
     private Set<String> labels = new HashSet<String>();
 
     /**
-     * The original and current appearance.
+     * The container that handles the appearance.
      */
-    private VisualComponent originalAppearance;
-    private VisualComponent appearance;
+    private FxContainer fxContainer;
     
     /**
      * All <tt>Relation</tt>s.
@@ -194,20 +193,6 @@ public class Node extends Observable {
     }
     
     /**
-     * @return The original appearance.
-     */
-    /*@ pure */ public VisualComponent getOriginalAppearance() {
-        return originalAppearance;
-    }
-
-    /**
-     * @return The current appearance.
-     */
-    /*@ pure */ public VisualComponent getAppearance() {
-        return appearance;
-    }
-    
-    /**
      * @return All current <tt>Relation</tt>s.
      */
     //@ ensures \result != null;
@@ -258,6 +243,41 @@ public class Node extends Observable {
         RelationList list = getRelations(direction).withName(relationName);
         return list.size() > 0 ? list.get(0) : null;
     }
+    
+    /**
+     * @return Whether this <tt>Node</tt> has a <tt>Relation</tt> that determines its 
+     *         <tt>Placement</tt>.
+     */
+    /*@ pure */ public boolean hasPlacementRelation() {
+        return getRelations().size() == 0 ? false : (getPlacementRelation() != null);
+    }
+    
+    /**
+     * @return The <tt>Relation</tt> which specifies the <tt>Placement</tt> of this <tt>Node</tt>;
+     *         <tt>null</tt> if no placement <tt>Relation</tt> exists.
+     */
+    /*@ pure */ public Relation getPlacementRelation() {
+        RelationList placementRelations = getRelations(1).withPlacement();
+        return placementRelations.size() > 0 ? placementRelations.get(0) : null;
+    }
+
+    /**
+     * Returns all <tt>Node</tt>s that have a <tt>Relation</tt> with <tt>this</tt> with a 
+     * specific name.
+     * @param direction    The direction of the <tt>Relation</tt>. 
+     *                     {@link greenmirror.Node.getRelations(int)}
+     * @param relationName The name of the relation. 
+     * @return All related <tt>Node</tt>s.
+     */
+    //@ requires direction == -1 || direction == 0 || direction == 1;
+    //@ requires relationName != null;
+    //@ ensures \result != null;
+    /*@ pure */ public NodeList getRelatedNodes(int direction, String relationName) {
+        NodeList list = new NodeList();
+        getRelations(direction).withName(relationName)
+                               .forEach(relation -> list.add(relation.getOtherNode(this)));
+        return list;
+    }
 
     /**
      * Returns all <tt>Node</tt>s that have a <tt>Relation</tt> with <tt>this</tt>.
@@ -296,6 +316,14 @@ public class Node extends Observable {
         Relation rel = getRelation(direction, relationName);
         return rel == null ? null : rel.getOtherNode(this);
     }
+    
+    /**
+     * This method should be used in the application. {@see #fx()}
+     * @return The <tt>FxContainer</tt>.
+     */
+    public FxContainer getFxContainer() {
+        return fxContainer;
+    }
 
     /**
      * Checks if there exists a <tt>Relation</tt> with <tt>node</tt>.
@@ -311,7 +339,7 @@ public class Node extends Observable {
     }
 
     /**
-     * Checks if there exists a <tt>Relation</tt> with on of the <tt>Node</tt>s given in
+     * Checks if there exists a <tt>Relation</tt> with one of the <tt>Node</tt>s given in
      * <tt>nodes</tt>.
      * @param nodes The list to check for.
      * @return <tt>true</tt> if a <tt>Relation</tt> exists with one of the <tt>Node</tt>s.
@@ -333,7 +361,8 @@ public class Node extends Observable {
             + " | type=" + (getType() == null ? "" : getType().toString())
             + " | name=" + (getName() == null ? "" : getName().toString())
             + " | labels=" + getLabels().toString()
-            + " | relations=" + getRelations().toString();
+            + " | relations=" + getRelations().toString()
+            + " | FX=" + String.valueOf(getFxContainer());
     }
 
     
@@ -396,48 +425,6 @@ public class Node extends Observable {
     }
 
     /**
-     * @param appearance The original appearance to set.
-     * @return <tt>this</tt>
-     */
-    //@ ensures getOriginalAppearance() == appearance;
-    //@ ensures \result == this;
-    public Node setOriginalAppearance(VisualComponent appearance) {
-        originalAppearance = appearance;
-        //TODO: notify the observer (?).
-        return this;
-    }
-
-    /**
-     * @param appearance The current appearance to set.
-     * @return <tt>this</tt>
-     * @throws IllegalArgumentException If the new <tt>VisualComponent</tt> is not the same 
-     *                                  as the old one.
-     */
-    //@ ensures getAppearance() == appearance;
-    //@ ensures \result == this;
-    public Node setAppearance(VisualComponent appearance) {
-        if (getAppearance() != null
-        && !getAppearance().getClass().getName().equals(appearance.getClass().getName())) {
-            throw new IllegalArgumentException("The new appearance of a node has to be of the "
-                    + "same type as the current appareance.");
-        }
-        Map<String, Object> changedValues = new HashMap<>();
-        if (getAppearance() == null) {
-            changedValues = appearance.toMap();
-        } else {
-            for (Map.Entry<String, Object> amap : appearance.toMap().entrySet()) {
-                if (!amap.getValue().equals(getAppearance().toMap().get(amap.getKey()))) {
-                    changedValues.put(amap.getKey(), amap.getValue());
-                }
-            }
-        }
-        this.appearance = appearance;
-        appearance.setGreenMirrorNode(this);
-        appearanceUpdated(changedValues);
-        return this;
-    }
-
-    /**
      * Add a <tt>Relation</tt> to this <tt>Node</tt> and the <tt>Node</tt> on the other end.
      * The <tt>Relation</tt> should already have either node A or node B set to the other 
      * <tt>Node</tt>, so the current <tt>Node</tt> will be set to respectively node B or node A.
@@ -464,6 +451,7 @@ public class Node extends Observable {
             getRelations().add(relation);
             relation.getOtherNode(this).getRelations().add(relation);
             
+            //TODO: check if it's a Placement Relation. If so, remove the previous relation.
             setChanged();
             notifyObservers(new AddRelationCommand(relation));
         }
@@ -481,9 +469,72 @@ public class Node extends Observable {
         }
         relation.remove();
     }
+    
+    /**
+     * Set the new <tt>FxContainer</tt>. This can only be done once. Observers get notified 
+     * of the new <tt>FxContainer</tt> and this <tt>Node</tt> starts observing the 
+     * <tt>FxContainer</tt>.
+     * @param fxContainer
+     * @return                          <tt>this</tt>
+     * @throws IllegalArgumentException If the <tt>FxContainer</tt> was already set.
+     */
+    //@ requires fxContainer != null;
+    public Node set(FxContainer fxContainer) {
+        if (getFxContainer() != null) {
+            throw new IllegalArgumentException("You have already set the FX type");
+        }
+        setFxContainer(fxContainer);
+        getFxContainer().addObserver(this);
+        setChanged();
+        notifyObservers(new SetNodeFxCommand(this));
+        
+        return this;
+    }
+    
+    /**
+     * @param fxContainer The <tt>FxContainer</tt> to set.
+     */
+    //@ ensures getFxContainer() == fxContainer;
+    private void setFxContainer(FxContainer fxContainer) {
+        this.fxContainer = fxContainer;
+    }
 
     
     // -- Commands ---------------------------------------------------------------------------
+    
+    
+    public FxContainer fx(String type) {
+        if (getFxContainer() != null) {
+            // If the FxContainer was already set.
+            if (!getFxContainer().getType().equals(
+                Character.toUpperCase(type.charAt(0)) + type.substring(1))) {
+                // Throw exception if it's a different type.
+                throw new IllegalArgumentException("You have already set the FX type.");
+            } else {
+                // Return if it's the same as the requested type.
+                return fx();
+            }
+        }
+        // If it wasn't created yet, try to create it, add observers and notify our own observers.
+        setFxContainer(FxContainer.instantiate(type));
+        getFxContainer().addObserver(this);
+        
+        setChanged();
+        notifyObservers(new SetNodeFxCommand(this));
+           
+        return fx();
+    }
+    
+    /**
+     * This method should be used in a Groovy user script. {@see #getFxContainer()}
+     * @return The <tt>FxContainer</tt>.
+     */
+    public FxContainer fx() {
+        if (getFxContainer() == null) {
+            throw new IllegalArgumentException("No FX element has been set.");
+        }
+        return getFxContainer();
+    }
     
     /**
      * Notify the observers that a <tt>Relation</tt> was removed.
@@ -494,31 +545,34 @@ public class Node extends Observable {
         notifyObservers(new RemoveRelationCommand(relation));
     }
 
-    /**
-     * Notify observers that the given appearance has been updated.
+    /* (non-Javadoc)
+     * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
      */
-    public void appearanceUpdated(Map<String, Object> changedValues) {
-        setChanged();
-        notifyObservers(new SetNodeAppearanceCommand(this, 
-                changedValues == null ? getAppearance().toMap() : changedValues));
+    @Override
+    public void update(Observable observable, Object arg1) {
+        // The appearance was changed. Notify the controller that the server should know
+        // that the (original) FX has changed.
+        if (observable instanceof FxContainer) {
+            setChanged();
+            notifyObservers(new ChangeNodeFxCommand(this));
+            return;
+        }        
     }
     
     /**
-     * Notify the observers that the appearance has been updated according to the parameters.
-     * If <tt>null</tt> is passed, all current properties and their values are passed.
-     * @param propertyPairs <String, Object> pairs of <property, newValue> values.
+     * Clone this <tt>Node</tt>, except for the relations.
      */
-    public void appearanceUpdated(Object... propertyPairs) {
-        Map<String, Object> appearanceUpdates = new HashMap<>();
-
-        for (int i = 0; i < propertyPairs.length && i + 1 < propertyPairs.length; i = i + 2) {
-            appearanceUpdates.put(String.valueOf(propertyPairs[i]), propertyPairs[i + 1]);
+    @Override
+    public Node clone() {
+        Node node = new Node();
+        node.setType(this.getType());
+        node.setName(this.getName());
+        for (String label : this.getLabels()) {
+            node.addLabel(label);
         }
-        if (propertyPairs.length == 0) {
-            appearanceUpdates.putAll(getAppearance().toMap());
+        if (this.getFxContainer() != null) {
+            node.set(this.getFxContainer().clone());
         }
-        
-        appearanceUpdated(appearanceUpdates);
+        return node;
     }
-
 }

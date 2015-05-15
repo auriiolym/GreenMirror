@@ -1,5 +1,8 @@
 package greenmirror;
 
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * A class to model relations between <tt>Node</tt>s.
@@ -35,9 +38,9 @@ public class Relation {
     private Placement placement = Placement.NONE;
     
     /**
-     * The appearance of <tt>Node</tt> A for the duration of this <tt>Relation</tt>. Optional.
+     * The FX of <tt>Node</tt> A for the duration of this <tt>Relation</tt>. Optional.
      */
-    private VisualComponent temporaryAppearanceOfNodeA = null;
+    private FxContainer temporaryFxOfNodeA = null;
 
     
     // -- Constructors -----------------------------------------------------------------------
@@ -46,7 +49,6 @@ public class Relation {
      * Create a <tt>Relation</tt> with a specific <tt>name</tt>.
      * @param name
      */
-    //@ requires name != null;
     //@ ensures name.equals(getName());
     public Relation(String name) {
         setName(name);
@@ -124,10 +126,10 @@ public class Relation {
     }
     
     /**
-     * @return The appearance of <tt>Node</tt> A for the duration of this <tt>Relation</tt>.
+     * @return The FX of Node A for the duration of this <tt>Relation</tt>.
      */
-    /*@ pure */ public VisualComponent getTemporaryAppearanceOfNodeA() {
-        return temporaryAppearanceOfNodeA;
+    /*@ pure */ public FxContainer getTemporaryFxOfNodeA() {
+        return temporaryFxOfNodeA;
     }
     
     /**
@@ -143,8 +145,8 @@ public class Relation {
                         (getNodeB().getId() == null ? "" : getNodeB().getId()))
             + "|placement=" + getPlacement()
             + "|rigid=" + (isRigid() ? "true" : "false")
-            + "|temporaryAppearanceofNodeA="
-            + (getTemporaryAppearanceOfNodeA() == null ? "not_set" : "set");
+            + "|temporaryFxOfNodeA="
+            + (getTemporaryFxOfNodeA() == null ? "not_set" : "set");
     }
     
 
@@ -163,14 +165,35 @@ public class Relation {
     }
 
     /**
+     * Set the starting node of this directional relation.
      * @param node The <tt>Node</tt> that will be set as <tt>Node</tt> A.
      * @return <tt>this</tt>
+     * @throws IllegalStateException If node A is being set while a temporary FX is set, but 
+     *                               Node A doesn't have its own FX.
      */
     //@ requires node != null;
     //@ ensures getNodeA() == node;
     //@ ensures \result == this;
     public Relation setNodeA(Node node) {
+        if (getTemporaryFxOfNodeA() != null && node.getFxContainer() == null) {
+            throw new IllegalStateException("Node A should have its own FX if it's going "
+                    + "to receive a temporary FX.");
+        }
         nodeA = node;
+        return this;
+    }
+    
+    /**
+     * Set Node A to the next node in <tt>nodes</tt>. If the end of the list is reached, the 
+     * first is selected.
+     * @param nodes The nodes to choose from.
+     * @return      <tt>this</tt>
+     */
+    //@ requires nodes != null;
+    //@ ensures getNodeA() == nodes.getCircularNext(getNodeA());
+    //@ ensures \result == this;
+    public Relation setNextNodeA(NodeList nodes) {
+        setNodeA(nodes.getCircularNext(getNodeA()));
         return this;
     }
     
@@ -207,6 +230,20 @@ public class Relation {
     }
     
     /**
+     * Set Node B to the next node in <tt>nodes</tt>. If the end of the list is reached, the 
+     * first is selected.
+     * @param nodes The nodes to choose from.
+     * @return      <tt>this</tt>
+     */
+    //@ requires nodes != null;
+    //@ ensures getNodeB() == nodes.getCircularNext(getNodeB());
+    //@ ensures \result == this;
+    public Relation setNextNodeB(NodeList nodes) {
+        setNodeB(nodes.getCircularNext(getNodeB()));
+        return this;
+    }
+    
+    /**
      * Remove the reference to <tt>Node</tt> B.
      */
     //@ ensures getNodeB() == null;
@@ -227,10 +264,16 @@ public class Relation {
 
     /**
      * @param rigid Whether <tt>Node</tt> A moves when <tt>Node</tt> B moves.
+     * @throws IllegalStateException If this Relation is set to be rigid before a placement is set.
      */
+    //@ requires getPlacement() != Placement.NONE;
     //@ ensures isRigid() == rigid;
     //@ ensures \result == this;
     public Relation setRigid(boolean rigid) {
+        if (rigid && getPlacement() == Placement.NONE) {
+            throw new IllegalStateException("The following relation needs a placement before "
+                    + "it can be set to be rigid: " + this.toString());
+        }
         this.rigid = rigid;
         return this;
     }
@@ -247,30 +290,95 @@ public class Relation {
     }
     
     /**
-     * @param vc The appearance of <tt>Node</tt> A for the duration of this <tt>Relation</tt>.
+     * Set the placement to the next in the list of <tt>placements</tt>. If the end of the list 
+     * is reached, the next one is chosen. If the current placement doesn't appear in 
+     * <tt>placements</tt>, nothing happens.
+     * @param placements The list of available placements.
+     * @return           <tt>this</tt>
      */
-    //@ requires vc != null;
-    //@ ensures getTemporaryAppearanceOfNodeA() == vc;
+    //@ requires placements.length > 0;
+    //@ ensures \result == this;
+    public Relation setNextPlacement(Placement... placements) {
+        List<Placement> list = Arrays.asList(placements);
+        if (list.contains(getPlacement())) {
+            int curI = list.indexOf(getPlacement());
+            if (curI == list.size() - 1) {
+                setPlacement(list.get(0));
+            } else {
+                setPlacement(list.get(curI + 1));
+            }
+        }
+        return this;
+    }
+    
+    /**
+     * Set the temporary FX of Node A. Node A should already have an FX set.
+     * @param fx The FX of <tt>Node</tt> A for the duration of this <tt>Relation</tt>.
+     * @throws IllegalStateException If Node A doesn't have an FX set.
+     */
+    //@ requires fx != null;
+    //@ ensures getTemporaryFxOfNodeA() == fx;
     //@ ensures \result == this;    
-    public Relation setTemporaryAppearanceOfNodeA(VisualComponent vc) {
-        temporaryAppearanceOfNodeA = vc;
+    public Relation setTemporaryFxOfNodeA(FxContainer fx) {
+        if (getNodeA() != null && getNodeA().getFxContainer() == null) {
+            throw new IllegalStateException("Node A has no FX set. Set this first.");
+        }
+        temporaryFxOfNodeA = fx;
+        return this;
+    }
+    
+    /**
+     * Apply all properties of <tt>originalRelation</tt>. This works as a reverse clone().
+     * @param originalRelation The original <tt>Relation</tt>.
+     * @return                  <tt>this</tt>
+     */
+    //@ requires originalRelation != null;
+    //@ ensures \result == this;
+    public Relation fromRelation(Relation originalRelation) {
+        this.setName(originalRelation.getName());
+        this.setNodeA(originalRelation.getNodeA());
+        this.setNodeB(originalRelation.getNodeB());
+        this.setPlacement(originalRelation.getPlacement());
+        this.setRigid(originalRelation.isRigid());
+        if (originalRelation.getTemporaryFxOfNodeA() != null) {
+            this.setTemporaryFxOfNodeA(originalRelation.getTemporaryFxOfNodeA().clone());
+        }
         return this;
     }
 
     public Relation clone() {
-        // TODO - implement Relation.clone
-        throw new UnsupportedOperationException();
+        Relation relation = new Relation();
+        relation.setName(this.getName());
+        relation.setNodeA(this.getNodeA());
+        relation.setNodeB(this.getNodeB());
+        relation.setPlacement(this.getPlacement());
+        relation.setRigid(this.isRigid());
+        if (this.getTemporaryFxOfNodeA() != null) {
+            relation.setTemporaryFxOfNodeA(this.getTemporaryFxOfNodeA().clone());
+        }
+        return relation;
     }
     
 
 
     // -- Commands ---------------------------------------------------------------------------
 
+    /**
+     * Add this <tt>Relation</tt> to Node A and B's list of <tt>Relation</tt>s. Nodes A and B
+     * have to be set.
+     */
+    //@ requires getNodeA() != null && getNodeB() != null;
+    //@ ensures getNodeA().getRelations().contains(this);
+    //@ ensures getNodeB().getRelations().contains(this);
+    public void addToNodes() {
+        getNodeA().getRelations().add(this);
+        getNodeB().getRelations().add(this);
+    }
 
 
     /**
      * Remove this <tt>Relation</tt>. It removes itself from the connected <tt>Node</tt>'s
-     * <tt>RelationList</tt>s and lets <tt>Node</tt> A know it is removed.
+     * <tt>RelationList</tt>s.
      */
     //@ ensures !getNodeA().getRelations().contains(this);
     //@ ensures !getNodeB().getRelations().contains(this);
@@ -281,7 +389,6 @@ public class Relation {
         if (getNodeB() != null) {
             getNodeB().getRelations().remove(this);
         }
-        getNodeA().relationRemoved(this);
     }
     
     /**
@@ -294,6 +401,9 @@ public class Relation {
     //@ requires nodes != null && nodes.size() > 1 && nodes.contains(getNodeA());
     //@ ensures \result == this;
     public Relation passToNextNodeA(NodeList nodes) {
+        throw new UnsupportedOperationException();
+        //TODO: make a command in the groovy base script for this.
+        /*
         if (nodes != null && nodes.size() > 1 && nodes.contains(getNodeA())) {
             Node nextNode = nodes.getCircularNext(getNodeA());
             remove();
@@ -301,7 +411,7 @@ public class Relation {
             // Node B is still set and node A isn't, so we add this Relation to one of the two.
             nextNode.addRelation(this);
         }
-        return this;
+        return this;*/
     }
 
     /**

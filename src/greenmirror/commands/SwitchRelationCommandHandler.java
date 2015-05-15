@@ -19,7 +19,7 @@ import javafx.util.Duration;
 /**
  * The handler that adds a relation. This command is received from the client.
  */
-public class AddRelationCommandHandler extends CommandHandler {
+public class SwitchRelationCommandHandler extends CommandHandler {
 
 
     // -- Queries ----------------------------------------------------------------------------
@@ -50,7 +50,8 @@ public class AddRelationCommandHandler extends CommandHandler {
         Duration duration = Duration.millis(
                 getController().getVisualizer().getCurrentAnimationDuration());
         
-        Relation relation;
+        Relation oldRelation;
+        Relation newRelation;
         Node nodeA;
         
         switch (format) {
@@ -58,12 +59,13 @@ public class AddRelationCommandHandler extends CommandHandler {
             
             // Check existence of variables.
             Map<String, Object> map = CommandHandler.parseJson(data);
-            if (!map.containsKey("name") || !map.containsKey("nodeA") 
+            if (!map.containsKey("oldId") || !map.containsKey("name") || !map.containsKey("nodeA") 
              || !map.containsKey("nodeB") || !map.containsKey("placement") 
              || !map.containsKey("rigid") || !map.containsKey("tempFx")) {
                 throw new MissingDataException();
             }
 
+            String oldId;
             String name;
             Node nodeB;
             Placement placement;
@@ -71,6 +73,8 @@ public class AddRelationCommandHandler extends CommandHandler {
             LazyValueMap tempFxMap = null;
             
             // Parse data.
+            // old id.
+            oldId = String.valueOf(map.get("oldId"));
             // rigidity.
             rigid = Boolean.valueOf(String.valueOf(map.get("rigid")));
             // tempFx.
@@ -102,8 +106,9 @@ public class AddRelationCommandHandler extends CommandHandler {
             
             
             
-            // Execute adding the relation.
-            relation = new Relation()
+            // Create the Relation objects.
+            oldRelation = nodeA.getRelations().withId(oldId).getFirst();
+            newRelation = new Relation()
                             .setName(name)
                             .setNodeB(nodeB)
                             .setPlacement(placement)
@@ -111,24 +116,23 @@ public class AddRelationCommandHandler extends CommandHandler {
             if (tempFxMap != null && nodeA.getFxContainer() != null) {
                 FxContainer tempFxContainer = nodeA.getFxContainer().clone();
                 tempFxContainer.setFromMap(tempFxMap);
-                relation.setTemporaryFxOfNodeA(tempFxContainer);
+                newRelation.setTemporaryFxOfNodeA(tempFxContainer);
             }
         }
         
 
         
+        oldRelation.remove();
+        nodeA.addRelation(newRelation);
         
-        nodeA.addRelation(relation);
-        
-        
-
         
 
-        getController().getVisualizer().doPlacement(relation);
+        
+        getController().getVisualizer().doPlacement(newRelation);
         
 
         // Change node A's FX according to the tempFx.
-        if (relation.getTemporaryFxOfNodeA() != null) {
+        if (newRelation.getTemporaryFxOfNodeA() != null) {
             // We're assuming here that the FX of the Node itself has been set.
             
             // Save the current FX as the original, so we can revert back when the relation is 
@@ -136,8 +140,8 @@ public class AddRelationCommandHandler extends CommandHandler {
             nodeA.getFxContainer().saveAsOriginal();
             
             // Apply the changes (animated).
-            getController().getVisualizer().changeFx(nodeA,
-                        relation.getTemporaryFxOfNodeA().toMap());
+            getController().getVisualizer().changeFx(nodeA, 
+                        newRelation.getTemporaryFxOfNodeA().toMap());
         }
         
         

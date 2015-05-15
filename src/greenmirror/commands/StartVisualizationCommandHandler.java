@@ -4,16 +4,15 @@ import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.server.ServerController;
-
-import java.util.Map;
+import greenmirror.server.Visualizer;
 
 /**
- * The handler that sets the duration for the following animations. This command is received from
- * the client.
+ * The handler that handles the signal that we're at the end of a transition. 
+ * This command is received from the client.
  * 
  * @author Karim El Assal
  */
-public class SetCurrentAnimationDurationCommandHandler extends CommandHandler {
+public class StartVisualizationCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------
     
@@ -40,25 +39,20 @@ public class SetCurrentAnimationDurationCommandHandler extends CommandHandler {
     public void handle(CommunicationFormat format, String data) 
             throws MissingDataException, DataParseException {
         
-        double duration;
         
+        /*
         switch (format) {
         default: case JSON:
             Map<String, Object> map = CommandHandler.parseJson(data);
-            if (!map.containsKey("duration")) {
-                throw new MissingDataException();
-            }
-            try {
-                duration = Double.valueOf(String.valueOf(map.get("duration")));
-                if (!(duration >= -1.0)) {
-                    throw new NumberFormatException();
-                }
-            } catch (NumberFormatException e) {
-                throw new DataParseException("The passed duration was not valid.");
-            }
         }
+        */
 
-        getController().getVisualizer().setCurrentAnimationDuration(duration);
-        Log.add("Current animation duration set to " + duration + "ms.");
+
+        Visualizer visualizer = getController().getVisualizer();
+        
+        Log.add("Visualization started!");
+        visualizer.executeOnCorrectThread(() -> {
+            visualizer.toNextState(200, true);
+        });
     }
 }

@@ -317,12 +317,12 @@ public class Log {
     /**
      * Add data to the log with the information of an <tt>Exception</tt> appended.
      * @param obj       Any (stringifiable) data.
-     * @param exception The thrown exception.
+     * @param throwable The thrown exception.
      */
     //@ requires obj != null && exception != null;
-    public static void add(Object obj, Exception exception) {
-        String data = String.valueOf(obj) + String.valueOf(exception) + "\nWith stacktrace:";
-        for (StackTraceElement stElement : exception.getStackTrace()) {
+    public static void add(Object obj, Throwable throwable) {
+        String data = String.valueOf(obj) + String.valueOf(throwable) + "\nWith stacktrace:";
+        for (StackTraceElement stElement : throwable.getStackTrace()) {
             data += "\n    " + stElement.toString();
         }
         add(data);

@@ -2,46 +2,48 @@ package greenmirror.commands;
 
 import greenmirror.Command;
 import greenmirror.CommunicationFormat;
+import greenmirror.Log;
+import greenmirror.Node;
 import groovy.json.JsonOutput;
 
 import java.util.HashMap;
 
 /**
- * The command to start all visualizations that are in the queue. 
- * This command is sent to the server.
+ * The command to set the FX of a node. This command is sent to the server.
  * 
  * Values sent:
- * delay : double   (in milliseconds) Delays the transition. Defaults to 0.
+ * id : int             The node id
+ * fx : FxContainer     The values of the FX.
  */
-public class StartTransitionCommand extends Command {
+public class SetNodeFxCommand extends Command {
 
     // -- Instance variables -----------------------------------------------------------------
 
-    //@ private invariant delay >= 0;
-    private double delay;
+    //@ private invariant node != null;
+    private Node node;
     
 
     // -- Constructors -----------------------------------------------------------------------
 
     /**
      * Initialize the <tt>Command</tt>.
-     * @param delay Delays the transition by the given milliseconds.
+     * @param node The <tt>Node</tt> of which its appearance has been set.
      */
-    //@ requires delay >= 0;
-    //@ ensures getDelay() == delay;
-    public StartTransitionCommand(double delay) {
-        this.delay = delay;
+    //@ requires node != null;
+    //@ ensures getNode() == node;
+    public SetNodeFxCommand(Node node) {
+        this.node = node;
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return The delay in milliseconds.
+     * @return The <tt>Node</tt> of which its appearance has been set.
      */
-    //@ ensures \result >= 0;
-    /*@ pure */ public double getDelay() {
-        return delay;
+    //@ ensures \result != null;
+    /*@ pure */ public Node getNode() {
+        return node;
     }
     
     
@@ -58,13 +60,16 @@ public class StartTransitionCommand extends Command {
      * Fetch the raw data that will be sent.
      * @param format The format in which the data will be.
      */
-    //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
+        Log.add("Node " + getNode().getId() + " FX set: " + getNode().getFxContainer().toString());
+        
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new HashMap<String, Double>() {
+            return JsonOutput.toJson(new HashMap<String, Object>() {
                 {
-                    put("delay", getDelay());
+                    put("id", getNode().getId());
+                    put("fx", getNode().getFxContainer() == null 
+                                ? null : getNode().getFxContainer().toMap());
                 }
             });
         }

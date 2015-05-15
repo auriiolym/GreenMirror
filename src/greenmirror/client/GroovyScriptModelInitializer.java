@@ -1,6 +1,5 @@
 package greenmirror.client;
 
-import greenmirror.GreenMirrorController;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
@@ -9,9 +8,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-
-import org.codehaus.groovy.control.CompilerConfiguration;
 
 /**
  * The model initializer that initializes the model through a Groovy script.
@@ -42,8 +38,8 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
      * The imports performed in the Groovy user script.
      */
     private static final String[] IMPORTS = new String[]{
-        "greenmirror.visualcomponents.*",
         "greenmirror.*",
+        "greenmirror.client.GridBuilder",
         "javafx.scene.paint.*",
     };
     //TODO: add this.

@@ -6,7 +6,7 @@ import greenmirror.NodeList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javafx.animation.Transition;
+import javafx.animation.SequentialTransition;
 
 /**
  * A class to store a system state of the visualizer.
@@ -27,16 +27,15 @@ public class VisualizerState {
     /**
      * The transition needed to go to the next state.
      */
-    private Transition transition;
+    private SequentialTransition transition;
 
     // -- Constructors -----------------------------------------------------------------------
 
-    public VisualizerState(NodeList nodes, Transition transition) {
+    public VisualizerState(NodeList nodes, SequentialTransition transition) {
         for (Node node : nodes) {
-            
             this.nodes.put(node.getId(),
-                        node.getAppearance() == null
-                        ? new HashMap<String, Object>() : node.getAppearance().toMap());
+                        node.getFxContainer() == null
+                        ? new HashMap<String, Object>() : node.getFxContainer().toMap());
         }
         this.transition = transition;
     }
@@ -48,14 +47,14 @@ public class VisualizerState {
      */
     //@ ensures \result != null;
     /*@ pure */ public Map<Integer, Map<String, Object>> getNodes() {
-        return nodes;
+        return this.nodes;
     }
     
     /**
      * @return {@link greenmirror.server.VisualizerState#transition}
      */
-    /*@ pure */ public Transition getTransition() {
-        return transition;
+    /*@ pure */ public SequentialTransition getTransition() {
+        return this.transition;
     }
     
     // -- Setters ----------------------------------------------------------------------------

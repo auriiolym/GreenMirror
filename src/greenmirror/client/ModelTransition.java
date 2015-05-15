@@ -36,12 +36,6 @@ public class ModelTransition {
     //@ private invariant duration >= -1.0;
     private double duration = -1.0;
     
-    /**
-     * The delay at the start of the transition.
-     */
-    //@ private invariant delay >= 0;
-    private double delay = 0;
-    
     
     // -- Constructors -----------------------------------------------------------------------
     
@@ -49,34 +43,30 @@ public class ModelTransition {
      * @param pattern  {@link greenmirror.client.ModelTransition#pattern}
      * @param closure  {@link greenmirror.client.ModelTransition#closure}
      * @param duration {@link greenmirror.client.ModelTransition#duration}
-     * @param delay    {@link greenmirror.client.ModelTransition#delay}
      */
     //@ requires pattern != null && closure != null && duration >= -1.0;
     //@ ensures getPattern() == pattern && getClosure() == closure;
-    //@ ensures getDuration() == duration && getDlay() == delay;
+    //@ ensures getDuration() == duration;
     public ModelTransition(Pattern pattern, Closure<Object> closure,
-                            double duration, double delay) {
+                            double duration) {
         setPattern(pattern);
         setClosure(closure);
         setDuration(duration);
-        setDelay(delay);
     }
 
     /**
      * @param regex    A valid regex which compiles into a <tt>Pattern</tt>.
      * @param closure  {@link greenmirror.client.ModelTransition#closure}
      * @param duration {@link greenmirror.client.ModelTransition#duration}
-     * @param delay    {@link greenmirror.client.ModelTransition#delay}
      */
     //@ requires pattern != null && closure != null && duration >= -1.0;
-    //@ ensures getPattern().equals(Pattern.compile(regex)) && getClosure() == closure
-    //@ ensures getDuration() == duration && getDlay() == delay;
+    //@ ensures getPattern().equals(Pattern.compile(regex)) && getClosure() == closure;
+    //@ ensures getDuration() == duration;
     public ModelTransition(String regex, Closure<Object> closure, 
-                            double duration, double delay) {
+                            double duration) {
         setPattern(regex);
         setClosure(closure);
         setDuration(duration);
-        setDelay(delay);
     }
 
     
@@ -104,14 +94,6 @@ public class ModelTransition {
     //@ ensures \result >= -1.0;
     /*@ pure */ public double getDuration() {
         return duration;
-    }
-    
-    /**
-     * @return The delay of the transition.
-     */
-    //@ ensures \result >= 0;
-    /*@ pure */ public double getDelay() {
-        return delay;
     }
     
     
@@ -153,21 +135,13 @@ public class ModelTransition {
         this.duration = duration;
     }
     
-    /**
-     * @param delay The duration of the transition.
-     */
-    //@ requires delay >= 0;
-    //@ ensures getDelay() == delya;
-    public void setDelay(double delay) {
-        this.delay = delay;
-    }
-    
 
     // -- Commands ---------------------------------------------------------------------------
     
     /**
-     * @param  traceTransition A transition given by a trace.
-     * @return Whether <tt>traceTransition</tt> is a match for this <tt>ModelTransition</tt>.
+     * @param traceTransition A transition given by a trace.
+     * @return                Whether <tt>traceTransition</tt> is a match for this 
+     *                        <tt>ModelTransition</tt>.
      */
     //@ requires traceTransition != null;
     public boolean executableBy(String traceTransition) {

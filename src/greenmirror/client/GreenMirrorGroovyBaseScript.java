@@ -1,9 +1,13 @@
 package greenmirror.client;
 
+import greenmirror.FxContainer;
 import greenmirror.Node;
 import greenmirror.NodeList;
+import greenmirror.Relation;
+import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.FlushCommand;
 import greenmirror.commands.SetCurrentAnimationDurationCommand;
+import greenmirror.commands.SwitchRelationCommand;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.Script;
@@ -125,11 +129,16 @@ public class GreenMirrorGroovyBaseScript extends Script {
     /**
      * Get the first node on the visualizer that corresponds to <tt>identifier</tt>.
      * @param identifier {@link greenmirror.Node.Identifier#Identifier(String)}
-     * @return           The <tt>Node</tt>; <tt>null</tt> if it was not found.
+     * @return           The <tt>Node</tt>.
+     * @throws IllegalArgumentException If the Node was not found.
      */
-    //@ requires identifier != null'
+    //@ requires identifier != null;
     /*@ pure */ public Node node(String identifier) {
         NodeList list = nodes(identifier).one();
+        if (list.isEmpty()) {
+            throw new IllegalArgumentException("No nodes were found that correspond to the "
+                    + "identifier \"" + identifier + "\".");
+        }
         return list.isEmpty() ? null : list.getFirst();
     }
     
@@ -161,6 +170,42 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
+     * Add as many nodes as you want in one statement.
+     * @param nodes An array or list of nodes.
+     */
+    public void addNodes(Node... nodes) {
+        for (Node node : nodes) {
+            addNode(node);
+        }
+    }
+    
+    //@ requires relation != null;
+    public void addRelation(Relation relation) {
+        relation.addToNodes();
+        getController().send(new AddRelationCommand(relation));
+    }
+    
+    public void addRelations(Relation... relations) {
+        for (Relation relation : relations) {
+            addRelation(relation);
+        }
+    }
+    
+    
+    public void switchPlacementRelation(Relation newRelation) {
+        Node nodeA = newRelation.getNodeA();
+        if (!nodeA.hasPlacementRelation()) {
+            addRelation(newRelation);
+            return;
+        }
+        Relation currentPlacementRelation = nodeA.getPlacementRelation();
+        
+        getController().send(new SwitchRelationCommand(currentPlacementRelation, newRelation));
+        currentPlacementRelation.remove();
+        newRelation.addToNodes();
+    }
+    
+    /**
      * Add a transition to the list of possible transitions.
      * @param transitionPattern The <tt>Pattern</tt> that indicates the transition name.
      * @param code              The code that will be executed when the transition executes.
@@ -168,7 +213,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     //@ requires transitionPattern != null && code != null;
     public void addTransition(Pattern transitionPattern, Closure<Object> code) {
         getController().getTransitions().add(
-                new ModelTransition(transitionPattern, code, -1.0, 0.0));
+                new ModelTransition(transitionPattern, code, -1.0));
     }
 
     /**
@@ -179,35 +224,33 @@ public class GreenMirrorGroovyBaseScript extends Script {
     //@ requires transitionRegex != null && code != null;
     public void addTransition(String transitionRegex, Closure<Object> code) {
         getController().getTransitions().add(
-                new ModelTransition(transitionRegex, code, -1.0, 0.0));
+                new ModelTransition(transitionRegex, code, -1.0));
     }
     
     /**
      * Add a transition to the list of possible transitions.
      * @param transitionPattern The <tt>Pattern</tt> that indicates the transition name.
      * @param duration          {@link greenmirror.client.ModelTransition#duration}
-     * @param delay             {@link greenmirror.client.ModelTransition#delay}
      * @param code              The code that will be executed when the transition executes.
      */
-    //@ requires transitionPattern != null && duration >= -1.0 && delay >= 0.0 && code != null;
+    //@ requires transitionPattern != null && duration >= -1.0 && code != null;
     public void addTransition(Pattern transitionPattern, double duration, 
-                                double delay, Closure<Object> code) {
+                              Closure<Object> code) {
         getController().getTransitions().add(
-                new ModelTransition(transitionPattern, code, duration, delay));
+                new ModelTransition(transitionPattern, code, duration));
     }
 
     /**
      * Add a transition to the list of possible transitions.
      * @param transitionRegex The (regex) string that indicates the transition name.
      * @param duration        {@link greenmirror.client.ModelTransition#duration}
-     * @param delay             {@link greenmirror.client.ModelTransition#delay}
      * @param code            The code that will be executed when the transition executes.
      */
-    //@ requires transitionRegex != null && duration >= -1.0 && delay >= 0.0 && code != null;
+    //@ requires transitionRegex != null && duration >= -1.0 && code != null;
     public void addTransition(String transitionRegex, double duration, 
-                                double delay, Closure<Object> code) {
+                              Closure<Object> code) {
         getController().getTransitions().add(
-                new ModelTransition(transitionRegex, code, duration, delay));
+                new ModelTransition(transitionRegex, code, duration));
     }
     
     /**
@@ -219,11 +262,22 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
+     * Create a new <tt>FxContainer</tt>.
+     * @param type The type of the <tt>FxContainer</tt>.
+     * @return     The <tt>FxContainer</tt> instance.
+     * @throws IllegalArgumentException If the type was invalid.
+     */
+    //@ requires type != null;
+    public FxContainer fx(String type) {
+        return FxContainer.instantiate(type);
+    }
+    
+    /**
      * Flushes the animations: all upcoming animations will be animated after the previous ones 
      * (and not in parallel, as is the default).
      */
     public void flush() {
-        getController().send(new FlushCommand(0.0));
+        flush(0);
     }
     
     /**
@@ -231,7 +285,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
      * (and not in parallel, as is the default). Also, a delay is added after the previous 
      * animations.
      */
-    public void flushWithDelay(double delay) {
+    public void flush(double delay) {
         getController().send(new FlushCommand(delay));
     }
 

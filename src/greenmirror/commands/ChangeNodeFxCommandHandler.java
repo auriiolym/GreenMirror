@@ -2,18 +2,21 @@ package greenmirror.commands;
 
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
-import greenmirror.Log;
+import greenmirror.Node;
 import greenmirror.server.ServerController;
+import groovy.json.internal.LazyValueMap;
 
+import java.util.HashMap;
 import java.util.Map;
 
+
 /**
- * The handler that sets the duration for the following animations. This command is received from
- * the client.
+ * The handler that notifies the server that the FX of node should be changed. This command 
+ * is received from the client.
  * 
  * @author Karim El Assal
  */
-public class SetCurrentAnimationDurationCommandHandler extends CommandHandler {
+public class ChangeNodeFxCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------
     
@@ -40,25 +43,27 @@ public class SetCurrentAnimationDurationCommandHandler extends CommandHandler {
     public void handle(CommunicationFormat format, String data) 
             throws MissingDataException, DataParseException {
         
-        double duration;
+        Node node;
+        Map<String, Object> fxMap = new HashMap<>();
         
         switch (format) {
         default: case JSON:
             Map<String, Object> map = CommandHandler.parseJson(data);
-            if (!map.containsKey("duration")) {
+            if (!map.containsKey("id") || !map.containsKey("fx")
+                    || !(map.get("fx") instanceof LazyValueMap)) {
                 throw new MissingDataException();
             }
-            try {
-                duration = Double.valueOf(String.valueOf(map.get("duration")));
-                if (!(duration >= -1.0)) {
-                    throw new NumberFormatException();
-                }
-            } catch (NumberFormatException e) {
-                throw new DataParseException("The passed duration was not valid.");
+            node = getController().getNode((int) map.get("id"));
+            if (node == null) {
+                throw new DataParseException("Unknown Node with id " + map.get("id"));
             }
+            
+            fxMap.putAll((LazyValueMap) map.get("fx"));
+            break;
         }
-
-        getController().getVisualizer().setCurrentAnimationDuration(duration);
-        Log.add("Current animation duration set to " + duration + "ms.");
+        
+        // We're assuming here that the FX of the Node has been set.
+        
+        getController().getVisualizer().changeFx(node, fxMap);
     }
 }

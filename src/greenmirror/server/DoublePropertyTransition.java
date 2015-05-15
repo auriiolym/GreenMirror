@@ -1,7 +1,5 @@
 package greenmirror.server;
 
-import greenmirror.VisualComponent;
-
 import javafx.animation.Transition;
 import javafx.util.Duration;
 
@@ -9,7 +7,7 @@ import javafx.util.Duration;
  * 
  * @author Karim El Assal
  */
-public abstract class DoublePropertyTransition<E extends javafx.scene.Node & VisualComponent>
+public abstract class DoublePropertyTransition<E extends javafx.scene.Node>
     extends Transition {
 
     // --- Instance variables ----------------------------------------------------------------

@@ -23,7 +23,7 @@ public class FileTraceSelector implements TraceSelector {
     private static final String UID = "file";
     
     /**
-     * The parameter discription.
+     * The parameter description.
      */
     private static final String PARAMS = "<filename>";
     

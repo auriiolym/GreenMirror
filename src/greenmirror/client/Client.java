@@ -8,11 +8,12 @@ import greenmirror.Node;
 import greenmirror.NullNode;
 import greenmirror.PeerListener;
 import greenmirror.commands.AddNodeCommand;
+import greenmirror.commands.EndTransitionCommand;
 import greenmirror.commands.InitializationCommand;
 import greenmirror.commands.RemoveNodeCommand;
 import greenmirror.commands.SetCurrentAnimationDurationCommand;
-import greenmirror.commands.SetNodeAppearanceCommand;
-import greenmirror.commands.StartTransitionCommand;
+import greenmirror.commands.SetNodeFxCommand;
+import greenmirror.commands.StartVisualizationCommand;
 import groovy.lang.GroovyRuntimeException;
 
 import java.io.BufferedReader;
@@ -191,9 +192,8 @@ public class Client extends GreenMirrorController implements Observer {
         send(new AddNodeCommand(node));
         
         // If the appearance has already been set, also notify the server.
-        if (node.getAppearance() != null) {
-            node.appearanceUpdated();
-            //send(new SetNodeAppearanceCommand(node, node.getAppearance().toMap()));
+        if (node.getFxContainer() != null) {
+            send(new SetNodeFxCommand(node));
             //TODO: check if this is right.
         }
     }
@@ -297,9 +297,11 @@ public class Client extends GreenMirrorController implements Observer {
             for (ModelTransition transition : getTransitions(traceTransition)) {
                 send(new SetCurrentAnimationDurationCommand(transition.getDuration()));
                 transition.execute(traceTransition);
-                send(new StartTransitionCommand(transition.getDelay()));
+                send(new EndTransitionCommand());
+                Log.add("Transition " + traceTransition + " executed.");
             }
         }
+        send(new StartVisualizationCommand());
         Log.add("Trace executed.");
     }
 
@@ -312,6 +314,10 @@ public class Client extends GreenMirrorController implements Observer {
     public void update(Observable observable, Object cmd) {
         if (cmd instanceof Command) {
             send((Command) cmd);
+            return;
+        }
+        if (cmd instanceof String && "request_addition".equals(cmd)) {
+            addNode((Node) observable);
         }
     }
     
@@ -477,7 +483,7 @@ public class Client extends GreenMirrorController implements Observer {
             matcher = possibleArguments.get("trace").matcher(argument);
             if (matcher.find()) {
                 try {
-                    // Loop through all registered TraceSelectors.
+                    // Loop through all registered TraceSelectors to find the correct one.
                     for (TraceSelector selector : greenmirror.getTraceSelectors()) {
                         // Check if we're encountering the one requested by the user.
                         if (selector.getIdentifier().equals(matcher.group("selector"))) {
@@ -487,6 +493,7 @@ public class Client extends GreenMirrorController implements Observer {
                             selector.setParameters(getParameters(matcher.group("parameters")));
                             // And let it prepare.
                             selector.prepare();
+                            break;
                         }
                     }
                     if (traceSelector == null) {
@@ -539,7 +546,7 @@ public class Client extends GreenMirrorController implements Observer {
                 
                 /* The initialization of the model might be animated, so we execute the initial 
                  * transition without delay. */
-                greenmirror.send(new StartTransitionCommand(0));
+                greenmirror.send(new EndTransitionCommand());
                 
             } catch (GroovyRuntimeException e) {
                 Log.add("Your Groovy initialization script gave an exception: ", e);

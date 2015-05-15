@@ -31,7 +31,8 @@ public interface TraceSelector {
     public String getIdentifier();
     
     /**
-     * @return A specification of the parameters.
+     * @return A specification of the parameters. For example, in command line usage: 
+     *         "<param1>:<param2>".
      */
     //@ ensures \result != null;
     public String getParameterSpecification();
@@ -54,7 +55,8 @@ public interface TraceSelector {
     // -- Commands ---------------------------------------------------------------------------
     
     /**
-     * Do some preparing, like retrieving the contents of a file.
+     * Do some preparing, like retrieving the trace from a file or other class. This method 
+     * should only be called once.
      * @throws PreparationException If something goes wrong during the preparation.
      */
     public void prepare() throws PreparationException;

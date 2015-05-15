@@ -7,17 +7,13 @@ import greenmirror.server.ServerController;
 import greenmirror.server.Visualizer;
 import groovy.json.JsonOutput;
 
-import java.util.Map;
-
-import javafx.util.Duration;
-
 /**
- * The handler that starts the visualizations stored in the queue. 
+ * The handler that handles the signal that we're at the end of a transition. 
  * This command is received from the client.
  * 
  * @author Karim El Assal
  */
-public class StartTransitionCommandHandler extends CommandHandler {
+public class EndTransitionCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------
     
@@ -44,32 +40,25 @@ public class StartTransitionCommandHandler extends CommandHandler {
     public void handle(CommunicationFormat format, String data) 
             throws MissingDataException, DataParseException {
         
-        double delay;
         
+        /*
         switch (format) {
         default: case JSON:
             Map<String, Object> map = CommandHandler.parseJson(data);
-            if (!map.containsKey("delay")) {
-                throw new MissingDataException();
-            }
-            delay = Double.valueOf(String.valueOf(map.get("delay")));
-            if (!(delay >= 0)) {
-                throw new DataParseException("The passed delay is invalid.");
-            }
         }
+        */
 
-        Log.add("Transition with delay " + delay + "ms started.");
 
         Visualizer visualizer = getController().getVisualizer();
-        // Set the delay of the visualizations queue.
-        visualizer.getVisualizationsQueue().setDelay(Duration.millis(delay));
-        Log.addVerbose("The following transitions are executed: " 
+
+        Log.addVerbose("The following animations are saved to transition to state " 
+            + (visualizer.getStateCount() + 1) + ": " 
             + JsonOutput.prettyPrint(JsonOutput.toJson(
                     Visualizer.listTransitions(visualizer.getVisualizationsQueue())
               ))
         );
-        // Execute the transitions in the queue.
-        visualizer.toNextState(visualizer.getVisualizationsQueue());
+        // Save the state with the visualizations as the transition to the next one.
+        visualizer.saveState(visualizer.getVisualizationsQueue());
         // And reset the queue;
         visualizer.resetVisualizationQueue();
     }

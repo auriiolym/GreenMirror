@@ -15,6 +15,27 @@ public class RelationList extends LinkedList<Relation> {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
+     * @return All A Nodes of all relations of this RelationList.
+     */
+    //@ ensures \result != null;
+    /*@ pure */ public NodeList getNodesA() {
+        NodeList nodes = new NodeList();
+        this.forEach(relation -> nodes.add(relation.getNodeA()));
+        return nodes;
+    }
+    
+    /**
+     * @param id
+     * @return <tt>Relation</tt>s with the given <tt>id</tt>.
+     */
+    //@ requires id != null;
+    //@ ensures \result != null;
+    //@ ensures \result.size() <= this.size();
+    /*@ pure */ public RelationList withId(String id) {
+        return withFilter(relation -> id.equals(relation.getId()));
+    }
+    
+    /**
      * @param name
      * @return <tt>Relation</tt>s with the given <tt>name</tt>.
      */
@@ -32,7 +53,7 @@ public class RelationList extends LinkedList<Relation> {
     //@ requires rigid != null;
     //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withIsRirid(boolean rigid) {
+    /*@ pure */ public RelationList withIsRigid(boolean rigid) {
         return withFilter(relation -> relation.isRigid() == rigid);
     }
 
@@ -45,6 +66,16 @@ public class RelationList extends LinkedList<Relation> {
     //@ ensures \result.size() <= this.size();
     /*@ pure */ public RelationList withPlacement(Placement placement) {
         return withFilter(relation -> relation.getPlacement() == placement);
+    }
+
+    /**
+     * @param placement
+     * @return <tt>Relation</tt>s with any <tt>placement</tt> other than <tt>NONE</tt>.
+     */
+    //@ ensures \result != null;
+    //@ ensures \result.size() <= this.size();
+    /*@ pure */ public RelationList withPlacement() {
+        return withFilter(relation -> relation.getPlacement() != Placement.NONE);
     }
 
     /**

@@ -218,14 +218,4 @@ public class NodeList extends LinkedList<Node> {
         });
         return this;
     }
-    
-    /**
-     * Set the appearance of all <tt>Node</tt>s in the list.
-     * @param visualComponent {@link greenmirror.Node#setAppearance(VisualComponent)}
-     * @return                <tt>this</tt>
-     */
-    public NodeList setAppearance(VisualComponent visualComponent) {
-        this.forEach(node -> node.setAppearance(visualComponent));
-        return this;
-    }
 }

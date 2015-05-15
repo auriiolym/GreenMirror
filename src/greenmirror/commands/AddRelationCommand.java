@@ -2,6 +2,7 @@ package greenmirror.commands;
 
 import greenmirror.Command;
 import greenmirror.CommunicationFormat;
+import greenmirror.Log;
 import greenmirror.Relation;
 import groovy.json.JsonOutput;
 
@@ -11,14 +12,13 @@ import java.util.HashMap;
  * The command to add a relation. This command is sent to the server.
  * 
  * Values sent:
- * id : String        The unique id of the relation.
  * name : String      The name of the relation
  * nodeA : int        The id of the first node.
  * nodeB : int        The id of the second node.
  * placement : String The placement data of node A on node B.
  * rigid : boolean    Whether the relation is rigid or not. This value is optional and defaults to
  *                    false.
- * tempAppearance :   VisualComponent        The temporary appearance of node A.
+ * tempFx :   FxContainer        The temporary appearance of node A.
  */
 public class AddRelationCommand extends Command {
     
@@ -55,18 +55,19 @@ public class AddRelationCommand extends Command {
      */
     //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
+        Log.add("Relation added: " + getRelation().toString());
+        
         switch (format) {
         default: case JSON:
             return JsonOutput.toJson(new HashMap<String, Object>() {
                 {
-                    put("id", getRelation().getId());
                     put("name", getRelation().getName());
                     put("nodeA", getRelation().getNodeA().getId());
                     put("nodeB", getRelation().getNodeB().getId());
                     put("placement", getRelation().getPlacement().toData());
                     put("rigid", getRelation().isRigid());
-                    put("tempAppearance", getRelation().getTemporaryAppearanceOfNodeA() == null
-                            ? null : getRelation().getTemporaryAppearanceOfNodeA().toMap());
+                    put("tempFx", getRelation().getTemporaryFxOfNodeA() == null
+                            ? null : getRelation().getTemporaryFxOfNodeA().toMap());
                 }
             });
         }
