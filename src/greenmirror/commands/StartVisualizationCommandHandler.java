@@ -4,6 +4,7 @@ import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.server.ServerController;
+import greenmirror.server.ToolbarButton;
 import greenmirror.server.Visualizer;
 
 /**
@@ -48,11 +49,10 @@ public class StartVisualizationCommandHandler extends CommandHandler {
         */
 
 
-        Visualizer visualizer = getController().getVisualizer();
+        //Visualizer visualizer = getController().getVisualizer();
         
-        Log.add("Visualization started!");
-        visualizer.executeOnCorrectThread(() -> {
-            visualizer.toNextState(200, true);
-        });
+        Log.add("The visualization may start now.");
+        getController().getVisualizer().updateStateInfo();
+        ToolbarButton.PLAY_ONE.action();
     }
 }

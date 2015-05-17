@@ -32,11 +32,9 @@ import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point3D;
-import javafx.scene.Group;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -48,6 +46,18 @@ import javafx.util.Duration;
  * @author Karim El Assal
  */
 public class Visualizer extends Application {
+    
+    // -- Enumerations -----------------------------------------------------------------------
+
+    public static enum Status {
+        PLAYING_REVERSE_ONE_FAST,
+        PLAYING_REVERSE_ONE,
+        PLAYING_REVERSE,
+        PAUSED,
+        PLAYING,
+        PLAYING_ONE,
+        PLAYING_ONE_FAST,
+    }
     
     // -- Constants --------------------------------------------------------------------------
 
@@ -80,6 +90,11 @@ public class Visualizer extends Application {
      * The controller.
      */
     private ServerController controller;
+    
+    /**
+     * The current status of the visualizer.
+     */
+    private Status currentStatus = Status.PAUSED;
     
     /**
      * The <tt>Stage</tt> of the visualizer.
@@ -124,6 +139,14 @@ public class Visualizer extends Application {
     /*@ pure */ public ServerController getController() {
         return controller;
     }
+    
+    /**
+     * @return The current status of the visualizer.
+     */
+    //@ ensures currentStatus != null;
+    /*@ pure */ public Status getStatus() {
+        return currentStatus;
+    }
 
     /**
      * @return The <tt>Stage</tt> of the visualizer.
@@ -133,11 +156,16 @@ public class Visualizer extends Application {
     }
     
     /**
-     * @return The Group of all visualization elements on the visualizer.
+     * @return The Pane containing all visualization elements of the visualizer.
+     * @throws IllegalStateException If the FX node pane wasn't found.
      */
     //@ requires getStage() != null;
-    /*@ pure */ public Group getVisGroup() {
-        return ((Group) ((BorderPane) getStage().getScene().getRoot()).getCenter());
+    /*@ pure */ public Pane getFxNodePane() {
+        Pane container = (Pane) getStage().getScene().lookup("#FxNodePane");
+        if (container == null) {
+            throw new IllegalStateException("The stage hasn't been set up properly (yet).");
+        }
+        return container;
     }
     
     /**
@@ -207,16 +235,49 @@ public class Visualizer extends Application {
     }
     
     /*@ pure */ public int getCurrentStateNumber() {
-        return getCurrentStateIndex() + 1;
+        return getCurrentStateIndex();
     }
     
     /*@ pure */ public boolean hasNextState() {
         return getCurrentStateNumber() < getStateCount();
     }
+    
+    /*@ pure */ public boolean hasPreviousState() {
+        return getCurrentStateNumber() > 1;
+    }
+    
+    /**
+     * @return The <tt>Transition</tt> that transitions to the next state.
+     */
+    //@ requires hasNextState();
+    /*@ pure */ public SequentialTransition getNextTransition() {
+        return getStates().get(getCurrentStateIndex()).getTransition();
+    }
+    
+    /**
+     * @return The <tt>Transition</tt> that transitions to the previous state.
+     */
+    //@ requires hasPreviousState();
+    /*@ pure */ public SequentialTransition getPreviousTransition() {
+        return getStates().get(getCurrentStateIndex() - 1).getTransition();
+    }
 
     
     
     // -- Setters ----------------------------------------------------------------------------
+    
+    /**
+     * @param status The new current status of the visualizer.
+     */
+    //@ requires status != null;
+    //@ ensures getStatus() == status;
+    public void setStatus(Status status) {
+        executeOnCorrectThread(() -> {
+            Text statusInfo = (Text) getStage().getScene().lookup("#statusInfo");
+            statusInfo.setText(status.toString());
+        });
+        this.currentStatus = status;
+    }
 
     /**
      * @param stage The <tt>Stage</tt> of the visualizer to set.
@@ -263,9 +324,14 @@ public class Visualizer extends Application {
         visualizationsQueue.getChildren().add(new ParallelTransition());
     }
     
-    //@ ensures \old(getCurrentStateIndex()) = getCurrentStateIndex() + 1;
+    //@ ensures \old(getCurrentStateIndex()) + 1 = getCurrentStateIndex();
     public void incrementCurrentStateIndex() {
         currentStateIndex++;
+    }
+    
+    //@ ensures \old(getCurrentStateIndex()) - 1 = getCurrentStateIndex();
+    public void decrementCurrentStateIndex() {
+        currentStateIndex--;
     }
 
     
@@ -277,60 +343,82 @@ public class Visualizer extends Application {
      * @param transitions
      */
     public void saveState(SequentialTransition transition) {
-        VisualizerState vs = new VisualizerState(getController().getNodes(), transition);
-        getStates().add(vs);
+        getStates().add(new VisualizerState(getController().getNodes(), transition));
     }
     
     /**
-     * Transition to the next state.
-     * @param delay     Delay before showing the transitions.
-     * @param keepGoing Whether to automatically keep going after the transition has finished.
+     * Transition to the next state. Any code that needs to be executed after the transition 
+     * has finished should be set with getNextTransition().setOnFinished(...).
      */
-    //@ requires delay >= 0;
-    public void toNextState(double delay, boolean keepGoing) {
-        SequentialTransition transition = getStates().get(getCurrentStateIndex()).getTransition();
-        if (keepGoing) {
-            transition.setOnFinished(new EventHandler<ActionEvent>() {
-                public void handle(ActionEvent event) {
-                    // Only go on if we have a next state.
-                    if (hasNextState()) {
-                        // Increment the index of the state we're in.
-                        incrementCurrentStateIndex();
-                        toNextState(delay, keepGoing);
-                    }
-                }
-            });
-        } else {
-            transition.setOnFinished(null);
-        }
-        transition.setDelay(Duration.millis(getCurrentTransitionDelay()));
-        setFadeTransitionFxNodesToVisible(transition);
-        transition.playFromStart();
+    public void toNextState() {
+        toState(getNextTransition());
     }
     
     /**
-     * Go to the next state: store the current state with the transitions needed to go to the
-     * next one. Also actually go to the next one.
-     * @param transition The (parallel) transitions needed to go to the next state.
+     * Transition to the previous state. Any code that needs to be executed after the transition 
+     * has finished should be set with getNextTransition().setOnFinished(...).
      */
-    //@ requires transition != null;
-    //@ ensures getStates().size() == \old(getStates().size()) + 1;
-    public void toNextState(SequentialTransition transition) {
-        throw new UnsupportedOperationException();
-        
-        /* This is handled in a different way.
-        states.add(new VisualizerState(getController().getNodes(), transition));
+    public void toPreviousState() {
+        toState(getPreviousTransition());
+    }
+    
+    private void toState(Transition transition) {
         executeOnCorrectThread(() -> {
-            // Do something when it's finished.
-            transition.setOnFinished(new EventHandler<ActionEvent>() {
-                public void handle(ActionEvent event) {
-            
-                }
-            });
             setFadeTransitionFxNodesToVisible(transition);
-            transition.playFromStart();
+            transition.play();
         });
-        */
+    }
+    
+    /**
+     * Execute when a transition has finished. It enabled or disabled the toolbar buttons based
+     * on the current visualizer status and transition to the next state if the status isn't
+     * paused (and a next state exists).
+     * @param forward <tt>true</tt> if we are/were going forward; <tt>false</tt> if backward.
+     */
+    public void transitionFinished(boolean forward) {
+        
+        // State index and number.
+        if (forward) {
+            incrementCurrentStateIndex();
+        } else {
+            decrementCurrentStateIndex();
+        }
+        
+        // Toolbar buttons.
+        ToolbarButton.setAllFromStatus(getStatus());
+        
+        // State info.
+        updateStateInfo();
+
+        // Next state if wanted.
+        if (!getStatus().equals(Visualizer.Status.PAUSED)) {
+            if (forward && hasNextState()) {
+                //toNextState(); 
+                //TODO: check if this is the right way.
+                ToolbarButton.PLAY.action();
+            } else if (!forward && hasPreviousState()) {
+                //toPreviousState();
+                ToolbarButton.PLAY_REVERSE.action();
+            } else {
+                // There is no next state available. Pause!
+                setStatus(Status.PAUSED);
+                ToolbarButton.setAllFromStatus(Status.PAUSED);
+            }
+        }
+    }
+    
+    /**
+     * Update the state number in the toolbar.
+     */
+    public void updateStateInfo() {
+        Text stateInfoNode = (Text) getStage().getScene().lookup("#stateInfo");
+
+        if (stateInfoNode != null) {
+            executeOnCorrectThread(() -> {
+                stateInfoNode.setText("Current state number: " + getCurrentStateNumber() 
+                        + " out of " + getStateCount());
+            });
+        }
     }
     
     /**

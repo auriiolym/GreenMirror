@@ -91,7 +91,7 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         
         // Add the FX Node to the stage.
         getController().getVisualizer().executeOnCorrectThread(() -> {
-            getController().getVisualizer().getVisGroup().getChildren().add(fxNode);
+            getController().getVisualizer().getFxNodePane().getChildren().add(fxNode);
             
             // Add a log entry.
             Log.add("Node " + node.getId() + " added to the visualization.");

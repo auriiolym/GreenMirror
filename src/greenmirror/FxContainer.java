@@ -409,7 +409,6 @@ public abstract class FxContainer extends Observable {
                  * Possible solution: implement FxPropertyWrapper.equals(Object) and let its subclasses override.
                  */
                 if (String.valueOf(value).equals(String.valueOf(currentMap.get(property)))) {
-                    System.err.println("mark (" + property + ")");
                     continue;
                 }
                 
