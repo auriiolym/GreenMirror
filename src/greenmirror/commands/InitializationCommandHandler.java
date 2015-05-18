@@ -171,9 +171,9 @@ public class InitializationCommandHandler extends CommandHandler {
                 toolBar.getItems().add(button.getPane());
             }
             // Add status info.
-            Text statusInfo = new Text();
-            statusInfo.setId("statusInfo");
-            toolBar.getItems().add(statusInfo);
+            Text playbackInfo = new Text();
+            playbackInfo.setId("playbackInfo");
+            toolBar.getItems().add(playbackInfo);
             // Add spacer.
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -213,7 +213,7 @@ public class InitializationCommandHandler extends CommandHandler {
                     Paint.valueOf("linear-gradient(to bottom, #F5F5F5, #C2C2C2)"));
             stage.setScene(scene);
             stage.show();
-            getController().getVisualizer().updateStateInfo();
+            getController().getVisualizer().updateStateNumberInfo();
             
             Log.add("Visualizer initialized with width " + width + "px and height " 
                     + height + "px.");

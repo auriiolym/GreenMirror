@@ -16,6 +16,7 @@ import greenmirror.commands.SetCurrentAnimationDurationCommandHandler;
 import greenmirror.commands.SetNodeFxCommandHandler;
 import greenmirror.commands.StartVisualizationCommandHandler;
 import greenmirror.commands.SwitchRelationCommandHandler;
+import greenmirror.server.playbackstates.PausedState;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -47,17 +48,37 @@ import javafx.util.Duration;
  */
 public class Visualizer extends Application {
     
-    // -- Enumerations -----------------------------------------------------------------------
-
-    public static enum Status {
-        PLAYING_REVERSE_ONE_FAST,
-        PLAYING_REVERSE_ONE,
-        PLAYING_REVERSE,
-        PAUSED,
-        PLAYING,
-        PLAYING_ONE,
-        PLAYING_ONE_FAST,
+    // -- Inner classes ----------------------------------------------------------------------
+    
+    /**
+     * An abstract state class in accordance with the state design pattern.
+     * 
+     * @author Karim El Assal
+     */
+    public abstract static class PlaybackState {
+        
+        /**
+         * The method that determines the toolbar button operation in accordance with 
+         * <tt>hasPreviousState</tt> and <tt>hasNextState</tt>.
+         * @param hasPreviousState
+         * @param hasNextState
+         */
+        public abstract void determineButtonOperation(boolean hasPreviousState, 
+                boolean hasNextState);
+        
+        /**
+         * @return Whether this <tt>PlaybackState</tt> is a continuous one.
+         */
+        public abstract boolean isContinuous();
+        
+        /**
+         * @return A simple explanation of this state.
+         */
+        @Override
+        public abstract String toString();
     }
+    
+    // -- Enumerations -----------------------------------------------------------------------
     
     // -- Constants --------------------------------------------------------------------------
 
@@ -92,9 +113,9 @@ public class Visualizer extends Application {
     private ServerController controller;
     
     /**
-     * The current status of the visualizer.
+     * The current playback state of the visualizer.
      */
-    private Status currentStatus = Status.PAUSED;
+    private PlaybackState currentPlaybackState = new PausedState();
     
     /**
      * The <tt>Stage</tt> of the visualizer.
@@ -143,9 +164,9 @@ public class Visualizer extends Application {
     /**
      * @return The current status of the visualizer.
      */
-    //@ ensures currentStatus != null;
-    /*@ pure */ public Status getStatus() {
-        return currentStatus;
+    //@ ensures \result != null;
+    /*@ pure */ public PlaybackState getPlaybackState() {
+        return currentPlaybackState;
     }
 
     /**
@@ -267,16 +288,13 @@ public class Visualizer extends Application {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * @param status The new current status of the visualizer.
+     * @param playbackState The new current status of the visualizer.
      */
-    //@ requires status != null;
-    //@ ensures getStatus() == status;
-    public void setStatus(Status status) {
-        executeOnCorrectThread(() -> {
-            Text statusInfo = (Text) getStage().getScene().lookup("#statusInfo");
-            statusInfo.setText(status.toString());
-        });
-        this.currentStatus = status;
+    //@ requires playbackState != null;
+    //@ ensures getPlaybackState() == playbackState;
+    public void setPlaybackState(PlaybackState playbackState) {
+        this.currentPlaybackState = playbackState;
+        updatePlaybackStateInfo();
     }
 
     /**
@@ -370,9 +388,9 @@ public class Visualizer extends Application {
     }
     
     /**
-     * Execute when a transition has finished. It enabled or disabled the toolbar buttons based
-     * on the current visualizer status and transition to the next state if the status isn't
-     * paused (and a next state exists).
+     * Execute when a transition has finished. It also enables or disables the toolbar buttons 
+     * based on the current playback state and transitions to the next state if the playback state
+     * is continuous (and a next state exists).
      * @param forward <tt>true</tt> if we are/were going forward; <tt>false</tt> if backward.
      */
     public void transitionFinished(boolean forward) {
@@ -383,34 +401,33 @@ public class Visualizer extends Application {
         } else {
             decrementCurrentStateIndex();
         }
+
+        // Add log.
+        Log.add("State " + getCurrentStateNumber() + " reached.");
         
         // Toolbar buttons.
-        ToolbarButton.setAllFromStatus(getStatus());
+        getPlaybackState().determineButtonOperation(hasPreviousState(), hasNextState());
         
         // State info.
-        updateStateInfo();
+        updateStateNumberInfo();
 
         // Next state if wanted.
-        if (!getStatus().equals(Visualizer.Status.PAUSED)) {
-            if (forward && hasNextState()) {
-                //toNextState(); 
-                //TODO: check if this is the right way.
-                ToolbarButton.PLAY.action();
-            } else if (!forward && hasPreviousState()) {
-                //toPreviousState();
-                ToolbarButton.PLAY_REVERSE.action();
-            } else {
-                // There is no next state available. Pause!
-                setStatus(Status.PAUSED);
-                ToolbarButton.setAllFromStatus(Status.PAUSED);
-            }
+        if (getPlaybackState().isContinuous() &&  forward && hasNextState()) {
+            ToolbarButton.PLAY.action();
+        } else
+        if (getPlaybackState().isContinuous() && !forward && hasPreviousState()) {
+            ToolbarButton.PLAY_BACK.action();
+        } else {
+            // There is no next state available. Pause!
+            setPlaybackState(new PausedState());
+            getPlaybackState().determineButtonOperation(hasPreviousState(), hasNextState());
         }
     }
     
     /**
      * Update the state number in the toolbar.
      */
-    public void updateStateInfo() {
+    public void updateStateNumberInfo() {
         Text stateInfoNode = (Text) getStage().getScene().lookup("#stateInfo");
 
         if (stateInfoNode != null) {
@@ -419,6 +436,16 @@ public class Visualizer extends Application {
                         + " out of " + getStateCount());
             });
         }
+    }
+    
+    /**
+     * Update the playback state information in the toolbar.
+     */
+    public void updatePlaybackStateInfo() {
+        executeOnCorrectThread(() -> {
+            Text playbackInfo = (Text) getStage().getScene().lookup("#playbackInfo");
+            playbackInfo.setText(getPlaybackState().toString());
+        });
     }
     
     /**
@@ -660,6 +687,12 @@ public class Visualizer extends Application {
         getController().getNodes().clear();
         getStates().clear();
         currentStateIndex = 0;
+        if (getNextTransition() != null) {
+            getNextTransition().stop();
+        }
+        if (getPreviousTransition() != null) {
+            getPreviousTransition().stop();
+        }
         getController().relistenForConnections();
     }
     

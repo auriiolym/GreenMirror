@@ -1,7 +1,13 @@
 package greenmirror.server;
 
 import greenmirror.Log;
-import greenmirror.server.Visualizer.Status;
+import greenmirror.server.playbackstates.PausedState;
+import greenmirror.server.playbackstates.PlayingBackState;
+import greenmirror.server.playbackstates.PlayingState;
+import greenmirror.server.playbackstates.SteppingBackState;
+import greenmirror.server.playbackstates.SteppingState;
+import greenmirror.server.Visualizer.PlaybackState;
+
 import javafx.animation.Transition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -11,38 +17,26 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
+/**
+ * All the toolbar buttons.
+ * 
+ * @author Karim El Assal
+ */
 public enum ToolbarButton {
 
-    PLAY_REVERSE_ONE_FAST {
-
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#setFromStatus(greenmirror.server.Visualizer.Status)
-         */
-        @Override
-        public void setFromStatus(Status status) {
-            final boolean trueIfPossible = getVisualizer().hasPreviousState();
-            
-            switch (status) {
-            case PAUSED:
-                setEnabled(trueIfPossible);
-                break;
-            default:
-                setEnabled(false);
-                break;
-            }
-        }
+    STEP_BACK_FAST {
 
         /* (non-Javadoc)
          * @see greenmirror.server.ToolbarButton#build()
          */
         @Override
-        public void build() {
-            
-            Button button = getNewButton(this);
+        public Button build() {
+            Button button = super.build();
             button.setText("|≪");
-            button.setTooltip(new Tooltip("Rewind one transition."));
+            button.getTooltip().setText("Rewind one transition.");
             
             setPane(new StackPane(button));
+            return button;
         }
 
         /* (non-Javadoc)
@@ -50,43 +44,25 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            executeVisualizerTransition(Visualizer.Status.PLAYING_REVERSE_ONE_FAST, 
-                    Visualizer.Status.PAUSED, -10.0, false, true);
+            executeVisualizerTransition(new SteppingBackState(), -10.0);
         }
         
         
     },
    
-    PLAY_REVERSE_ONE {
-
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#setFromStatus(greenmirror.server.Visualizer.Status)
-         */
-        @Override
-        public void setFromStatus(Status status) {
-            final boolean trueIfPossible = getVisualizer().hasPreviousState();
-            
-            switch (status) {
-            case PAUSED:
-                setEnabled(trueIfPossible);
-                break;
-            default:
-                setEnabled(false);
-                break;
-            }
-        }
+    STEP_BACK {
 
         /* (non-Javadoc)
          * @see greenmirror.server.ToolbarButton#build()
          */
         @Override
-        public void build() {
-            
-            Button button = getNewButton(this);
+        public Button build() {
+            Button button = super.build();
             button.setText("|<");
-            button.setTooltip(new Tooltip("Play back one transition."));
+            button.getTooltip().setText("Play back one transition.");
             
             setPane(new StackPane(button));
+            return button;
         }
 
         /* (non-Javadoc)
@@ -94,44 +70,24 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            
-            executeVisualizerTransition(Visualizer.Status.PLAYING_REVERSE_ONE, 
-                    Visualizer.Status.PAUSED, -1.0, false, true);
+            executeVisualizerTransition(new SteppingBackState(), -1.0);
         }
         
     },
     
-    PLAY_REVERSE {
-
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#setFromStatus(greenmirror.server.Visualizer.Status)
-         */
-        @Override
-        public void setFromStatus(Status status) {
-            final boolean trueIfPossible = getVisualizer().hasPreviousState();
-            
-            switch (status) {
-            // Only set enabled if the visualizer is paused and it's got a previous state.
-            case PAUSED:
-                setEnabled(trueIfPossible);
-                break;
-            default:
-                setEnabled(false);
-                break;
-            }
-        }
+    PLAY_BACK {
 
         /* (non-Javadoc)
          * @see greenmirror.server.ToolbarButton#build()
          */
         @Override
-        public void build() {
-            
-            Button button = getNewButton(this);
+        public Button build() {
+            Button button = super.build();
             button.setText("<");
-            button.setTooltip(new Tooltip("Play transitions reversed."));
+            button.getTooltip().setText("Play back transitions.");
             
             setPane(new StackPane(button));
+            return button;
         }
 
         /* (non-Javadoc)
@@ -139,21 +95,7 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            //TODO: fix this.
-            // Update status.
-            getVisualizer().setStatus(Visualizer.Status.PLAYING_REVERSE);
-            setAllFromStatus(getVisualizer().getStatus());
-            
-            // To next states.
-            getVisualizer().getPreviousTransition().setOnFinished(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent arg0) {
-                    // Don't do anything other than the default actions.
-                    getVisualizer().transitionFinished(false);
-                }
-            });
-            // Indicate that we're going forward with a regular speed.
-            getVisualizer().getPreviousTransition().setRate(-1.0);
-            getVisualizer().toPreviousState();
+            executeVisualizerTransition(new PlayingBackState(), -1.0);
         }
         
     },
@@ -161,33 +103,16 @@ public enum ToolbarButton {
     PAUSE {
 
         /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#setFromStatus(greenmirror.server.Visualizer.Status)
-         */
-        @Override
-        public void setFromStatus(Status status) {
-            switch (status) {
-            case PAUSED: default:
-                setEnabled(false);
-                break;
-            // Only enable pause button when the visualizer isn't stopping automatically.
-            case PLAYING: case PLAYING_REVERSE:
-                setEnabled(true);
-                break;
-            }
-        }
-
-        /* (non-Javadoc)
          * @see greenmirror.server.ToolbarButton#build()
          */
         @Override
-        public void build() {
-            
-            Button button = getNewButton(this);
+        public Button build() {
+            Button button = super.build();
             button.setText("||");
-            button.setTooltip(new Tooltip("Pause the transitions (after the current "
-                    + "transition has finished)."));
+            button.getTooltip().setText("Pause further transitions.");
             
             setPane(new StackPane(button));
+            return button;
         }
 
         /* (non-Javadoc)
@@ -200,7 +125,7 @@ public enum ToolbarButton {
             /* Only update the status. The rest is handled by 
              * Visualizer#transitionFinished(boolean) (which is executed after this method)
              */
-            getVisualizer().setStatus(Visualizer.Status.PAUSED);
+            getVisualizer().setPlaybackState(new PausedState());
         }
         
     },
@@ -208,35 +133,17 @@ public enum ToolbarButton {
     PLAY {
 
         /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#setFromStatus(greenmirror.server.Visualizer.Status)
-         */
-        @Override
-        public void setFromStatus(Status status) {
-            final boolean trueIfPossible = getVisualizer().hasNextState();
-            
-            switch (status) {
-            // Only set enabled if the visualizer is paused and it's got a next state.
-            case PAUSED:
-                setEnabled(trueIfPossible);
-                break;
-            default:
-                setEnabled(false);
-                break;
-            }
-        }
-
-        /* (non-Javadoc)
          * @see greenmirror.server.ToolbarButton#build()
          */
         @Override
-        public void build() {
-            
-            Button button = getNewButton(this);
+        public Button build() {
+            Button button = super.build();
             button.setText(">");
-            button.setTooltip(new Tooltip("Play transitions."));
+            button.getTooltip().setText("Play transitions.");
             button.setDefaultButton(true);
             
             setPane(new StackPane(button));
+            return button;
         }
 
         /* (non-Javadoc)
@@ -244,54 +151,23 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            //TODO: fix this.
-            // Update status.
-            getVisualizer().setStatus(Visualizer.Status.PLAYING);
-            setAllFromStatus(getVisualizer().getStatus());
-            
-            // To next states.
-            getVisualizer().getNextTransition().setOnFinished(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent arg0) {
-                    // Don't do anything other than the default actions.
-                    getVisualizer().transitionFinished(true);
-                }
-            });
-            // Indicate that we're going forward with a regular speed.
-            getVisualizer().getNextTransition().setRate(1.0);
-            getVisualizer().toNextState();
+            executeVisualizerTransition(new PlayingState(), 1.0);
         }
-        
     },
     
-    PLAY_ONE {
-
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#setFromStatus(greenmirror.server.Visualizer.Status)
-         */
-        @Override
-        public void setFromStatus(Status status) {
-            final boolean trueIfPossible = getVisualizer().hasNextState();
-            
-            switch (status) {
-            // Only set enabled if the visualizer is paused and it's got a next state.
-            case PAUSED:
-                setEnabled(trueIfPossible);
-                break;
-            default:
-                setEnabled(false);
-            }
-        }
+    STEP {
 
         /* (non-Javadoc)
          * @see greenmirror.server.ToolbarButton#build()
          */
         @Override
-        public void build() {
-            Button button = getNewButton(this);
+        public Button build() {
+            Button button = super.build();
             button.setText(">|");
-            button.setTooltip(new Tooltip("Play one transition."));
+            button.getTooltip().setText("Play one transition.");
             
             setPane(new StackPane(button));
+            return button;
         }
 
         /* (non-Javadoc)
@@ -299,42 +175,24 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            
-            executeVisualizerTransition(Visualizer.Status.PLAYING_ONE, 
-                    Visualizer.Status.PAUSED, 1.0, true, true);
+            executeVisualizerTransition(new SteppingState(), 1.0);
         }
         
     },
     
-    PLAY_ONE_FAST {
-
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#setFromStatus(greenmirror.server.Visualizer.Status)
-         */
-        @Override
-        public void setFromStatus(Status status) {
-            final boolean trueIfPossible = getVisualizer().hasNextState();
-            
-            switch (status) {
-            // Only set enabled if the visualizer is paused and it's got a next state.
-            case PAUSED:
-                setEnabled(trueIfPossible);
-                break;
-            default:
-                setEnabled(false);
-            }
-        }
+    STEP_FAST {
 
         /* (non-Javadoc)
          * @see greenmirror.server.ToolbarButton#build()
          */
         @Override
-        public void build() {
-            Button button = getNewButton(this);
+        public Button build() {
+            Button button = super.build();
             button.setText("≫|");
-            button.setTooltip(new Tooltip("Forward one transition."));
+            button.getTooltip().setText("Forward one transition.");
             
             setPane(new StackPane(button));
+            return button;
         }
 
         /* (non-Javadoc)
@@ -342,13 +200,9 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            
-            executeVisualizerTransition(Visualizer.Status.PLAYING_ONE_FAST, 
-                    Visualizer.Status.PAUSED, 10.0, true, true);
+            executeVisualizerTransition(new SteppingState(), 10.0);
         }
-        
-    }
-    ;
+    };
     
     // -- Instance variables -----------------------------------------------------------------
 
@@ -356,8 +210,7 @@ public enum ToolbarButton {
     private Pane pane;
     private boolean enabled = false;
     protected final EventHandler<ActionEvent> clickEvent = new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent arg0) {
+        @Override public void handle(ActionEvent arg0) {
             action();
         }
     };
@@ -382,7 +235,7 @@ public enum ToolbarButton {
     /**
      * @return Whether the button is enabled.
      */
-    public boolean getEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
@@ -411,27 +264,37 @@ public enum ToolbarButton {
      * Set whether the button is enabled or not. It also changes the appearance of the button.
      * @param enabled
      */
-    //@ ensures getEnabled() == enabled;
+    //@ ensures isEnabled() == enabled;
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         getVisualizer().executeOnCorrectThread(() -> {
-            ((Button) getPane().getChildren().get(0)).setDisable(!getEnabled());
+            ((Button) getPane().getChildren().get(0)).setDisable(!isEnabled());
         });
     }
-
-    /**
-     * Set several properties of this <tt>ToolbarButton</tt> on the basis of the passed status,
-     * like the looks and whether the button is enabled or not.
-     * @param status The visualizer's status.
-     */
-    //@ requires status != null;
-    public abstract void setFromStatus(Visualizer.Status status);
     
     /**
-     * Build the button.
+     * Retrieve a prototype toolbar button. It's disabled by default. Specific customization
+     * can be done by the overriding methods.
+     * @param inst The current instance of <tt>ToolbarButton</tt>, so the click event can be 
+     *             registered.
+     * @return     The button.
      */
     //@ ensures getPane() != null;
-    public abstract void build();
+    //@ ensures \result != null;
+    public Button build() {
+        Button button = new Button();
+        button.setStyle("-fx-base: lightgreen; -fx-font-family: monospace;");
+        button.setOnAction(this.clickEvent);
+        button.setDisable(true);
+        Tooltip tooltip = new Tooltip();
+        tooltip.setStyle(
+                  "-fx-background-radius: 1 1 1 1;"
+                + "-fx-background-color: linear-gradient(lightgreen, darkgreen);"
+                + "-fx-text-fill: black;"
+                + "-fx-font: 14px Arial;");
+        button.setTooltip(tooltip);
+        return button;
+    }
     
     /**
      * Do something when the button is clicked. 
@@ -439,41 +302,37 @@ public enum ToolbarButton {
     public abstract void action();
 
     /**
-     * Execute a visualizer transition. This method assumes a forward or backward transition 
-     * is possible.
-     * @param statusWhilePlaying
-     * @param statusAfterPlaying
-     * @param rate
-     * @param forward
+     * Execute a visualizer transition. This method assumes a forward or backward transition
+     * is possible. If <tt>rate</tt> is positive, a forward transition is assumed. If
+     * <tt>pbStateWhilePlaying</tt> is <tt>null</tt> or the <tt>pbStateWhilePlaying</tt> is NOT
+     * continuous, a 'stepping' transition is assumed: the delay is removed and after the
+     * transition is finished, the playback state is set to paused.
+     * @param pbStateWhilePlaying The playback status set during the transition.
+     * @param rate The rate with which the transition will take place. 
+     *        {@see javafx.animation.Animation#rateProperty()}
      */
-    public void executeVisualizerTransition(Visualizer.Status statusBeforePlaying, 
-            Visualizer.Status statusAfterPlaying, double rate, boolean forward, boolean step) {
+    public void executeVisualizerTransition(PlaybackState pbStateWhilePlaying, double rate) {
 
-        
+        final boolean forward = rate > 0;
+        final boolean isStep = pbStateWhilePlaying == null || !pbStateWhilePlaying.isContinuous();
+        final int newStateNumber = getVisualizer().getCurrentStateNumber() + (forward ? 1 : -1);
         Transition toTransition = forward 
-                ? getVisualizer().getNextTransition() : getVisualizer().getPreviousTransition();
-        int newStateNumber = getVisualizer().getCurrentStateNumber() + (forward ? 1 : -1); 
+                ? getVisualizer().getNextTransition() : getVisualizer().getPreviousTransition(); 
     
         Log.add("Transition to state " + newStateNumber + " started.");
         
         // Update status.
-        if (statusBeforePlaying != null) {
-            getVisualizer().setStatus(statusBeforePlaying);
-            setAllFromStatus(getVisualizer().getStatus());
+        if (pbStateWhilePlaying != null) {
+            getVisualizer().setPlaybackState(pbStateWhilePlaying);
+            getVisualizer().getPlaybackState().determineButtonOperation(
+                    getVisualizer().hasPreviousState(), getVisualizer().hasNextState());
         }
         
         // Set what to do when the transition finishes.
         toTransition.setOnFinished(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent arg0) {
-                // Change status when the state is reached.
-                if (statusAfterPlaying != null) {
-                    getVisualizer().setStatus(statusAfterPlaying);
-                }
                 
-                // Add log.
-                Log.add("State " + newStateNumber + " reached.");
-                
-                // Execute default actions on finishing.
+                // Execute visualizer actions on finishing.
                 getVisualizer().transitionFinished(forward);
             }
         });
@@ -482,7 +341,7 @@ public enum ToolbarButton {
         toTransition.setRate(rate);
         
         // Set the delay.
-        double delay = step ? 0 : getVisualizer().getCurrentTransitionDelay();
+        double delay = isStep ? 0 : getVisualizer().getCurrentTransitionDelay();
         toTransition.setDelay(Duration.millis(delay));
         
         // And go to the next or previous state.
@@ -490,23 +349,6 @@ public enum ToolbarButton {
             getVisualizer().toNextState();
         } else {
             getVisualizer().toPreviousState(); 
-        }
-    }
-    
-
-    // -- Class usage ------------------------------------------------------------------------
-    
-    public static Button getNewButton(ToolbarButton inst) {
-        Button button = new Button();
-        button.setStyle("-fx-base: lightgreen; -fx-font-family: monospace;");
-        button.setOnAction(inst.clickEvent);
-        button.setDisable(true);
-        return button;
-    }
-    
-    public static void setAllFromStatus(Status status) {
-        for (ToolbarButton button : values()) {
-            button.setFromStatus(status);
         }
     }
 }
