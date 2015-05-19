@@ -7,7 +7,7 @@ import greenmirror.Relation;
 import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.FlushCommand;
 import greenmirror.commands.SetCurrentAnimationDurationCommand;
-import greenmirror.commands.SwitchRelationCommand;
+import greenmirror.commands.SwitchPlacementRelationCommand;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.Script;
@@ -200,7 +200,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
         }
         Relation currentPlacementRelation = nodeA.getPlacementRelation();
         
-        getController().send(new SwitchRelationCommand(currentPlacementRelation, newRelation));
+        getController().send(new SwitchPlacementRelationCommand(currentPlacementRelation, newRelation));
         currentPlacementRelation.remove();
         newRelation.addToNodes();
     }
@@ -269,7 +269,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
      */
     //@ requires type != null;
     public FxContainer fx(String type) {
-        return FxContainer.instantiate(type);
+        return FxContainer.getNewInstance(type);
     }
     
     /**

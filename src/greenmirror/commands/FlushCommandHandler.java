@@ -18,6 +18,7 @@ import javafx.util.Duration;
  * 
  * @author Karim El Assal
  */
+@CommandHandler.ServerSide
 public class FlushCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

@@ -42,7 +42,6 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
         "greenmirror.client.GridBuilder",
         "javafx.scene.paint.*",
     };
-    //TODO: add this.
     
     
     // -- Instance variables -----------------------------------------------------------------

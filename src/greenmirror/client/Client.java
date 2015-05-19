@@ -18,8 +18,8 @@ import groovy.lang.GroovyRuntimeException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.ServiceLoader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,6 +107,32 @@ public class Client extends GreenMirrorController implements Observer {
 
     
     // -- Constructors -----------------------------------------------------------------------
+    
+    /**
+     * Create a new Client controller. It registers any available <tt>ModelInitializer</tt>s,
+     * <tt>TraceSelector</tt>s and <tt>CommandHandler</tt>s.
+     */
+    public Client() {
+        
+        // Register CommandHandlers
+        for (CommandHandler ch : ServiceLoader.load(CommandHandler.class)) {
+            if (ch.getClass().isAnnotationPresent(CommandHandler.ClientSide.class)) {
+                ch.setController(this);
+                getCommandHandlers().add(ch);
+            }
+        }
+        
+        // Register ModelInitializers.
+        for (ModelInitializer mi : ServiceLoader.load(ModelInitializer.class)) {
+            mi.setController(this);
+            getModelInitializers().add(mi);
+        }
+        
+        // Register TraceSelectors.
+        for (TraceSelector ts : ServiceLoader.load(TraceSelector.class)) {
+            getTraceSelectors().add(ts);
+        }
+    }
 
     // -- Queries ----------------------------------------------------------------------------
     
@@ -152,24 +179,6 @@ public class Client extends GreenMirrorController implements Observer {
     }
     
     // -- Setters ----------------------------------------------------------------------------
-    
-    /**
-     * @param initializer The model initializer to register.
-     */
-    //@ ensures getModelInitializers().contains(initializer);
-    //@ ensures this.equals(initializer.getController());
-    public void register(ModelInitializer initializer) {
-        getModelInitializers().add(initializer);
-        initializer.setController(this);
-    }
-    
-    /**
-     * @param initializer The model initializer to register.
-     */
-    //@ ensures getTraceSelectors().contains(selector);
-    public void register(TraceSelector selector) {
-        getTraceSelectors().add(selector);
-    }
     
     /**
      * Adds a <tt>Node</tt> to the visualizer and set the unique id of the <tt>Node</tt>
@@ -364,9 +373,6 @@ public class Client extends GreenMirrorController implements Observer {
         Log.addOutput(Log.Output.DEFAULT);
         
         Client greenmirror = new Client();
-        greenmirror.register(new GroovyScriptModelInitializer());
-        greenmirror.register(new FileTraceSelector());
-        //TODO: register CommandHandlers.
         
         
         

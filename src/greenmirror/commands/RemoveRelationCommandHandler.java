@@ -5,6 +5,7 @@ import greenmirror.*;
 /**
  * The handler that removes a relation. This command is received from the client.
  */
+@CommandHandler.ServerSide
 public class RemoveRelationCommandHandler extends CommandHandler {
 
     /**

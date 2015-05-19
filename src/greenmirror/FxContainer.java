@@ -9,9 +9,12 @@ import groovy.json.JsonOutput;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.ServiceLoader;
+import java.util.Set;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -36,6 +39,9 @@ public abstract class FxContainer extends Observable {
     // -- Constants --------------------------------------------------------------------------
     
     // -- Class variables --------------------------------------------------------------------
+    
+    /** All different prototypes. */
+    private static Set<FxContainer> prototypes;
 
     // -- Instance variables -----------------------------------------------------------------
     
@@ -291,8 +297,13 @@ public abstract class FxContainer extends Observable {
     
     // -- Class usage ------------------------------------------------------------------------
     
+    private static Set<FxContainer> getPrototypes() {
+        return prototypes;
+    }
+    
     /**
-     * Instantiate a new <tt>FxContainer</tt>.
+     * Instantiate a new <tt>FxContainer</tt>. It does this by using <tt>ServiceLoader</tt>
+     * (lazily).
      * @param type The type, which should be the same as the class name in the 
      *             <tt>greenmirror.fxcontainers</tt> package, appended with <tt>FxContainer</tt>.
      *             The first letter will be capitalized.
@@ -300,18 +311,25 @@ public abstract class FxContainer extends Observable {
      * @throws IllegalArgumentException If the passed type is invalid.
      */
     //@ requires type != null;
-    public static FxContainer instantiate(String type) {
-        try {
-            Class<?> vc = Class.forName("greenmirror.fxcontainers." 
-                    + Character.toUpperCase(type.charAt(0)) + type.substring(1) + "FxContainer");
-
-            return (FxContainer) vc.newInstance();
-            
-        } catch (ClassNotFoundException | IllegalAccessException
-                | InstantiationException | ClassCastException e) {
-            // Throw Exception if it wasn't possible to create the FxContainer.
-            throw new IllegalArgumentException("The passed FX type (" + type + ") is invalid.");
+    public static FxContainer getNewInstance(String type) {
+        
+        if (getPrototypes() == null) {
+            prototypes = new HashSet<FxContainer>();
+            for (FxContainer fxContainer : ServiceLoader.load(FxContainer.class)) {
+                getPrototypes().add(fxContainer);
+            }
         }
+        
+        String simpleClassName = Character.toUpperCase(type.charAt(0)) + type.substring(1)
+                + "FxContainer";
+        
+        for (FxContainer fxContainerPrototype : getPrototypes()) {
+            if (simpleClassName.equals(fxContainerPrototype.getClass().getSimpleName())) {
+                return fxContainerPrototype.clone();
+            }
+        }
+
+        throw new IllegalArgumentException("The passed FX type (" + type + ") is invalid.");
     }
     
     

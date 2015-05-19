@@ -15,6 +15,7 @@ import javafx.util.Duration;
 /**
  * The handler that sets the FX of a node. This command is received from the client.
  */
+@CommandHandler.ServerSide
 public class SetNodeFxCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

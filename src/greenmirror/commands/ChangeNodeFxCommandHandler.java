@@ -16,6 +16,7 @@ import java.util.Map;
  * 
  * @author Karim El Assal
  */
+@CommandHandler.ServerSide
 public class ChangeNodeFxCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

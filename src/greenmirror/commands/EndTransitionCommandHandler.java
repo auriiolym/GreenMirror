@@ -13,6 +13,7 @@ import groovy.json.JsonOutput;
  * 
  * @author Karim El Assal
  */
+@CommandHandler.ServerSide
 public class EndTransitionCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

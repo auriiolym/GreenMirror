@@ -1,0 +1,7 @@
+#######
+# Place all available FxContainers here.
+#
+# The only requirements on any service providers below are the existence of a 
+# zero-argument constructor and the fact that it should implement FxContainer.
+#
+greenmirror.fxcontainers.RectangleFxContainer

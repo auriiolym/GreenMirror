@@ -516,7 +516,7 @@ public class Node extends Observable implements Observer {
             }
         }
         // If it wasn't created yet, try to create it, add observers and notify our own observers.
-        setFxContainer(FxContainer.instantiate(type));
+        setFxContainer(FxContainer.getNewInstance(type));
         getFxContainer().addObserver(this);
         
         setChanged();

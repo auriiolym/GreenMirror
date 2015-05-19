@@ -3,7 +3,6 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.FxContainer;
-import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.Relation;
@@ -12,13 +11,12 @@ import groovy.json.internal.LazyValueMap;
 
 import java.util.Map;
 
-import javafx.animation.Transition;
-import javafx.geometry.Point3D;
-import javafx.util.Duration;
-
 /**
  * The handler that adds a relation. This command is received from the client.
+ * 
+ * @author Karim El Assal
  */
+@CommandHandler.ServerSide
 public class AddRelationCommandHandler extends CommandHandler {
 
 
@@ -46,9 +44,6 @@ public class AddRelationCommandHandler extends CommandHandler {
     //@ requires getController() != null && format != null && data != null;
     public void handle(CommunicationFormat format, String data) 
             throws MissingDataException, DataParseException {
-
-        Duration duration = Duration.millis(
-                getController().getVisualizer().getCurrentAnimationDuration());
         
         Relation relation;
         Node nodeA;

@@ -21,7 +21,7 @@ import java.util.HashMap;
  *                    defaults to false.
  * tempFx : FxContainer        The temporary appearance of node A.
  */
-public class SwitchRelationCommand extends Command {
+public class SwitchPlacementRelationCommand extends Command {
     
     // --- Instance variables ----------------------------------------------------------------
     
@@ -37,7 +37,7 @@ public class SwitchRelationCommand extends Command {
      * @param newRelation The new <tt>Relation</tt>.
      */
     //@ requires oldRelation != null && newRelation != null;
-    public SwitchRelationCommand(Relation oldRelation, Relation newRelation) {
+    public SwitchPlacementRelationCommand(Relation oldRelation, Relation newRelation) {
         this.oldRelation = oldRelation;
         this.newRelation = newRelation;
     }

@@ -5,7 +5,6 @@ import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.server.ServerController;
 import greenmirror.server.ToolbarButton;
-import greenmirror.server.Visualizer;
 
 /**
  * The handler that handles the signal that we're at the end of a transition. 
@@ -13,6 +12,7 @@ import greenmirror.server.Visualizer;
  * 
  * @author Karim El Assal
  */
+@CommandHandler.ServerSide
 public class StartVisualizationCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

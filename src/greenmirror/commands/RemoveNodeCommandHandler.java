@@ -5,6 +5,7 @@ import greenmirror.*;
 /**
  * The handler that removes a node. This command is received from the client.
  */
+@CommandHandler.ServerSide
 public class RemoveNodeCommandHandler extends CommandHandler {
 
     /**

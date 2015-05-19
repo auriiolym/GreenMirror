@@ -11,6 +11,7 @@ import java.util.Map;
 /**
  * The handler that adds a node. This command is received from the client.
  */
+@CommandHandler.ServerSide
 public class AddNodeCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

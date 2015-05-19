@@ -13,6 +13,7 @@ import java.util.Map;
  * 
  * @author Karim El Assal
  */
+@CommandHandler.ServerSide
 public class SetCurrentAnimationDurationCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

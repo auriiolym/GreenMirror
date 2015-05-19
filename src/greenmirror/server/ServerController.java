@@ -9,18 +9,14 @@ import greenmirror.PeerListener;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
-
-import javafx.animation.Animation;
-import javafx.animation.ParallelTransition;
-import javafx.animation.SequentialTransition;
-import javafx.animation.Transition;
-import javafx.collections.ObservableList;
+import java.util.Arrays;
+import java.util.ServiceLoader;
 
 /**
  * The main server class.
@@ -49,12 +45,20 @@ public class ServerController extends GreenMirrorController {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create a new <tt>ServerController</tt> instance.
+     * Create a new <tt>ServerController</tt> instance. It registers all available 
+     * <tt>CommandHandler</tt>s that are meant for the server.
      * @param visualizer The main application.
      */
     //@ requires visualizer != null;
     //@ ensures getVisualizer() == visualizer;
     public ServerController(Visualizer visualizer) {
+        for (CommandHandler ch : ServiceLoader.load(CommandHandler.class)) {
+            if (ch.getClass().isAnnotationPresent(CommandHandler.ServerSide.class)) {
+                ch.setController(this);
+                getCommandHandlers().add(ch);
+            }
+        }
+        
         this.visualizer = visualizer;
     }
 

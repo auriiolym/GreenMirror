@@ -1,11 +1,14 @@
 package greenmirror;
 
+import greenmirror.client.ModelInitializer;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * The base controller. It contains shared functionality for the client and server 
@@ -49,7 +52,8 @@ public abstract class GreenMirrorController {
      * The instance that listens to data from the peer.
      */
     private PeerListener peerListener;
-
+    
+    // -- Constructors -----------------------------------------------------------------------
     
     // -- Queries ----------------------------------------------------------------------------
     

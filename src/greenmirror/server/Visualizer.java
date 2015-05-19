@@ -15,7 +15,7 @@ import greenmirror.commands.InitializationCommandHandler;
 import greenmirror.commands.SetCurrentAnimationDurationCommandHandler;
 import greenmirror.commands.SetNodeFxCommandHandler;
 import greenmirror.commands.StartVisualizationCommandHandler;
-import greenmirror.commands.SwitchRelationCommandHandler;
+import greenmirror.commands.SwitchPlacementRelationCommandHandler;
 import greenmirror.server.playbackstates.PausedState;
 
 import java.util.HashMap;
@@ -596,17 +596,6 @@ public class Visualizer extends Application {
         
         this.controller = new ServerController(this);
         getController().setCommunicationFormat(CommunicationFormat.JSON);
-        //TODO: Register CommandHandlers.
-        getController().register(new InitializationCommandHandler());
-        getController().register(new EndTransitionCommandHandler());
-        getController().register(new SetCurrentAnimationDurationCommandHandler());
-        getController().register(new FlushCommandHandler());
-        getController().register(new AddNodeCommandHandler());
-        getController().register(new SetNodeFxCommandHandler());
-        getController().register(new ChangeNodeFxCommandHandler());
-        getController().register(new AddRelationCommandHandler());
-        getController().register(new StartVisualizationCommandHandler());
-        getController().register(new SwitchRelationCommandHandler());
 
 
         
@@ -687,10 +676,10 @@ public class Visualizer extends Application {
         getController().getNodes().clear();
         getStates().clear();
         currentStateIndex = 0;
-        if (getNextTransition() != null) {
+        if (hasNextState() && getNextTransition() != null) {
             getNextTransition().stop();
         }
-        if (getPreviousTransition() != null) {
+        if (hasPreviousState() && getPreviousTransition() != null) {
             getPreviousTransition().stop();
         }
         getController().relistenForConnections();

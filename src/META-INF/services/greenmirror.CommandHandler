@@ -1,0 +1,18 @@
+#######
+# Place all available CommandHandlers here.
+#
+# The only requirements on any service providers below are the existence of a 
+# zero-argument constructor and the fact that it should extend CommandHandler.
+#
+greenmirror.commands.AddNodeCommandHandler
+greenmirror.commands.AddRelationCommandHandler
+greenmirror.commands.ChangeNodeFxCommandHandler
+greenmirror.commands.EndTransitionCommandHandler
+greenmirror.commands.FlushCommandHandler
+greenmirror.commands.InitializationCommandHandler
+greenmirror.commands.RemoveNodeCommandHandler
+greenmirror.commands.RemoveRelationCommandHandler
+greenmirror.commands.SetCurrentAnimationDurationCommandHandler
+greenmirror.commands.SetNodeFxCommandHandler
+greenmirror.commands.StartVisualizationCommandHandler
+greenmirror.commands.SwitchPlacementRelationCommandHandler

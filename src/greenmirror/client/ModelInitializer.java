@@ -1,6 +1,5 @@
 package greenmirror.client;
 
-import greenmirror.client.TraceSelector.PreparationException;
 
 /**
  * The interface which defines how model initializers should be structured.

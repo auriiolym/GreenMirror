@@ -5,17 +5,27 @@ import groovy.json.JsonParserType;
 import groovy.json.JsonSlurper;
 import groovy.json.internal.LazyValueMap;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.Map;
 
 
 /**
  * The abstract <tt>CommandHandler</tt> class. It contains shared code for all 
- * <tt>CommandHandler</tt>s.
+ * <tt>CommandHandler</tt>s. All extending classes should either use the <tt>ClientSide</tt> or
+ * the <tt>ServerSide</tt> annotation, or else they won't be registered.
  * 
  * @author Karim El Assal
  */
 public abstract class CommandHandler {
+    
+    // -- Annotations ------------------------------------------------------------------------
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public static @interface ClientSide {}
+    @Retention(RetentionPolicy.RUNTIME)
+    public static @interface ServerSide {}
     
     // -- Exceptions -------------------------------------------------------------------------
     
