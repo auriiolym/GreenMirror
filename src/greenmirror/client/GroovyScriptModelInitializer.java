@@ -106,21 +106,17 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.client.ModelInitializer#setParameters(java.lang.String[])
+     * @see greenmirror.client.ModelInitializer#setParameter(java.lang.String)
      */
     @Override
-    public void setParameters(String... parameters) throws IllegalArgumentException {
-        // Check if we've got the exact amount of necessary parameters.
-        if (parameters.length != 1) {
-            throw new IllegalArgumentException("the Groovy script model initializer only "
-                                             + "needs the filename as its parameter.");
-        }
+    public void setParameter(String parameter) throws IllegalArgumentException {
+        
         // Check if the file can be found.
         try {
-            filereader = new FileReader(parameters[0]);
+            filereader = new FileReader(parameter);
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("the Groovy script model initializer could "
-                    + "not find the file \"" + parameters[0] + "\".");
+                    + "not find the file \"" + parameter + "\".");
         }
     }
     

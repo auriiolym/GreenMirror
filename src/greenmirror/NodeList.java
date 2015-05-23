@@ -184,13 +184,9 @@ public class NodeList extends LinkedList<Node> {
      *         or just an empty <tt>NodeList</tt> if <tt>this</tt> doesn't contain any 
      *         <tt>Node</tt>s.
      */
-    //@ requires this.size() > 0;
+    //@ ensures (this.size() == 0) ? (\result == null) : (\result.size() == 1);
     /*@ pure */ public NodeList one() {
-        if (this.size() == 0) {
-            return null;
-        } else {
-            return new NodeList(this.get(0));
-        }
+        return this.isEmpty() ? null : new NodeList(this.get(0));
     }
     
     

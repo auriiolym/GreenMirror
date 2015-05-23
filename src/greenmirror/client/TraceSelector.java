@@ -47,9 +47,9 @@ public interface TraceSelector {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * @param parameters Parameters to store .
+     * @param parameter Parameter to store .
      */
-    public void setParameters(String... parameters);
+    public void setParameter(String parameter);
     
     
     // -- Commands ---------------------------------------------------------------------------

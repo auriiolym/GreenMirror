@@ -4,7 +4,7 @@ import greenmirror.Command;
 import greenmirror.CommunicationFormat;
 import groovy.json.JsonOutput;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * The command that signals that the visualization must be started. 
@@ -41,7 +41,7 @@ public class StartVisualizationCommand extends Command {
     public String getFormattedString(CommunicationFormat format) {
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new HashMap<String, Double>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Double>() {
                 {
                     // Nothing to send.
                 }

@@ -6,7 +6,7 @@ import greenmirror.Log;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -71,14 +71,14 @@ public class ChangeNodeFxCommand extends Command {
         
         switch (format) {
         default: case JSON:
-            Map<String, Object> fxMap = new HashMap<>();
+            Map<String, Object> fxMap = new LinkedHashMap<>();
             for (Map.Entry<String, Object> entry : getNode().getFxContainer().toMap().entrySet()) {
                 if (entry.getValue() != null) {
                     fxMap.put(entry.getKey(), entry.getValue());
                 }
             }
             
-            return JsonOutput.toJson(new HashMap<String, Object>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Object>() {
                 {
                     put("id", getNode().getId());
                     put("fx", fxMap);

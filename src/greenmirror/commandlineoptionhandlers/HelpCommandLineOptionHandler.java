@@ -1,0 +1,121 @@
+package greenmirror.commandlineoptionhandlers;
+
+import greenmirror.CommandLineOptionHandler;
+import greenmirror.GreenMirrorController;
+import greenmirror.Log;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSpec;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * The help <tt>CommandLineOptionHandler</tt> (client and server side).
+ * 
+ * @author Karim El Assal
+ */
+@CommandLineOptionHandler.ClientSide
+@CommandLineOptionHandler.ServerSide
+public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
+    
+    // -- Instance variables -----------------------------------------------------------------
+    
+    // -- Queries ----------------------------------------------------------------------------
+   
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#getDescription()
+     */
+    @Override
+    public String getDescription() {
+        return "display this help message";
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#getOptions()
+     */
+    @Override
+    public List<String> getOptions() {
+        return Arrays.asList("help", "?");
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#getProcessPriority()
+     */
+    @Override
+    public int getProcessPriority() {
+        return 1;
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#getParameterCount()
+     */
+    @Override
+    public int getArgumentCount() {
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#allowMultiple()
+     */    
+    @Override
+    public boolean allowMultiple() {
+        return false;
+    }
+    
+    
+    // -- Commands ---------------------------------------------------------------------------
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#setParserSettings(joptsimple.OptionParser)
+     */
+    @Override
+    public OptionSpec<?> setParserSettings(OptionParser optionParser) {
+
+        return optionParser.acceptsAll(getOptions()).forHelp();
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#validate(greenmirror.GreenMirrorController, 
+     *                                                                      java.lang.String[])
+     */
+    @Override
+    public void validate(GreenMirrorController controller, String... parameters)
+            throws FatalException {
+        // Nothing to validate.
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#process(greenmirror.GreenMirrorController)
+     */
+    @Override
+    public void process(GreenMirrorController controller) throws FatalException {
+        
+        // Rebuild the parser.
+        final OptionParser parser = new OptionParser();
+        controller.getCommandLineOptionHandlers().forEach(handler -> {
+            handler.setParserSettings(parser);
+        });
+        CommandLineOptionHandler.addVerboseOption(parser);
+        
+        // Build help string.
+        StringWriter stringWriter = new StringWriter();
+        try {
+            parser.printHelpOn(stringWriter);
+        } catch (IOException e) {
+            Log.add("Something went wrong with building the help message.");
+        }
+        Log.add(String.format(controller.getHelpMessage(), stringWriter.toString()));
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.CommandLineOptionHandler#clone()
+     */
+    @Override
+    public CommandLineOptionHandler clone() {
+        return new HelpCommandLineOptionHandler();
+    }
+
+}

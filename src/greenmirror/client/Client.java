@@ -2,12 +2,15 @@ package greenmirror.client;
 
 import greenmirror.Command;
 import greenmirror.CommandHandler;
+import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.NullNode;
 import greenmirror.PeerListener;
+import greenmirror.Relation;
 import greenmirror.commands.AddNodeCommand;
+import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.EndTransitionCommand;
 import greenmirror.commands.InitializationCommand;
 import greenmirror.commands.RemoveNodeCommand;
@@ -18,24 +21,19 @@ import groovy.lang.GroovyRuntimeException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ServiceLoader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Implements java.util.Observer.
@@ -48,36 +46,6 @@ public class Client extends GreenMirrorController implements Observer {
      * The current GreenMirror client application version.
      */
     private static final double VERSION = 1.0;
-    
-    /**
-     * The help message, shown in the log when -help is used as an argument. The first %s will
-     * be replaced by a list of the registered model initializers, the second by a list of
-     * registered trace selectors.
-     */
-    private static final String HELP_MSG = 
-          "\nGreenMirror State-Transition Visualization client v" + VERSION + "."
-        + "\n"
-        + "\nThe following arguments are available:"
-        + "\n  -host:<host>        Specifies the host of the server. <host> can be anything"
-        + "\n                      that resolves to a server address."
-        + "\n  -port:<port>        Specifies the port of the server. <port> should be a number."
-        + "\n  -model:<initializer>:<parameters>"
-        + "\n                      Specifies the model initializer which lets the application"
-        + "\n                      know about your model. This argument can be used as often as"
-        + "\n                      you want."
-        + "\n  -trace:<selector>:<parameters>"
-        + "\n                      Specifies the trace selector which lets the application"
-        + "\n                      know about which trace to follow."
-        + "\n  [-verbose]          Outputs verbose data to the logs. Optional."
-        + "\n  [-help]             Display this help message."
-        + "\n "
-        + "\nIf <parameters> consists of multiple parameters (see the descriptions below),"
-        + "\nthey can be passed by using a colon (:) as a delimeter. If you need to use "
-        + "\nspaces in your parameters, surround them by quotes (\")."
-        + "\n "
-        + "\nThe following model initializers are currently supported:%s"
-        + "\n "
-        + "\nAnd the following trace selectors are currently supported:%s";
     
     /**
      * The connection timeout in seconds.
@@ -115,27 +83,67 @@ public class Client extends GreenMirrorController implements Observer {
     public Client() {
         
         // Register CommandHandlers
-        for (CommandHandler ch : ServiceLoader.load(CommandHandler.class)) {
+        ServiceLoader.load(CommandHandler.class).forEach(ch -> {
             if (ch.getClass().isAnnotationPresent(CommandHandler.ClientSide.class)) {
                 ch.setController(this);
                 getCommandHandlers().add(ch);
             }
-        }
+        });
         
         // Register ModelInitializers.
-        for (ModelInitializer mi : ServiceLoader.load(ModelInitializer.class)) {
+        ServiceLoader.load(ModelInitializer.class).forEach(mi -> {
             mi.setController(this);
             getModelInitializers().add(mi);
-        }
+        });
         
         // Register TraceSelectors.
-        for (TraceSelector ts : ServiceLoader.load(TraceSelector.class)) {
+        ServiceLoader.load(TraceSelector.class).forEach(ts -> {
             getTraceSelectors().add(ts);
-        }
+        });
+
+        // Register CommandLineOptionHandlers.
+        ServiceLoader.load(CommandLineOptionHandler.class).forEach(cloh -> {
+            if (cloh.getClass().isAnnotationPresent(CommandLineOptionHandler.ClientSide.class)) {
+                getCommandLineOptionHandlers().add(cloh);
+            }
+        });
     }
 
     // -- Queries ----------------------------------------------------------------------------
     
+    /* (non-Javadoc)
+     * @see greenmirror.GreenMirrorController#getHelpMessage()
+     */
+    @Override
+    public String getHelpMessage() {
+        String help = 
+            "\nGreenMirror State-Transition Visualization client v" + VERSION + "."
+          + "\n"
+          + "\nThe following options are available:"
+          + "\n%s"
+          + "\n "
+          + "\nThe parameter of the model initializers and trace selectors described below "
+          + "differs per implementation.If you need to use spaces in your parameters, surround "
+          + "them by quotes (\")."
+          + "\n "
+          + "\nThe following model initializers are currently supported:";
+        int counter = 1;
+        for (ModelInitializer mi : getModelInitializers()) {
+            help += "\n" + counter;
+            help += ". initializer: " + mi.getIdentifier();
+            help += "\n     parameter: " + mi.getParameterSpecification();
+            counter++;
+        }
+        help += "\n\nAnd the following trace selectors are currently supported:";
+        counter = 1;
+        for (TraceSelector ts : getTraceSelectors()) {
+            help += "\n" + counter + ".    selector: " + ts.getIdentifier();
+            help += "\n     parameter: " + ts.getParameterSpecification();
+            counter++;
+        }
+        return help;
+    }
+
     /**
      * @return The available transitions as defined by the model initializer.
      */
@@ -178,6 +186,7 @@ public class Client extends GreenMirrorController implements Observer {
         return registeredTraceSelectors;
     }
     
+    
     // -- Setters ----------------------------------------------------------------------------
     
     /**
@@ -203,7 +212,11 @@ public class Client extends GreenMirrorController implements Observer {
         // If the appearance has already been set, also notify the server.
         if (node.getFxContainer() != null) {
             send(new SetNodeFxCommand(node));
-            //TODO: check if this is right.
+        }
+        
+        // If any relations have already been set, also notify the server.
+        for (Relation relation : node.getRelations()) {
+            send(new AddRelationCommand(relation));
         }
     }
     
@@ -358,251 +371,23 @@ public class Client extends GreenMirrorController implements Observer {
     
     public static void main(String[] args) {
         
-        final Map<String, Pattern> possibleArguments = new HashMap<String, Pattern>() {
-            {
-                put("help",    Pattern.compile("(?i)^-help$"));
-                put("verbose", Pattern.compile("(?i)^-verbose$"));
-                put("host",    Pattern.compile("(?i)^-host:(?<host>.*)$"));
-                put("port",    Pattern.compile("(?i)^-port:(?<port>.*)$"));
-                put("model",   Pattern.compile("(?i)^-model:(?<initializer>.*?)"
-                                                + "(:(?<parameters>.*))?$"));
-                put("trace",   Pattern.compile("(?i)^-trace:(?<selector>.*?)"
-                                                + "(:(?<parameters>.*))?$"));
-            }
-        };
-        Log.addOutput(Log.Output.DEFAULT);
+        Log.addOutput(Log.DEFAULT);
+        final Client greenmirror = new Client();
+
+
+        // Process the command line startup.
+        boolean successfulStartup = greenmirror.processCommandLine(args);
         
-        Client greenmirror = new Client();
-        
-        
-        
-        
-        
-        
-        
-        Log.add("received arguments: " + Arrays.toString(args));
-        
-        
-        boolean exit = false;
-        boolean helpAsked = false;
-        int counter;
-        Matcher matcher = null;
-        InetAddress host = null;
-        Integer port = null;
-        List<ModelInitializer> initializers = new LinkedList<ModelInitializer>();
-        TraceSelector traceSelector = null;
-        
-        // Loop through arguments.
-        for (String argument : args) {
-            argument = argument.trim();
-            // Match the argument to a possible argument.
-            
-            // -help
-            matcher = possibleArguments.get("help").matcher(argument);
-            if (matcher.find()) {
-                String modelInitializersHelp = "";
-                counter = 1;
-                for (ModelInitializer mi : greenmirror.getModelInitializers()) {
-                    modelInitializersHelp += "\n" + counter;
-                    modelInitializersHelp += ". initializer: " + mi.getIdentifier();
-                    modelInitializersHelp += "\n    parameters: " + mi.getParameterSpecification();
-                    counter++;
-                }
-                String traceSelectorsHelp = "";
-                counter = 1;
-                for (TraceSelector ts : greenmirror.getTraceSelectors()) {
-                    traceSelectorsHelp +=    "\n" + counter;
-                    traceSelectorsHelp +=    ".    selector: " + ts.getIdentifier();
-                    traceSelectorsHelp +=    "\n    parameters: " + ts.getParameterSpecification();
-                    counter++;
-                }
-                Log.add(String.format(HELP_MSG, modelInitializersHelp, traceSelectorsHelp));
-                //helpAsked = true;
-                //TODO: test if the above line is still necessary.
-                continue;
-            }
-            
-            // -verbose
-            matcher = possibleArguments.get("verbose").matcher(argument);
-            if (matcher.find()) {
-                Log.setVerbose(true);
-                continue;
-            }
-            
-            // -host
-            matcher = possibleArguments.get("host").matcher(argument);
-            if (matcher.find()) {
-                try {
-                    host = InetAddress.getByName(matcher.group("host"));
-                } catch (UnknownHostException e) {
-                    Log.add("The host is unknown.");
-                    exit = true;
-                }
-                continue;
-            }
-            
-            // -port
-            matcher = possibleArguments.get("port").matcher(argument);
-            if (matcher.find()) {
-                try {
-                    port = Integer.valueOf(matcher.group("port"));
-                } catch (NumberFormatException e) {
-                    Log.add("The port number is invalid.");
-                    exit = true;
-                }
-                continue;
-            }
-            
-            // -model
-            matcher = possibleArguments.get("model").matcher(argument);
-            if (matcher.find()) {
-                try {
-                    // Loop through all registered ModelInitializers.
-                    for (ModelInitializer initializer : greenmirror.getModelInitializers()) {
-                        // Check if we're encountering one requested by the user.
-                        if (initializer.getIdentifier().equals(matcher.group("initializer"))) {
-                            // Remember it.
-                            initializers.add(initializer);
-                            // Pass the parameters.
-                            initializer.setParameters(getParameters(matcher.group("parameters")));
-                            // And let it prepare.
-                            initializer.prepare();
-                        }
-                    }
-                    if (initializers.isEmpty()) {
-                        throw new IllegalArgumentException("the model initializer was not found.");
-                    }
-                } catch (ModelInitializer.PreparationException e) {
-                    Log.add("The model initializer gave an exception: " + e.getMessage());
-                    exit = true;
-                } catch (GroovyRuntimeException e) {
-                    Log.add("Your Groovy script gave an exception: ", e);
-                    exit = true;
-                } catch (IllegalArgumentException e) {
-                    Log.add("The parameters are not valid: " + e.getMessage());
-                    exit = true;
-                }
-                continue;
-            }
-            
-            // -trace
-            matcher = possibleArguments.get("trace").matcher(argument);
-            if (matcher.find()) {
-                try {
-                    // Loop through all registered TraceSelectors to find the correct one.
-                    for (TraceSelector selector : greenmirror.getTraceSelectors()) {
-                        // Check if we're encountering the one requested by the user.
-                        if (selector.getIdentifier().equals(matcher.group("selector"))) {
-                            // Remember it.
-                            traceSelector = selector;
-                            // Pass the parameters.
-                            selector.setParameters(getParameters(matcher.group("parameters")));
-                            // And let it prepare.
-                            selector.prepare();
-                            break;
-                        }
-                    }
-                    if (traceSelector == null) {
-                        throw new IllegalArgumentException("the trace selector was not found.");
-                    }
-                } catch (TraceSelector.PreparationException e) {
-                    Log.add("The trace selector gave an exception: " + e.getMessage());
-                    exit = true;
-                } catch (IllegalArgumentException e) {
-                    Log.add("The parameters are not valid: " + e.getMessage());
-                    exit = true;
-                }
-                continue;
-            }
-        }
-            
-        // Now check if all required arguments were set and parsed.
-        if ((host == null || port == null || initializers.size() == 0
-                || traceSelector == null) && !helpAsked) {
-            Log.add("You did not (correctly) pass all required arguments.");
-            exit = true;
-        }
-            
-        if (exit) {
-            Log.add("For (more) help, type -help");
-            return;
+        if (successfulStartup) {
+            Log.add("We seem to be done. I'm closing down now.");
         }
         
-        
-        /* 
-         * Now execute! We wrap the executing statements in this single loop, so we can skip
-         * to the end for a general exit.
-         */
-        boolean fullyExecuted = false;
-        while (!fullyExecuted) {
-            // Connect to the server.
-            try {
-                greenmirror.connect(host, port);
-            } catch (SocketTimeoutException e) {
-                Log.add("The connection to the server timed out.");
-                break;
-            } catch (IOException e) {
-                Log.add("IO exception while connecting to the server: " + e.getMessage());
-                break;
-            }
-               
-            // Initialize the model.
-            try {
-                greenmirror.initializeModel(initializers);
-                
-                /* The initialization of the model might be animated, so we execute the initial 
-                 * transition without delay. */
-                greenmirror.send(new EndTransitionCommand());
-                
-            } catch (GroovyRuntimeException e) {
-                Log.add("Your Groovy initialization script gave an exception: ", e);
-                break;
-            } catch (Exception e) {
-                Log.add("The model initialization gave an exception: ", e);
-                break;
-            }
-            
-            // Check if the trace consists of valid transitions.
-            List<String> invalidTraceTransitions = greenmirror.validateTrace(traceSelector);
-            if (invalidTraceTransitions != null) {
-                Log.add("The following trace transitions could not be deemed valid: " 
-                        + invalidTraceTransitions.toString());
-                break;
-            }
-            
-            // And execute the trace.
-            try {
-                greenmirror.executeTrace(traceSelector);
-            } catch (GroovyRuntimeException e) {
-                Log.add("Your Groovy trace script gave an exception: ", e);
-                break;
-            } catch (Exception e) {
-                Log.add("The transition gave an exception: ", e);
-                break;
-            }
-            
-            fullyExecuted = true;
-        }
-        if (!fullyExecuted) {
-            greenmirror.closeStreams();
-            return;
-        }
-        
-        Log.add("We seem to be done. I'm closing down now.");
+        // And exit.
         greenmirror.closeStreams();
+        
+        
     }
     
-    
-    
-    private static String[] getParameters(String parameters) {
-        List<String> result = new LinkedList<String>();
-        for (String parameter : parameters.split(":")) {
-            if (parameter != null && parameter.length() > 0) {
-                result.add(parameter);
-            }
-        }
-        return result.toArray(new String[0]);
-    }
     
     
     
@@ -610,7 +395,7 @@ public class Client extends GreenMirrorController implements Observer {
     public static void main2(String[] args) {
         try {
             TraceSelector ts = new FileTraceSelector();
-            ts.setParameters(new String[]{"trace"});
+            ts.setParameter("trace");
             ts.prepare();
             System.out.println(ts.getTrace());
         } catch (Exception e) {
@@ -623,7 +408,7 @@ public class Client extends GreenMirrorController implements Observer {
         GroovyScriptModelInitializer gsmi = new GroovyScriptModelInitializer();
         try {
             gsmi.setController(new Client());
-            gsmi.setParameters(new String[]{"initialize_script.groovy"});
+            gsmi.setParameter("initialize_script.groovy");
             gsmi.prepare();
         } catch (Exception e) {
             System.out.println(e.getMessage());

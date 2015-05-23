@@ -4,12 +4,13 @@ import greenmirror.fxcontainers.RectangleFxContainer;
 import greenmirror.fxpropertytypes.DoubleFxProperty;
 import greenmirror.fxpropertytypes.FxPropertyWrapper;
 import greenmirror.fxpropertytypes.StringFxProperty;
+import greenmirror.server.DoublePropertyTransition;
 import groovy.json.JsonOutput;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -18,7 +19,6 @@ import java.util.Set;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
-import javafx.animation.RotateTransition;
 import javafx.animation.Transition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -85,7 +85,7 @@ public abstract class FxContainer extends Observable {
      */
     //@ ensures \result != null;
     /*@ pure */ public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         map.put("type", getType());
         
         for (FxPropertyWrapper fxProperty : getChangableProperties()) {
@@ -107,7 +107,7 @@ public abstract class FxContainer extends Observable {
     }
     
     // test DoubleFxProperty
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         RectangleFxContainer rect = new RectangleFxContainer();
         rect.setX(4);
         rect.setY(1);
@@ -166,6 +166,26 @@ public abstract class FxContainer extends Observable {
     /*@ pure */ public abstract boolean isPositionSet();
     
     /**
+     * Calculate the adjustment for a point relative to the middle point of the current node.
+     * @param obj The point relative to the middle point of the current node. Only the x and y
+     *            coordinates are taken into account.
+     * @return    The new point.
+     */
+    //@ requires obj != null;
+    //@ ensures \result != null;
+    /*@ pure */ public Point3D getPointAdjustedForRotation(Point3D obj) {
+        final double angle = Math.toRadians(getRotate());
+        final Point3D pivotPoint = calculatePoint(Placement.MIDDLE);
+        final Point3D relativePoint = obj.subtract(pivotPoint);
+        
+        final double cos = Math.cos(angle);
+        final double sin = Math.sin(angle);
+        
+        return pivotPoint.add(cos * relativePoint.getX() - sin * relativePoint.getY(),
+                              sin * relativePoint.getX() + cos * relativePoint.getY(), 0);
+    }
+    
+    /**
      * Calculate the absolute position of the specified <tt>Placement</tt> on the 
      * <tt>VisualComponent</tt>.
      * @param placement The position of placement which should be calculated.
@@ -184,6 +204,13 @@ public abstract class FxContainer extends Observable {
     
     public FxContainer setRotate(double value) {
         this.rotate = value;
+        setChanged();
+        notifyObservers();
+        return this;
+    }
+    
+    public FxContainer setRotateBy(double value) {
+        this.rotate += value;
         setChanged();
         notifyObservers();
         return this;
@@ -270,19 +297,17 @@ public abstract class FxContainer extends Observable {
         }
     }
     
-    public Transition animateRotate(double value, Duration duration) {
-        RotateTransition transition = new RotateTransition(duration, getFxNode());
-        transition.setToAngle(value);
-        return transition;
+    public RotateTransition animateRotate(double value, Duration duration) {
+        return new RotateTransition(duration, getFxNode(), value);
     }
     
-    public Transition animateOpacity(double value, Duration duration) {
+    public FadeTransition animateOpacity(double value, Duration duration) {
         FadeTransition transition = new FadeTransition(duration, getFxNode());
         transition.setToValue(value);
         return transition;
     }
     
-    public Transition animateAppearing(Duration duration) {
+    public FadeTransition animateAppearing(Duration duration) {
         FadeTransition transition = (FadeTransition) animateOpacity(getOpacity(), duration);
         transition.setFromValue(0);
         transition.setOnFinished(new EventHandler<ActionEvent>() {
@@ -449,5 +474,41 @@ public abstract class FxContainer extends Observable {
         }
         
         return transitions;
+    }
+    
+
+    
+    /**
+     * A <tt>Transition</tt> class that animates the change of the rotation. The default 
+     * <tt>RotateTransition</tt> class isn't used because it's buggy when playing back 
+     * transitions.
+     * 
+     * @author Karim El Assal
+     */
+    public static class RotateTransition extends DoublePropertyTransition<javafx.scene.Node> {
+        
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#
+         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         */
+        protected RotateTransition(Duration duration, javafx.scene.Node node, Double toValue) {
+            super(duration, node, toValue);
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
+         */
+        @Override
+        protected Double getPropertyValue() {
+            return getNode().getRotate();
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
+         */
+        @Override
+        protected void setPropertyValue(Double value) {
+            getNode().setRotate(value);
+        }
     }
 }

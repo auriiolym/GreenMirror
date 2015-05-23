@@ -1,22 +1,12 @@
 package greenmirror;
 
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
-
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 
 /**
@@ -26,184 +16,25 @@ import javafx.stage.Stage;
  */
 public class Log {
     
+    public static final PrintStream DEFAULT = new PrintStream(System.out) {
+        
+        @Override
+        public void print(String str) {
+            super.print("[" + getTimestamp() + "] " + str);
+        }
+        
+        @Override
+        public void close() {
+            print("Default log output closed.");
+        }
+    };
+    
     // -- Enumerations -----------------------------------------------------------------------
 
-    /**
-     * The different types of output.
-     * 
-     * @author Karim El Assal
-     */
-    public static enum Output {
-        
-        /**
-         * The default output: <tt>System.out</tt>.
-         */
-        DEFAULT {
-            
-            /**
-             * The default output type does not have to be initialized.
-             */
-            @Override
-            public void initialize() {}
-            
-            /**
-             * Add a <tt>String</tt> to the default output.
-             * @param str The <tt>String</tt>.
-             */
-            @Override 
-            public void addToOutput(String str) {
-                System.out.println("[" + getTimestamp() + "] " + str);
-            }
-            
-            /**
-             * Close the default log.
-             */
-            @Override
-            public void close() {
-                addToOutput("Default log output closed.");
-            }
-        },
-        
-        /**
-         * The output window. Only available if we're already running a JavaFX application.
-         */
-        WINDOW {
-            
-            private static final double WIDTH  = 800;
-            private static final double HEIGHT = 250;
-            private static final String TEXTSTYLE = "-fx-font-size: 13px; "
-                                                  + "-fx-font-family: monospace;";
-            
-            private VBox vbox;
-            private ScrollPane scrollpane;
-            private Stage stage;
-            private Scene scene;
-            
-            /**
-             * Initialize the window, if possible.
-             */
-            @Override
-            public void initialize() {
-                
-                try {
-                    Runnable startWindow = () -> {
-                        stage = new Stage();
-                        stage.setTitle("Log");
-                        
-                        scrollpane = new ScrollPane();
-                        scrollpane.setFitToWidth(true);
-                        //scrollPane.setFitToHeight(true);
-                        
-                        Pane pane = new Pane();
-                        pane.setStyle("-fx-background-color: white;");
-                        scrollpane.setContent(pane); 
-
-                        vbox = new VBox();
-                        vbox.setStyle("-fx-padding: 5px; -fx-spacing: 4px;");
-                        vbox.setAlignment(Pos.BOTTOM_LEFT);
-                        vbox.setMinHeight(HEIGHT);
-                        // Enable automatic scrolling to the bottom.
-                        vbox.heightProperty().addListener(new ChangeListener<Number>() {
-                            @Override
-                            public void changed(ObservableValue<? extends Number> observable,
-                                                Number oldvalue, 
-                                                Number newValue) {
-                                scrollpane.setVvalue((Double) newValue);
-                            }
-                        });
-                        pane.getChildren().add(vbox);
-
-                        scene = new Scene(scrollpane, WIDTH, HEIGHT);
-                        stage.setScene(scene);     
-                        stage.show();
-                        
-                        // Alter values according to new sizes.
-                        ChangeListener<Number> changeListener = new ChangeListener<Number>() {
-                            @Override 
-                            public void changed(ObservableValue<? extends Number> observableValue,
-                                                Number oldValue,
-                                                Number newValue) {
-                                updateValues();
-                            }
-                        };
-                        scene.widthProperty().addListener(changeListener);
-                        scene.heightProperty().addListener(changeListener);
-
-                        addToOutput("Log opened.");
-                    };
-                    
-                    // Start the Stage if we're on the correct thread. If not, try to run later.
-                    if (Platform.isFxApplicationThread()) {
-                        startWindow.run();
-                    } else {
-                        Platform.runLater(startWindow);
-                    }
-                } catch (IllegalStateException e) {
-                    addOutput(Output.DEFAULT);
-                    add("A new log window could not be created. The JavaFX application has "
-                      + "probably not been initialized (yet). The default output is selected "
-                      + "in stead.");
-                }
-            }
-            
-            private void updateValues() {
-                for (javafx.scene.Node node : vbox.getChildren()) {
-                    Text textNode = (Text) node;
-                    textNode.setWrappingWidth(scene.getWidth() - 10);
-                }
-                vbox.setMinHeight(scene.getHeight() - 3);
-            }
-            
-            /**
-             * Add a <tt>String</tt> to the output window.
-             * @param str The <tt>String</tt>.
-             */
-            @Override 
-            public void addToOutput(String str) {
-                try {
-                    Runnable addOutput = () -> {
-                        Text text = new Text("[" + getTimestamp() + "] " + str);
-                        text.setStyle(TEXTSTYLE);
-                        //text.setWrappingWidth(scene.getWidth() - 10);
-                        vbox.getChildren().add(text);
-                        updateValues();
-                    };
-                    // This should be running on JavaFX thread if we're not already.
-                    if (Platform.isFxApplicationThread()) {
-                        addOutput.run();
-                    } else {
-                        Platform.runLater(addOutput);
-                    }
-                } catch (IllegalStateException e) {
-                    //TODO: do something with this.
-                }
-            }
-            
-            /**
-             * Close the window.
-             */
-            @Override
-            public void close() {
-                stage.close();
-            }
-        };
-        
-        /**
-         * The initialization method for any output type.
-         */
-        public abstract void initialize();
-        
-        /**
-         * The method that will add a <tt>String</tt> to the selected output.
-         * @param str The <tt>String</tt>.
-         */
-        public abstract void addToOutput(String str);
-        
-        /**
-         * The method that will close the selected output.
-         */
-        public abstract void close();
-    }
+    // -- Constants --------------------------------------------------------------------------
+    
+    //public static final PrintStream DEFAULT = System.out;
+    
 
     // -- Class variables --------------------------------------------------------------------
     
@@ -214,10 +45,10 @@ public class Log {
     private static List<String> entries = new LinkedList<String>();
     
     /**
-     * The selected log output types.
+     * The selected log outputs.
      */
     //@ private invariant outputs != null;
-    private static Set<Output> outputs = new TreeSet<Output>();
+    private static Set<PrintStream> outputs = new HashSet<>();
     
     /**
      * Whether to log verbose data.
@@ -242,7 +73,8 @@ public class Log {
     /**
      * @return The current date and time.
      */
-    /*@ pure */ private static String getTimestamp() {
+    //@ ensures \result != null;
+    /*@ pure */ public static String getTimestamp() {
         return new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS")
                     .format(Calendar.getInstance().getTime());
     }
@@ -265,14 +97,11 @@ public class Log {
     }
     
     /**
-     * Add <tt>output</tt> to the list of outputs and prepare the type of output.
+     * Add <tt>output</tt> to the list of outputs.
      * @param output The type of output.
      */
     //@ requires output != null;
-    public static void addOutput(Output output) {
-        if (!outputs.contains(output)) {
-            output.initialize();
-        }
+    public static void addOutput(PrintStream output) {
         outputs.add(output);
     }
     
@@ -284,7 +113,7 @@ public class Log {
      * Remove the selected output and clean up if necessary.
      * @param output The output.
      */
-    public static void removeOutput(Output output) {
+    public static void removeOutput(PrintStream output) {
         if (outputs.contains(output)) {
             output.close();
         }
@@ -304,13 +133,15 @@ public class Log {
         getEntries().add(data);
         
         // Output to every selected output type.
-        for (Output outputType : outputs) {
-            outputType.addToOutput(data);
+        for (PrintStream outputType : outputs) {
+            outputType.println(data);
+            outputType.flush();
         }
         
         // Add to default output if there were no output types selected.
         if (outputs.size() == 0) {
-            Output.DEFAULT.addToOutput(data);
+            DEFAULT.println(data);
+            DEFAULT.flush();
         }
     }
     

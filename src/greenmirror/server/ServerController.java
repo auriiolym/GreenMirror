@@ -3,6 +3,7 @@ package greenmirror.server;
 import greenmirror.CommandHandler;
 import greenmirror.CommandHandler.DataParseException;
 import greenmirror.CommandHandler.MissingDataException;
+import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.Log;
 import greenmirror.PeerListener;
@@ -15,7 +16,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.ServiceLoader;
 
 /**
@@ -26,6 +26,19 @@ import java.util.ServiceLoader;
 public class ServerController extends GreenMirrorController {
     
     // -- Constants --------------------------------------------------------------------------
+
+    /**
+     * The current GreenMirror server application version.
+     */
+    private static final double VERSION = 1.0;
+    
+    /**
+     * The help message, shown in the log when --help is used as an option.
+     */
+    private static final String HELP_MSG = 
+          "\nGreenMirror State-Transition Visualization server v" + VERSION + "."
+        + "\n"
+        + "\nThe following options are available:\n%s";
     
     // -- Class variables --------------------------------------------------------------------
 
@@ -46,24 +59,42 @@ public class ServerController extends GreenMirrorController {
     
     /**
      * Create a new <tt>ServerController</tt> instance. It registers all available 
-     * <tt>CommandHandler</tt>s that are meant for the server.
-     * @param visualizer The main application.
+     * <tt>CommandHandler</tt>s and <tt>CommandLineOptionHandler</tt>s that are meant for the 
+     * server.
+     * @param visualizer The main application instance.
      */
     //@ requires visualizer != null;
     //@ ensures getVisualizer() == visualizer;
     public ServerController(Visualizer visualizer) {
+        
+        // Register CommandHandlers.
         for (CommandHandler ch : ServiceLoader.load(CommandHandler.class)) {
             if (ch.getClass().isAnnotationPresent(CommandHandler.ServerSide.class)) {
                 ch.setController(this);
                 getCommandHandlers().add(ch);
             }
         }
+
+        // Register CommandLineOptionHandlers.
+        ServiceLoader.load(CommandLineOptionHandler.class).forEach(cloh -> {
+            if (cloh.getClass().isAnnotationPresent(CommandLineOptionHandler.ServerSide.class)) {
+                getCommandLineOptionHandlers().add(cloh);
+            }
+        });
         
         this.visualizer = visualizer;
     }
 
     // -- Queries ----------------------------------------------------------------------------
     
+    /* (non-Javadoc)
+     * @see greenmirror.GreenMirrorController#getHelpMessage()
+     */
+    @Override
+    public String getHelpMessage() {
+        return HELP_MSG;
+    }
+
     /**
      * @return The port the server will listen on.
      */

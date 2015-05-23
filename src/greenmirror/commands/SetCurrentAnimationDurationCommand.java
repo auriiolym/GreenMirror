@@ -4,7 +4,7 @@ import greenmirror.Command;
 import greenmirror.CommunicationFormat;
 import groovy.json.JsonOutput;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Sets the animation duration for following animations. This command is sent to the server.
@@ -63,7 +63,7 @@ public class SetCurrentAnimationDurationCommand extends Command {
     public String getFormattedString(CommunicationFormat format) {
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new HashMap<String, Double>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Double>() {
                 {
                     put("duration", getDuration());
                 }

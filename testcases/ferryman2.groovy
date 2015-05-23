@@ -95,6 +95,7 @@ addTransition("load(.*)", { String cargo ->
     );
 });
 addTransition("cross", {
+    node("boat").fx().setRotateBy(180); // doesn't work!
     switchPlacementRelation(
         // Option 1:
         new Relation().fromRelation(node("boat").getRelation(1, "moored_to"))

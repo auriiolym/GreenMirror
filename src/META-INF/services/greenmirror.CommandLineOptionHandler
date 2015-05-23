@@ -1,0 +1,11 @@
+#######
+# Place all available CommandLineOptionHandlers here.
+#
+# The only requirements on any service providers below are the existence of a 
+# zero-argument constructor and the fact that it should implement CommandLineOptionHandler.
+#
+greenmirror.commandlineoptionhandlers.HelpCommandLineOptionHandler
+greenmirror.commandlineoptionhandlers.HostCommandLineOptionHandler
+greenmirror.commandlineoptionhandlers.PortCommandLineOptionHandler
+greenmirror.commandlineoptionhandlers.ModelCommandLineOptionHandler
+greenmirror.commandlineoptionhandlers.TraceCommandLineOptionHandler

@@ -5,7 +5,7 @@ import greenmirror.CommunicationFormat;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * The command to add a node. This command is sent to the server.
@@ -62,7 +62,7 @@ public class AddNodeCommand extends Command {
     public String getFormattedString(CommunicationFormat format) {
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new HashMap<String, Integer>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Integer>() {
                 {
                     put("id", getNode().getId());
                 }

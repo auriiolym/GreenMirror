@@ -74,21 +74,17 @@ public class FileTraceSelector implements TraceSelector {
     // -- Setters ----------------------------------------------------------------------------
 
     /* (non-Javadoc)
-     * @see greenmirror.client.TraceSelector#setParameters(java.lang.String[])
+     * @see greenmirror.client.TraceSelector#setParameter(java.lang.String)
      */
     @Override
-    public void setParameters(String... parameters) throws IllegalArgumentException {
-        // Check if we've got the exact amount of necessary parameters.
-        if (parameters.length != 1) {
-            throw new IllegalArgumentException("the file trace selector only needs the "
-                                             + "filename as its parameter.");
-        }
+    public void setParameter(String parameter) throws IllegalArgumentException {
+        
         // Check if the file can be found.
         try {
-            filereader = new FileReader(parameters[0]);
+            filereader = new FileReader(parameter);
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("the file trace selector could not find the "
-                    + "file \"" + parameters[0] + "\".");
+                    + "file \"" + parameter + "\".");
         }
     }
 

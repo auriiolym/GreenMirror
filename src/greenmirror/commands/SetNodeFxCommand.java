@@ -6,7 +6,7 @@ import greenmirror.Log;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * The command to set the FX of a node. This command is sent to the server.
@@ -65,7 +65,7 @@ public class SetNodeFxCommand extends Command {
         
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new HashMap<String, Object>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Object>() {
                 {
                     put("id", getNode().getId());
                     put("fx", getNode().getFxContainer() == null 

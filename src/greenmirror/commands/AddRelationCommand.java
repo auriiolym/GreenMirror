@@ -6,7 +6,7 @@ import greenmirror.Log;
 import greenmirror.Relation;
 import groovy.json.JsonOutput;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * The command to add a relation. This command is sent to the server.
@@ -59,7 +59,7 @@ public class AddRelationCommand extends Command {
         
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new HashMap<String, Object>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Object>() {
                 {
                     put("name", getRelation().getName());
                     put("nodeA", getRelation().getNodeA().getId());

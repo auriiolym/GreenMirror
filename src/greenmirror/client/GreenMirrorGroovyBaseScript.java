@@ -134,12 +134,12 @@ public class GreenMirrorGroovyBaseScript extends Script {
      */
     //@ requires identifier != null;
     /*@ pure */ public Node node(String identifier) {
-        NodeList list = nodes(identifier).one();
+        NodeList list = nodes(identifier);
         if (list.isEmpty()) {
             throw new IllegalArgumentException("No nodes were found that correspond to the "
                     + "identifier \"" + identifier + "\".");
         }
-        return list.isEmpty() ? null : list.getFirst();
+        return list.getFirst();
     }
     
     

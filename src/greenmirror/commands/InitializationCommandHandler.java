@@ -149,7 +149,7 @@ public class InitializationCommandHandler extends CommandHandler {
             stage.setOnHidden(new EventHandler<WindowEvent>() {
                 @Override
                 public void handle(WindowEvent arg0) {
-                    getController().getVisualizer().windowClosed();
+                    getController().getVisualizer().reset();
                 }
             });
 

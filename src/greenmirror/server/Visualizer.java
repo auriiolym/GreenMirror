@@ -6,24 +6,13 @@ import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.Relation;
-import greenmirror.commands.AddNodeCommandHandler;
-import greenmirror.commands.AddRelationCommandHandler;
-import greenmirror.commands.ChangeNodeFxCommandHandler;
-import greenmirror.commands.EndTransitionCommandHandler;
-import greenmirror.commands.FlushCommandHandler;
-import greenmirror.commands.InitializationCommandHandler;
-import greenmirror.commands.SetCurrentAnimationDurationCommandHandler;
-import greenmirror.commands.SetNodeFxCommandHandler;
-import greenmirror.commands.StartVisualizationCommandHandler;
-import greenmirror.commands.SwitchPlacementRelationCommandHandler;
+import greenmirror.WindowLogger;
 import greenmirror.server.playbackstates.PausedState;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -40,9 +29,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 
-// Extends javafx.application.Application.
 /**
- * The main visualizer class. It starts the log window and waits for connections. 
+ * The main visualizer class and JavaFX application. It starts the log window and waits for 
+ * connections. 
  * 
  * @author Karim El Assal
  */
@@ -81,23 +70,6 @@ public class Visualizer extends Application {
     // -- Enumerations -----------------------------------------------------------------------
     
     // -- Constants --------------------------------------------------------------------------
-
-    /**
-     * The current GreenMirror server application version.
-     */
-    private static final double VERSION = 1.0;
-    
-    /**
-     * The help message, shown in the log when -help is used as an argument.
-     */
-    private static final String HELP_MSG = 
-          "\nGreenMirror State-Transition Visualization server v" + VERSION + "."
-        + "\n"
-        + "\nThe following arguments are available:"
-        + "\n  -port:<port>        Specifies the port of the server. <port> should be a number."
-        + "\n  [-verbose]          Outputs verbose data to the logs. Optional."
-        + "\n  [-help]             Display this help message."
-        + "\n ";
     
     private static final double DEFAULT_ANIMATION_DURATION = 1000.0;
     
@@ -142,6 +114,7 @@ public class Visualizer extends Application {
     //@ private invariant states != null;
     private List<VisualizerState> states = new LinkedList<>();
     
+    //@ private invariant currentStateIndex >= 0;
     private int currentStateIndex = 0;
 
     
@@ -330,17 +303,6 @@ public class Visualizer extends Application {
     public void addToVisualizationsQueue(Transition transition) {
         getCurrentSubVisualizationQueue().getChildren().add(transition);
     }
-     
-    /**
-     * Reset the visualization queue.
-     */
-    //@ ensures getVisualizationsQueue() != null;
-    //@ ensures getVisualizationsQueue().getChildren().size() == 1; 
-    //@ ensures getVisualizationsQueue().getChildren().get(0) instanceof ParallelTransition;
-    public void resetVisualizationQueue() {
-        visualizationsQueue = new SequentialTransition();
-        visualizationsQueue.getChildren().add(new ParallelTransition());
-    }
     
     //@ ensures \old(getCurrentStateIndex()) + 1 = getCurrentStateIndex();
     public void incrementCurrentStateIndex() {
@@ -428,22 +390,33 @@ public class Visualizer extends Application {
      * Update the state number in the toolbar.
      */
     public void updateStateNumberInfo() {
+        if (getStage() == null) {
+            return;
+        }
         Text stateInfoNode = (Text) getStage().getScene().lookup("#stateInfo");
 
-        if (stateInfoNode != null) {
-            executeOnCorrectThread(() -> {
-                stateInfoNode.setText("Current state number: " + getCurrentStateNumber() 
-                        + " out of " + getStateCount());
-            });
+        if (stateInfoNode == null) {
+            return;
         }
+        executeOnCorrectThread(() -> {
+            stateInfoNode.setText("Current state number: " + getCurrentStateNumber() 
+                    + " out of " + getStateCount());
+        });
     }
     
     /**
      * Update the playback state information in the toolbar.
      */
     public void updatePlaybackStateInfo() {
+        if (getStage() == null) {
+            return;
+        }
+        Text playbackInfo = (Text) getStage().getScene().lookup("#playbackInfo");
+        
+        if (playbackInfo == null) {
+            return;
+        }
         executeOnCorrectThread(() -> {
-            Text playbackInfo = (Text) getStage().getScene().lookup("#playbackInfo");
             playbackInfo.setText(getPlaybackState().toString());
         });
     }
@@ -484,43 +457,64 @@ public class Visualizer extends Application {
             return;
         }
         
-        // Shorthand.
-        Node nodeA = relation.getNodeA();
+        // Shorthands.
+        final FxContainer nodeAfxCont = relation.getNodeA().getFxContainer();
+        final FxContainer nodeBfxCont = relation.getNodeB().getFxContainer();
         
         // Get the duration of the animation.
-        Duration duration = Duration.millis(getCurrentAnimationDuration());
+        final Duration duration = Duration.millis(getCurrentAnimationDuration());
     
-        // Calculate the middle point (the new location).
-        Point3D newMiddlePoint = relation.getNodeB().getFxContainer()
-                                                    .calculatePoint(relation.getPlacement());
+        // Calculate the middle point (the new location) and adjust for rotation.
+        Point3D tempNewMiddlePoint = nodeBfxCont.calculatePoint(relation.getPlacement());
+        if (nodeBfxCont.getRotate() > 0 && relation.getPlacement() != Placement.MIDDLE) {
+            tempNewMiddlePoint = nodeBfxCont.getPointAdjustedForRotation(tempNewMiddlePoint);
+        }
+        final Point3D newMiddlePoint = tempNewMiddlePoint;
         
-        // If no movement will take place, do nothing.
-        if (nodeA.getFxContainer().isPositionSet() 
-               && nodeA.getFxContainer().calculatePoint(Placement.MIDDLE).equals(newMiddlePoint)) {
+        /**
+         * The conditionals:
+         */
+        // Only move if node A is visible and the new location is different from the old.
+        final boolean doMove = !nodeAfxCont.isPositionSet() 
+                || !nodeAfxCont.calculatePoint(Placement.MIDDLE).equals(newMiddlePoint);
+        final boolean doRotate = nodeBfxCont.getRotate() != nodeAfxCont.getRotate();
+        // Animate if node A is already visible.
+        final boolean animateMovement = nodeAfxCont.isPositionSet();
+        
+        
+        // If nothing has to happen, do nothing.
+        if (!doMove && !doRotate) {
             return;
         }
         
         // If the node was already visible, animate it.
-        if (nodeA.getFxContainer().isPositionSet()) {
+        if (animateMovement) {
             
             // Create the animation and add it to the returned collection.
-            addToVisualizationsQueue(nodeA.getFxContainer().animateToMiddlePoint(
+            addToVisualizationsQueue(nodeAfxCont.animateToMiddlePoint(
                                                                 newMiddlePoint, 
                                                                 duration));
+            
          
         // If it wasn't visible yet, make it appear at the correct location.
         } else {
             executeOnCorrectThread(() -> {
                 // Set the FX node to correct position.
-                nodeA.getFxContainer().setFxToPositionWithMiddlePoint(newMiddlePoint);
+                nodeAfxCont.setFxToPositionWithMiddlePoint(newMiddlePoint);
+    
                 // Make sure its opacity is set to zero.
-                nodeA.getFxContainer().getFxNode().setOpacity(0);
+                nodeAfxCont.getFxNode().setOpacity(0);
             });
             // Add appearing animation.
-            addToVisualizationsQueue(nodeA.getFxContainer().animateAppearing(duration));
+            addToVisualizationsQueue(nodeAfxCont.animateAppearing(duration));
         }
+        
         // And set the position of the node (in the model) to the new position.
-        nodeA.getFxContainer().setToPositionWithMiddlePoint(newMiddlePoint);
+        nodeAfxCont.setToPositionWithMiddlePoint(newMiddlePoint);
+
+        if (doRotate) {
+            addToVisualizationsQueue(nodeAfxCont.animateRotate(nodeBfxCont.getRotate(), duration));
+        }
 
         // Add a log entry.
         Log.add("Placement of node " + relation.getNodeA().getId() + " changed to " 
@@ -593,88 +587,41 @@ public class Visualizer extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
+        final String[] args = getParameters().getRaw().toArray(new String[]{});
+
+        // Open the log window.
+        Log.addOutput(new WindowLogger());
+        Log.addOutput(Log.DEFAULT);
         
+        // Start controller.
         this.controller = new ServerController(this);
         getController().setCommunicationFormat(CommunicationFormat.JSON);
-
-
-        
-        // Open the log window.
-        Log.addOutput(Log.Output.WINDOW);
-        Log.addOutput(Log.Output.DEFAULT);
-        
-        // Parse the arguments.
-        final Map<String, Pattern> possibleArguments = new HashMap<String, Pattern>() {
-            {
-                put("help",    Pattern.compile("(?i)^-help$"));
-                put("verbose", Pattern.compile("(?i)^-verbose$"));
-                put("port",    Pattern.compile("(?i)^-port:(?<port>.*)$"));
-            }
-        };
-        
-        List<String> args = getParameters().getRaw();
         
 
-        boolean exit = false;
-        Matcher matcher = null;
-        Integer port = null;
+        // Process the command line startup.
+        boolean successfulStartup = getController().processCommandLine(args);
         
-        // Loop through arguments.
-        for (String argument : args) {
-            argument = argument.trim();
-            // Match the argument to a possible argument.
-            
-            // -help
-            matcher = possibleArguments.get("help").matcher(argument);
-            if (matcher.find()) {
-                Log.add(HELP_MSG);
-                continue;
-            }
-            
-            // -verbose
-            matcher = possibleArguments.get("verbose").matcher(argument);
-            if (matcher.find()) {
-                Log.setVerbose(true);
-                Log.add("Verbose setting set to true.");
-                continue;
-            }
-            
-            // -port
-            matcher = possibleArguments.get("port").matcher(argument);
-            if (matcher.find()) {
-                try {
-                    port = Integer.valueOf(matcher.group("port"));
-                } catch (NumberFormatException e) {
-                    Log.add("The port number is invalid.");
-                    exit = true;
-                }
-                continue;
-            }
-        }
-
-        Log.addVerbose("Arguments passed: " + args.toString());
-        
-            
-        // Now check if all required arguments were set and parsed.
-        if (port == null) {
-            Log.add("You did not (correctly) pass all required arguments.");
-            exit = true;
-        }
-            
-        if (exit) {
-            Log.add("For (more) help, type -help");
-            return;
+        if (!successfulStartup) {
+            // Listen for connections.
+            getController().listenForConnections();
+        } else {
+            // Exit.
+            getController().closeStreams();
         }
         
-        // Now execute!
-        getController().setPort(port);
-        getController().listenForConnections();
     }
     
-    public void windowClosed() {
+    /**
+     * Reset the visualizer as a preparation for a new connection.
+     */
+    /*@ ensures getStage() == null && getNodes().size() == 0 && getStates().size() == 0;
+      @ ensures getCurrentStateIndex() == 0 && !hasNextState() && !hasPreviousState();
+      @ ensures getVisualizationsQueue() != null;
+      @ ensures getVisualizationsQueue().getChildren().size() == 1; 
+      @ ensures getVisualizationsQueue().getChildren().get(0) instanceof ParallelTransition; */
+    public void reset() {
         setStage(null);
         getController().getNodes().clear();
-        getStates().clear();
         currentStateIndex = 0;
         if (hasNextState() && getNextTransition() != null) {
             getNextTransition().stop();
@@ -682,8 +629,23 @@ public class Visualizer extends Application {
         if (hasPreviousState() && getPreviousTransition() != null) {
             getPreviousTransition().stop();
         }
+        getStates().clear();
+        resetVisualizationQueue();
+        setPlaybackState(new PausedState());
+        
         getController().relistenForConnections();
     }
+    
+   /**
+    * Reset the visualization queue.
+    */
+   //@ ensures getVisualizationsQueue() != null;
+   //@ ensures getVisualizationsQueue().getChildren().size() == 1; 
+   //@ ensures getVisualizationsQueue().getChildren().get(0) instanceof ParallelTransition;
+   public void resetVisualizationQueue() {
+       visualizationsQueue = new SequentialTransition();
+       visualizationsQueue.getChildren().add(new ParallelTransition());
+   }
     
     public static void main(String[] args) {
         launch(args);
