@@ -61,7 +61,7 @@ public class SetNodeFxCommand extends Command {
      * @param format The format in which the data will be.
      */
     public String getFormattedString(CommunicationFormat format) {
-        Log.add("Node " + getNode().getId() + " FX set: " + getNode().getFxContainer().toString());
+        Log.add("Node " + Log.n(getNode()) + " FX set: " + getNode().getFxContainer().toString());
         
         switch (format) {
         default: case JSON:

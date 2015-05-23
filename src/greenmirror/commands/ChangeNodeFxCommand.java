@@ -66,7 +66,7 @@ public class ChangeNodeFxCommand extends Command {
      */
     //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
-        Log.add("Node " + getNode().getId() + " FX changed to: " 
+        Log.add("Node " + Log.n(getNode()) + " FX changed to: " 
                 + getNode().getFxContainer().toString());
         
         switch (format) {

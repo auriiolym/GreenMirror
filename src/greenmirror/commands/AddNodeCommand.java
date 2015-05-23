@@ -11,7 +11,8 @@ import java.util.LinkedHashMap;
  * The command to add a node. This command is sent to the server.
  * 
  * Values sent:
- * id : int        The node id
+ * id : int              The node id
+ * identifier : String   The node identifier
  */
 public class AddNodeCommand extends Command {
 
@@ -62,9 +63,10 @@ public class AddNodeCommand extends Command {
     public String getFormattedString(CommunicationFormat format) {
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new LinkedHashMap<String, Integer>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Object>() {
                 {
                     put("id", getNode().getId());
+                    put("identifier", getNode().getIdentifier());
                 }
             });
         }

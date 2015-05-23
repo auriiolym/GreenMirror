@@ -44,7 +44,7 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            executeVisualizerTransition(new SteppingBackState(), -10.0);
+            executeVisualizerTransition(new SteppingBackState(), -1.0 * FAST_RATE);
         }
         
         
@@ -200,9 +200,14 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            executeVisualizerTransition(new SteppingState(), 10.0);
+            executeVisualizerTransition(new SteppingState(), FAST_RATE);
         }
     };
+    
+    // -- Constants --------------------------------------------------------------------------
+    
+    private static final double FAST_RATE = 1000;
+    
     
     // -- Instance variables -----------------------------------------------------------------
 

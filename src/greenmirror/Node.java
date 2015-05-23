@@ -92,6 +92,17 @@ public class Node extends Observable implements Observer {
         }
         
         /**
+         * @return The string representation in the format "type:name", "type:" (no name 
+         * set), "name" (no type set) or "" (no type and no name set).
+         */
+        @Override
+        //@ ensures \result != null;
+        /*@ pure */ public String toString() {
+            return (hasType() ? getType() + ":" : "")
+                 + (hasName() ? getName() : "");
+        }
+        
+        /**
          * @param name The name to set.
          */
         //@ ensures getName() == name || getName().equals(name);
@@ -140,7 +151,7 @@ public class Node extends Observable implements Observer {
      * @param identifier The name and/or type of this <tt>Node</tt>.
      */
     public Node(String identifier) {
-        Node.Identifier ir = new Node.Identifier(identifier);
+        Identifier ir = new Identifier(identifier);
         setType(ir.getType());
         setName(ir.getName());
     }
@@ -160,6 +171,16 @@ public class Node extends Observable implements Observer {
      */
     /*@ pure */ public Integer getId() {
         return id;
+    }
+    
+    /**
+     * @return The identifier string.
+     */
+    /*@ pure */ public String getIdentifier() {
+        Identifier identifier = new Identifier();
+        identifier.setType(getType());
+        identifier.setName(getName());
+        return identifier.toString();
     }
     
     /**

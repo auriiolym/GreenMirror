@@ -448,10 +448,12 @@ public class Visualizer extends Application {
     
     /**
      * Execute the placing of Node A onto Node B according to the settings of a Relation.
-     * @param relation The Relation.
-     * @return         The animation that executes the placement.
+     * @param relation            The Relation.
+     * @param rotateNodeAIfNeeded Whether to rotate node A if node B has also been rotated.
+     * @return                    The animation that executes the placement.
      */
-    public void doPlacement(Relation relation) {
+    public void doPlacement(Relation relation, boolean rotateNodeAIfNeeded) {
+        rotateNodeAIfNeeded = false; //TODO: check this (with chained, rigid relations).
         // If no placement is set, do nothing.
         if (relation.getPlacement() == Placement.NONE) {
             return;
@@ -477,7 +479,8 @@ public class Visualizer extends Application {
         // Only move if node A is visible and the new location is different from the old.
         final boolean doMove = !nodeAfxCont.isPositionSet() 
                 || !nodeAfxCont.calculatePoint(Placement.MIDDLE).equals(newMiddlePoint);
-        final boolean doRotate = nodeBfxCont.getRotate() != nodeAfxCont.getRotate();
+        final boolean doRotate = nodeBfxCont.getRotate() != nodeAfxCont.getRotate() 
+                && rotateNodeAIfNeeded;
         // Animate if node A is already visible.
         final boolean animateMovement = nodeAfxCont.isPositionSet();
         
@@ -513,17 +516,19 @@ public class Visualizer extends Application {
         nodeAfxCont.setToPositionWithMiddlePoint(newMiddlePoint);
 
         if (doRotate) {
-            addToVisualizationsQueue(nodeAfxCont.animateRotate(nodeBfxCont.getRotate(), duration));
+            final double rotateTo = nodeBfxCont.getRotate();
+            addToVisualizationsQueue(nodeAfxCont.animateRotate(rotateTo, duration));
+            nodeAfxCont.setRotate(rotateTo);
         }
 
         // Add a log entry.
-        Log.add("Placement of node " + relation.getNodeA().getId() + " changed to " 
+        Log.add("Placement of node " + Log.n(relation.getNodeA()) + " changed to " 
                 + relation.getPlacement().toData() + " on node " 
-                + relation.getNodeB().getId());
+                + Log.n(relation.getNodeB()));
         
         // Do the same with all nodes that are rigidly connected to Node A.
         for (Relation rigidRelation : relation.getNodeA().getRelations(-1).withIsRigid(true)) {
-            doPlacement(rigidRelation);
+            doPlacement(rigidRelation, rotateNodeAIfNeeded);
         }
     }
     
@@ -559,7 +564,7 @@ public class Visualizer extends Application {
         
         // Possibly also re-set the placement of rigidly connected nodes.
         for (Relation relation : node.getRelations(-1).withIsRigid(true)) {
-            doPlacement(relation);
+            doPlacement(relation, true);
         }
     }
     

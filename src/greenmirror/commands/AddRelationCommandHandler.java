@@ -119,7 +119,7 @@ public class AddRelationCommandHandler extends CommandHandler {
 
         
 
-        getController().getVisualizer().doPlacement(relation);
+        getController().getVisualizer().doPlacement(relation, false);
         
 
         // Change node A's FX according to the tempFx.

@@ -40,11 +40,12 @@ public class AddNodeCommandHandler extends CommandHandler {
             throws MissingDataException, DataParseException {
         
         int id;
+        String identifier = "";
         
         switch (format) {
         default: case JSON:
             Map<String, Object> map = CommandHandler.parseJson(data);
-            if (!map.containsKey("id")) {
+            if (!map.containsKey("id") || !map.containsKey("identifier")) {
                 throw new MissingDataException();
             }
             try {
@@ -53,14 +54,15 @@ public class AddNodeCommandHandler extends CommandHandler {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
-                throw new DataParseException("The passed Node id was not valid.");
+                throw new DataParseException("The passed node id was not valid.");
             }
+            identifier = String.valueOf(map.get("identifier"));
         }
 
-        Node node = new Node();
+        Node node = new Node(identifier);
         node.setId(id);
         getController().getNodes().add(node);
-        Log.add("Node " + id + " added.");
+        Log.add("Node (" + id + "," + identifier + ") added.");
     }
 
 }

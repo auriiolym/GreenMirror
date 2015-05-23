@@ -124,7 +124,7 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
         
 
         
-        getController().getVisualizer().doPlacement(newRelation);
+        getController().getVisualizer().doPlacement(newRelation, false);
         
 
         // Change node A's FX according to the tempFx.

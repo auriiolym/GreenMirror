@@ -32,9 +32,6 @@ public class Log {
     // -- Enumerations -----------------------------------------------------------------------
 
     // -- Constants --------------------------------------------------------------------------
-    
-    //public static final PrintStream DEFAULT = System.out;
-    
 
     // -- Class variables --------------------------------------------------------------------
     
@@ -167,5 +164,16 @@ public class Log {
         if (isVerbose()) {
             add(obj);
         }
+    }
+    
+    /**
+     * An auxilary, shorthand method to get an identifying string of a node for the logs. 
+     * @param node The relevant node.
+     * @return     The identifying string in the format: "(id,type:name)".
+     */
+    //@ requires node != null;
+    //@ ensures \result != null;
+    /*@ pure */ public static String n(Node node) {
+        return "(" + node.getId() + "," + node.getIdentifier() + ")";
     }
 }

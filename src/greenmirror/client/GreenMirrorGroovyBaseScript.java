@@ -200,7 +200,8 @@ public class GreenMirrorGroovyBaseScript extends Script {
         }
         Relation currentPlacementRelation = nodeA.getPlacementRelation();
         
-        getController().send(new SwitchPlacementRelationCommand(currentPlacementRelation, newRelation));
+        getController().send(
+                new SwitchPlacementRelationCommand(currentPlacementRelation, newRelation));
         currentPlacementRelation.remove();
         newRelation.addToNodes();
     }
@@ -299,6 +300,10 @@ public class GreenMirrorGroovyBaseScript extends Script {
         nodes.forEach(node -> {
             getController().removeNode(node);
         });
+    }
+    
+    public void removeNodes(Node... nodes) {
+        removeNodes(new NodeList(nodes));
     }
     
     public void removeNode(Node... nodes) {

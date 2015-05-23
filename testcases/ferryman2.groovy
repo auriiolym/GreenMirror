@@ -95,7 +95,8 @@ addTransition("load(.*)", { String cargo ->
     );
 });
 addTransition("cross", {
-    node("boat").fx().setRotateBy(180); // doesn't work!
+    node("boat").fx().setRotateBy(180);
+    //flush();
     switchPlacementRelation(
         // Option 1:
         new Relation().fromRelation(node("boat").getRelation(1, "moored_to"))
@@ -114,6 +115,16 @@ addTransition("unload", {
                               .setRigid(false)
         );
     }
+});
+addTransition("(.*)_eat_(.*)", {String eater, String eatee ->
+    addRelation(
+        new Relation("eats").setNodeA(node("cargo:" + eater))
+                            .setNodeB(node("cargo:" + eatee))
+                            .setPlacement(Placement.EDGE_RIGHT_MIDDLE)
+    );
+    flush();
+    //removeNode(node("cargo:" + eatee)); // This is how it should go.
+    node("cargo:" + eatee).fx().setOpacity(0);
 });
 
 

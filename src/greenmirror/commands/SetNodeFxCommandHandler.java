@@ -95,7 +95,7 @@ public class SetNodeFxCommandHandler extends CommandHandler {
             getController().getVisualizer().getFxNodePane().getChildren().add(fxNode);
             
             // Add a log entry.
-            Log.add("Node " + node.getId() + " added to the visualization.");
+            Log.add("Node " + Log.n(node) + " added to the visualization.");
         });
         
         
