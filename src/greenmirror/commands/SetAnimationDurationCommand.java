@@ -14,11 +14,11 @@ import java.util.LinkedHashMap;
  * 
  * @author Karim El Assal
  */
-public class SetCurrentAnimationDurationCommand extends Command {
+public class SetAnimationDurationCommand extends Command {
 
     // -- Instance variables -----------------------------------------------------------------
 
-    //@ private invariant duration >= duration;
+    //@ private invariant duration >= -1.0;
     private double duration;
     
 
@@ -28,9 +28,9 @@ public class SetCurrentAnimationDurationCommand extends Command {
      * Initialize the <tt>Command</tt>.
      * @param duration The duration of following animations.
      */
-    //@ requires duration >= 0.0;
+    //@ requires duration >= -1.0;
     //@ ensures getDuration() == duration;
-    public SetCurrentAnimationDurationCommand(double duration) {
+    public SetAnimationDurationCommand(double duration) {
         this.duration = duration;
     }
 
@@ -40,7 +40,7 @@ public class SetCurrentAnimationDurationCommand extends Command {
     /**
      * @return The duration of following animations.
      */
-    //@ ensures \result >= 0;
+    //@ ensures \result >= -1.0;
     /*@ pure */ public double getDuration() {
         return duration;
     }

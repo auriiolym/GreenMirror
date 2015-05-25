@@ -13,8 +13,15 @@ public enum Placement {
     RANDOM, 
     CUSTOM, 
     MIDDLE, 
-    EDGE_LEFT_MIDDLE, 
-    EDGE_RIGHT_MIDDLE;
+    EDGE_TOP,
+    EDGE_RIGHT,
+    EDGE_BOTTOM,
+    EDGE_LEFT, 
+    CORNER_TOP_LEFT,
+    CORNER_TOP_RIGHT,
+    CORNER_BOTTOM_RIGHT,
+    CORNER_BOTTOM_LEFT,
+    ;
 
     
     // -- Instance variables -----------------------------------------------------------------
@@ -22,10 +29,10 @@ public enum Placement {
     /**
      * The relative position to the selected <tt>Placement</tt>. If Placement.CUSTOM is chosen,
      * it should default to Placement.MIDDLE. This means that when choosing Placement.CUSTOM,
-     * a <tt>RelativePosition</tt> should be set.
+     * a relative position should be set.
      */
-    //@ private invariant position != null;
-    private RelativePoint position = new RelativePoint(0, 0);
+    //@ private invariant relativePosition != null;
+    private Point3D relativePosition = new Point3D(0, 0, 0);
 
     
     // -- Queries ----------------------------------------------------------------------------
@@ -34,8 +41,8 @@ public enum Placement {
      * @return The relative position.
      */
     //@ ensures \result != null;
-    /*@ pure */ public RelativePoint getRelativePosition() {
-        return position;
+    /*@ pure */ public Point3D getRelativePosition() {
+        return relativePosition;
     }
     
     /**
@@ -50,12 +57,37 @@ public enum Placement {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * @param position The relative position to set.
+     * @param relativePosition The relative position to set.
      * @return         <tt>this</tt>
      */
-    public Placement setRelativePosition(RelativePoint position) {
-        this.position = position;
+    //@ ensures getRelativePosition() == relativePosition;
+    //@ ensures \result == this;
+    public Placement setRelativePosition(Point3D relativePosition) {
+        this.relativePosition = relativePosition;
         return this;
+    }
+    
+    /**
+     * @param posX The relative x coordinate.
+     * @param posY The relative y coordinate.
+     * @return     <tt>this</tt>
+     */
+    //@ ensures getRelativePosition().equals(new Point3D(posX, posY, 0));
+    //@ ensures \result == this;
+    public Placement setRelativePosition(double posX, double posY) {
+        return setRelativePosition(posX, posY, 0);
+    }
+    
+    /**
+     * @param posX The relative x coordinate.
+     * @param posY The relative y coordinate.
+     * @param posY The relative z coordinate.
+     * @return     <tt>this</tt>
+     */
+    //@ ensures getRelativePosition().equals(new Point3D(posX, posY, posZ));
+    //@ ensures \result == this;
+    public Placement setRelativePosition(double posX, double posY, double posZ) {
+        return setRelativePosition(new Point3D(posX, posY, posZ));
     }
     
 
@@ -76,30 +108,12 @@ public enum Placement {
         
         for (Placement p : values()) {
             if (p.name().equals(dataParts[0])) {
-                p.setRelativePosition(new RelativePoint(
+                p.setRelativePosition(new Point3D(
                                 Double.valueOf(dataParts[1]), 
-                                Double.valueOf(dataParts[2])));
+                                Double.valueOf(dataParts[2]), 0));
                 return p;
             }
         }
         return null;
-    }
-    
-    /**
-     * An auxillary type to handle relative positions.
-     * 
-     * @author Karim El Assal
-     */
-    public static class RelativePoint extends Point3D {
-        
-        /**
-         * Explicitly copy the constructor of the superclass.
-         * @param posX The x position.
-         * @param posY The y position.
-         */
-        //@ ensures getX() == posX && getY() == posY;
-        public RelativePoint(double posX, double posY) {
-            super(posX, posY, 0);
-        }
     }
 }

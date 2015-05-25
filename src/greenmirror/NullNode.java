@@ -1,7 +1,6 @@
 package greenmirror;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Observable;
 
 /**
  * A class to handle removed <tt>Node</tt>s better.
@@ -25,6 +24,7 @@ public class NullNode extends Node {
      */
     private String oldType = null;
     private String oldName = null;
+    
     
     // -- Constructors -----------------------------------------------------------------------
     
@@ -88,10 +88,25 @@ public class NullNode extends Node {
     public RelationList getRelations() {
         return new RelationList();
     }
+
+    /* (non-Javadoc)
+     * @see greenmirror.Node#getFxContainer()
+     */
+    @Override
+    public FxContainer getFxContainer() {
+        return super.getFxContainer();
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.Node#toString()
+     */
+    @Override
+    public String toString() {
+        return "deleted " + super.toString();
+    }
     
-
-    // -- Commands ---------------------------------------------------------------------------
-
+    
+    // -- Setters ----------------------------------------------------------------------------
 
     /* (non-Javadoc)
      * @see greenmirror.Node#setType(java.lang.String)
@@ -124,22 +139,9 @@ public class NullNode extends Node {
     public Node removeLabel(String label) {
         throw new RemovedNodeUsedException(this);
     }
-
-    /* (non-Javadoc)
-     * @see greenmirror.Node#setOriginalAppearance(greenmirror.VisualComponent)
-     */
-    @Override
-    public Node setOriginalAppearance(VisualComponent appearance) {
-        throw new RemovedNodeUsedException(this);
-    }
-
-    /* (non-Javadoc)
-     * @see greenmirror.Node#setAppearance(greenmirror.VisualComponent)
-     */
-    @Override
-    public Node setAppearance(VisualComponent appearance) {
-        throw new RemovedNodeUsedException(this);
-    }
+    
+    
+    // -- Commands ---------------------------------------------------------------------------
 
     /* (non-Javadoc)
      * @see greenmirror.Node#addRelation(greenmirror.Relation)
@@ -149,6 +151,7 @@ public class NullNode extends Node {
         throw new RemovedNodeUsedException(this);
     }
 
+
     /* (non-Javadoc)
      * @see greenmirror.Node#removeRelation(greenmirror.Relation)
      */
@@ -157,19 +160,46 @@ public class NullNode extends Node {
         throw new RemovedNodeUsedException(this);
     }
 
+
     /* (non-Javadoc)
-     * @see greenmirror.Node#relationRemoved(greenmirror.Relation)
+     * @see greenmirror.Node#set(greenmirror.FxContainer)
      */
     @Override
-    public void relationRemoved(Relation relation) {
+    public Node set(FxContainer fxContainer) {
+        throw new RemovedNodeUsedException(this);
+    }
+
+
+    /* (non-Javadoc)
+     * @see greenmirror.Node#fx(java.lang.String)
+     */
+    @Override
+    public FxContainer fx(String type) {
         throw new RemovedNodeUsedException(this);
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.Node#appearanceUpdated()
+     * @see greenmirror.Node#fx()
      */
     @Override
-    public void appearanceUpdated() {
+    public FxContainer fx() {
+        throw new RemovedNodeUsedException(this);
+    }
+
+
+    /* (non-Javadoc)
+     * @see greenmirror.Node#update(java.util.Observable, java.lang.Object)
+     */
+    @Override
+    public void update(Observable observable, Object arg1) {
+        throw new RemovedNodeUsedException(this);
+    }
+
+    /* (non-Javadoc)
+     * @see greenmirror.Node#clone()
+     */
+    @Override
+    public Node clone() {
         throw new RemovedNodeUsedException(this);
     }
 }

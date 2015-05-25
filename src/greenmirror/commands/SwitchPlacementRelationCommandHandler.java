@@ -118,7 +118,7 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
         
 
         
-        oldRelation.remove();
+        oldRelation.removeFromNodes();
         nodeA.addRelation(newRelation);
         
         
@@ -126,7 +126,7 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
         
         getController().getVisualizer().doPlacement(newRelation, false);
         
-
+        //TODO: account for already set tempFx from the previous relation.
         // Change node A's FX according to the tempFx.
         if (newRelation.getTemporaryFxOfNodeA() != null) {
             // We're assuming here that the FX of the Node itself has been set.

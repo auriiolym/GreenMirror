@@ -14,7 +14,8 @@ import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.EndTransitionCommand;
 import greenmirror.commands.InitializationCommand;
 import greenmirror.commands.RemoveNodeCommand;
-import greenmirror.commands.SetCurrentAnimationDurationCommand;
+import greenmirror.commands.RemoveRelationCommand;
+import greenmirror.commands.SetAnimationDurationCommand;
 import greenmirror.commands.SetNodeFxCommand;
 import greenmirror.commands.StartVisualizationCommand;
 import groovy.lang.GroovyRuntimeException;
@@ -221,23 +222,54 @@ public class Client extends GreenMirrorController implements Observer {
     }
     
     /**
+     * Adds a <tt>Relation</tt> to the visualizer and to the model.
+     * @param relation The new <tt>Relation</tt>.
+     */
+    //@ requires relation != null;
+    //@ ensures relation.getNodeA().hasRelation(relation);
+    //@ ensures relation.getNodeB().hasRelation(relation); 
+    public void addRelation(Relation relation) {
+        relation.addToNodes();
+        send(new AddRelationCommand(relation));
+    }
+    
+    /**
      * Remove a <tt>Node</tt> from the visualizer. It is actually replaced by a <tt>NullNode</tt>
      * so no issues occur with the indices of <tt>NodeList</tt> and <tt>id</tt>s of <tt>Node</tt>s.
-     * The server will be notified.
+     * The server will be notified and will handle the removal of relations in its own way.
      * @param node The <tt>Node</tt> to remove.
      */
+    //@ requires node != null;
     public void removeNode(Node node) {
         Integer id = node.getId();
+        // No id means the node isn't part of GreenMirror.
+        if (id == null) {
+            return;
+        }
         NullNode removedNode = new NullNode(node.getType(), node.getName());
         removedNode.setId(id);
         getNodes().set(id, removedNode);
         
-        // Add to log.
-        Log.add("Node removed: " + node.toString());
-        //TODO: remove Relations
+        // Remove relations.
+        //node.getRelations().forEach(relation -> removeRelation(relation));
+        //TODO: fix this (serverside). Remove from observing list and remove relations.
         
         // Notify the server.
         send(new RemoveNodeCommand(node));
+        // Add to log.
+        Log.add("Node removed: " + node.toString());
+    }
+    
+    /**
+     * Removes a <tt>Relation</tt> and notifies the visualizer.
+     * @param relation The <tt>Relation</tt> to remove.
+     */
+    //@ requires relation != null;
+    //@ ensures !relation.getNodeA().hasRelation(relation);
+    //@ ensures !relation.getNodeB().hasRelation(relation); 
+    public void removeRelation(Relation relation) {
+        relation.removeFromNodes();
+        send(new RemoveRelationCommand(relation));
     }
     
 
@@ -317,7 +349,7 @@ public class Client extends GreenMirrorController implements Observer {
         for (String traceTransition : traceSelector.getTrace()) {
             // And execute the transition.
             for (ModelTransition transition : getTransitions(traceTransition)) {
-                send(new SetCurrentAnimationDurationCommand(transition.getDuration()));
+                send(new SetAnimationDurationCommand(transition.getDuration()));
                 transition.execute(traceTransition);
                 send(new EndTransitionCommand());
                 Log.add("Transition " + traceTransition + " executed.");

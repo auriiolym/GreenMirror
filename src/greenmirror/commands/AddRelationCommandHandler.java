@@ -119,7 +119,6 @@ public class AddRelationCommandHandler extends CommandHandler {
 
         
 
-        getController().getVisualizer().doPlacement(relation, false);
         
 
         // Change node A's FX according to the tempFx.
@@ -131,10 +130,13 @@ public class AddRelationCommandHandler extends CommandHandler {
             nodeA.getFxContainer().saveAsOriginal();
             
             // Apply the changes (animated).
-            getController().getVisualizer().changeFx(nodeA,
-                        relation.getTemporaryFxOfNodeA().toMap());
+            getController().getVisualizer().changeFx(nodeA, 
+                    relation.getTemporaryFxOfNodeA().toMap());
         }
-        
+
+        // Do this AFTER applying the temporary FX, so the positioning properties are ignored 
+        // because they haven't changed yet. 
+        getController().getVisualizer().doPlacement(relation, false);        
         
         // Alter the location of nodes of other, rigid relations.
         /*TODO: if node A has a rigid relation with another node (on which the current 

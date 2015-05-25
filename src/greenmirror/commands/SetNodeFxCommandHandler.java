@@ -6,10 +6,12 @@ import greenmirror.FxContainer;
 import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.server.ServerController;
+import greenmirror.server.Visualizer;
 import groovy.json.internal.LazyValueMap;
 
 import java.util.Map;
 
+import javafx.animation.FadeTransition;
 import javafx.util.Duration;
 
 /**
@@ -65,6 +67,9 @@ public class SetNodeFxCommandHandler extends CommandHandler {
             
             
         // We're assuming here that the FX of the Node has not been set yet.
+
+        final Visualizer visualizer = getController().getVisualizer();
+        final Duration duration = Duration.millis(visualizer.getCurrentAnimationDuration());
             
         // Get new instance.
         FxContainer fxContainer;
@@ -87,7 +92,6 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         fxContainer.setFxNodeValuesFromMap(fxMap);
         fxNode.setOpacity(0);
         fxNode.setVisible(false); // Is updated before each fade animation.
-        fxNode.setMouseTransparent(true); // Is updated at FxContainer.animateAppearing()
         
         
         // Add the FX Node to the stage.
@@ -101,12 +105,8 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         
         // If a position is set, add the fade in transition to the queue.
         if (fxContainer.isPositionSet()) {
-            getController().getVisualizer().addToVisualizationsQueue(
-                    fxContainer.animateAppearing(
-                            Duration.millis(
-                                getController()
-                                .getVisualizer()
-                                .getCurrentAnimationDuration())));
+            visualizer.addToVisualizationsQueue(
+                    fxContainer.animateOpacity(0.0, fxContainer.getOpacity(), duration));
         }
 
     }

@@ -1,16 +1,16 @@
 package greenmirror;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSpec;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSpec;
-
 /**
- * The interface that encapsulates all command line argument handlers. All implementing classes should
- * have either the <tt>ClientSide</tt> or <tt>ServerSide</tt> annotation (or both).
+ * The interface that encapsulates all command line argument handlers. All implementing classes 
+ * should have either the <tt>ClientSide</tt> or <tt>ServerSide</tt> annotation (or both).
  * 
  * @author Karim El Assal
  */

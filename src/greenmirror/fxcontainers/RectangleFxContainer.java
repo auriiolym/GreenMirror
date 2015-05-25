@@ -251,22 +251,8 @@ public class RectangleFxContainer extends FxShapeContainer {
         double posY;
         
         switch (placement) {
-        case MIDDLE:
-            posX = getX() + getWidth() / 2;
-            posY = getY() + getHeight() / 2;
-            break;
-        case CUSTOM:
-            posX = getX() + getWidth() / 2 + placement.getRelativePosition().getX();
-            posY = getY() + getHeight() / 2 + placement.getRelativePosition().getY();
-            break;
-        case EDGE_LEFT_MIDDLE:
-            posX = getX();
-            posY = getY() + getHeight() / 2;
-            break;
-        case EDGE_RIGHT_MIDDLE:
-            posX = getX() + getWidth();
-            posY = getY() + getHeight() / 2;
-            break;
+        case NONE: default:
+            return null;
         case RANDOM:
             Random random = new Random();
             double minX = getX();
@@ -277,10 +263,44 @@ public class RectangleFxContainer extends FxShapeContainer {
             posX = minX + random.nextDouble() * (maxX - minX);
             posY = minY + random.nextDouble() * (maxY - minY);
             break;
-        case NONE: default:
-            return null;
+        case CUSTOM: case MIDDLE:
+            posX = getX() + getWidth() / 2;
+            posY = getY() + getHeight() / 2;
+            break;
+        case EDGE_TOP:
+            posX = getX() + getWidth() / 2;
+            posY = getY();
+            break;
+        case EDGE_RIGHT:
+            posX = getX() + getWidth();
+            posY = getY() + getHeight() / 2;
+            break;
+        case EDGE_BOTTOM:
+            posX = getX() + getWidth() / 2;
+            posY = getY() + getHeight();
+            break;
+        case EDGE_LEFT:
+            posX = getX();
+            posY = getY() + getHeight() / 2;
+            break;
+        case CORNER_TOP_LEFT:
+            posX = getX(); 
+            posY = getY();
+            break;
+        case CORNER_TOP_RIGHT:
+            posX = getX() + getWidth();
+            posY = getY();
+            break;
+        case CORNER_BOTTOM_RIGHT:
+            posX = getX() + getWidth();
+            posY = getY() + getHeight();
+            break;
+        case CORNER_BOTTOM_LEFT:
+            posX = getX();
+            posY = getY() + getHeight();
+            break;
         }
-        return new Point3D(posX, posY, 0);
+        return new Point3D(posX, posY, 0).add(placement.getRelativePosition());
     }
     
 

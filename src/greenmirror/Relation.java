@@ -382,7 +382,7 @@ public class Relation {
      */
     //@ ensures !getNodeA().getRelations().contains(this);
     //@ ensures !getNodeB().getRelations().contains(this);
-    public void remove() {
+    public void removeFromNodes() {
         if (getNodeA() != null) {
             getNodeA().getRelations().remove(this);
         }
@@ -426,7 +426,7 @@ public class Relation {
     public Relation passToNextNodeB(NodeList nodes) {
         if (nodes != null && nodes.size() > 1 && nodes.contains(getNodeB())) {
             Node nextNode = nodes.getCircularNext(getNodeB());
-            remove();
+            removeFromNodes();
             removeNodeB();
             // Node A is still set and node B isn't, so we add this Relation to one of the two.
             nextNode.addRelation(this);

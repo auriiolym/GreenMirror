@@ -1,6 +1,12 @@
 package greenmirror.commands;
 
-import greenmirror.*;
+import greenmirror.Command;
+import greenmirror.CommunicationFormat;
+import greenmirror.Log;
+import greenmirror.Node;
+import groovy.json.JsonOutput;
+
+import java.util.LinkedHashMap;
 
 /**
  * The command to remove a node. This command is sent to the server.
@@ -9,28 +15,58 @@ import greenmirror.*;
  * id : int        The node id
  */
 public class RemoveNodeCommand extends Command {
+    
+    // -- Instance variables -----------------------------------------------------------------
+    
+    private Node node;
+
+    
+    // --- Constructors ----------------------------------------------------------------------
 
     /**
-     * 
-     * @param node
+     * Create a new <tt>RemoveNodeCommand</tt>.
+     * @param node The <tt>Node</tt> that will be removed from the visualizer.
      */
+    //@ requires node != null;
     public RemoveNodeCommand(Node node) {
-        // TODO - implement RemoveNodeCommand.RemoveNodeCommand
-        throw new UnsupportedOperationException();
+        this.node = node;
     }
 
-    public void prepare() {
-        // TODO - implement RemoveNodeCommand.prepare
-        throw new UnsupportedOperationException();
-    }
-
+    // --- Queries ---------------------------------------------------------------------------
+    
     /**
-     * 
-     * @param format
+     * @return The <tt>Node</tt> that will be removed from the visualizer.
      */
-    public String getFormattedString(CommunicationFormat format) {
-        // TODO - implement RemoveNodeCommand.getFormattedString
-        throw new UnsupportedOperationException();
+    //@ ensures \result != null;
+    /*@ pure */ private Node getNode() {
+        return node;
     }
 
+
+    // -- Commands ---------------------------------------------------------------------------
+    
+    /* (non-Javadoc)
+     * @see greenmirror.Command#prepare()
+     */
+    @Override
+    public void prepare() {
+        // Nothing to prepare.
+    }
+    
+    /* (non-Javadoc)
+     * @see greenmirror.Command#getFormattedString(greenmirror.CommunicationFormat)
+     */
+    @Override
+    public String getFormattedString(CommunicationFormat format) {
+        Log.add("Node removed: " + getNode().toString());
+        
+        switch (format) {
+        default: case JSON:
+            return JsonOutput.toJson(new LinkedHashMap<String, Object>() {
+                {
+                    put("id", getNode().getId());
+                }
+            });
+        }
+    }
 }

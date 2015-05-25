@@ -6,7 +6,7 @@ import greenmirror.NodeList;
 import greenmirror.Relation;
 import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.FlushCommand;
-import greenmirror.commands.SetCurrentAnimationDurationCommand;
+import greenmirror.commands.SetAnimationDurationCommand;
 import greenmirror.commands.SwitchPlacementRelationCommand;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
@@ -171,7 +171,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     /**
      * Add as many nodes as you want in one statement.
-     * @param nodes An array or list of nodes.
+     * @param nodes An array of nodes.
      */
     public void addNodes(Node... nodes) {
         for (Node node : nodes) {
@@ -179,12 +179,21 @@ public class GreenMirrorGroovyBaseScript extends Script {
         }
     }
     
+    /**
+     * Add a <tt>Relation</tt>.
+     * @param relation
+     */
     //@ requires relation != null;
+    //@ ensures relation.getNodeA().hasRelation(relation);
+    //@ ensures relation.getNodeB().hasRelation(relation); 
     public void addRelation(Relation relation) {
-        relation.addToNodes();
-        getController().send(new AddRelationCommand(relation));
+        getController().addRelation(relation);
     }
     
+    /**
+     * Add multiple <tt>Relation</tt>s.
+     * @param relations
+     */
     public void addRelations(Relation... relations) {
         for (Relation relation : relations) {
             addRelation(relation);
@@ -202,7 +211,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
         
         getController().send(
                 new SwitchPlacementRelationCommand(currentPlacementRelation, newRelation));
-        currentPlacementRelation.remove();
+        currentPlacementRelation.removeFromNodes();
         newRelation.addToNodes();
     }
     
@@ -259,7 +268,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
      */
     //@ requires duration >= 0;
     public void setAnimationDuration(double duration) {
-        getController().send(new SetCurrentAnimationDurationCommand(duration));;
+        getController().send(new SetAnimationDurationCommand(duration));;
     }
     
     /**
@@ -289,24 +298,53 @@ public class GreenMirrorGroovyBaseScript extends Script {
     public void flush(double delay) {
         getController().send(new FlushCommand(delay));
     }
+    
+    /**
+     * Remove a <tt>Node</tt> from the visualizer.
+     * @param node
+     */
+    //@ requires node != null;
+    //@ ensures !getController().getNodes().contains(node);
+    public void removeNode(Node node) {
+        getController().removeNode(node);
+    }
 
     /**
-     * Remove several <tt>Node</tt>s from the visualizer.
-     * @param nodes The <tt>Node</tt>s that will be removed.
+     * Remove all <tt>Node</tt>s from <tt>nodeList</tt> from the visualizer.
+     * @param nodeList The <tt>Node</tt>s that will be removed.
      */
     //@ requires nodes != null;
     //@ ensures nodes().size() == \old(nodes().size()) - nodes.size();
-    public void removeNodes(NodeList nodes) {
-        nodes.forEach(node -> {
-            getController().removeNode(node);
-        });
+    public void removeNodes(NodeList nodeList) {
+        nodeList.forEach(node -> removeNode(node));
     }
-    
+
+    /**
+     * Remove all passed <tt>Node</tt>s from the visualizer.
+     * @param nodes The <tt>Node</tt>s that will be removed.
+     */
     public void removeNodes(Node... nodes) {
         removeNodes(new NodeList(nodes));
     }
     
-    public void removeNode(Node... nodes) {
-        removeNodes(new NodeList(nodes));
+    /**
+     * Remove a <tt>Relation</tt> from the visualizer.
+     * @param relation
+     */
+    //@ requires relation != null;
+    //@ ensures !relation.getNodeA().hasRelation(relation);
+    //@ ensures !relation.getNodeB().hasRelation(relation); 
+    public void removeRelation(Relation relation) {
+        getController().removeRelation(relation);
+    }
+    
+    /**
+     * Remove all passed <tt>Relation</tt>s from the visualizer.
+     * @param relations
+     */
+    public void removeRelations(Relation... relations) {
+        for (Relation relation : relations) {
+            removeRelation(relation);
+        }
     }
 }

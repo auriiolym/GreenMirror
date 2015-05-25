@@ -1,4 +1,4 @@
-initialize(1000, 600, 3000);
+initialize(1000, 600, 2000);
 
 
 // Background
@@ -32,7 +32,7 @@ addRelations(
     new Relation("moored_to")
                     .setNodeA(node("boat"))
                     .setNodeB(node("bank:left"))
-                    .setPlacement(Placement.EDGE_RIGHT_MIDDLE),
+                    .setPlacement(Placement.EDGE_RIGHT),
     new Relation("on")
                     .setNodeA(node("ferryman"))
                     .setNodeB(node("boat"))
@@ -101,8 +101,8 @@ addTransition("cross", {
         // Option 1:
         new Relation().fromRelation(node("boat").getRelation(1, "moored_to"))
                       .setNextNodeB(nodes().ofType("bank"))
-                      .setNextPlacement(Placement.EDGE_RIGHT_MIDDLE,
-                                        Placement.EDGE_LEFT_MIDDLE)
+                      .setNextPlacement(Placement.EDGE_RIGHT,
+                                        Placement.EDGE_LEFT)
     );
 });
 addTransition("unload", {
@@ -120,11 +120,10 @@ addTransition("(.*)_eat_(.*)", {String eater, String eatee ->
     addRelation(
         new Relation("eats").setNodeA(node("cargo:" + eater))
                             .setNodeB(node("cargo:" + eatee))
-                            .setPlacement(Placement.EDGE_RIGHT_MIDDLE)
+                            .setPlacement(Placement.EDGE_RIGHT)
     );
     flush();
-    //removeNode(node("cargo:" + eatee)); // This is how it should go.
-    node("cargo:" + eatee).fx().setOpacity(0);
+    removeNode(node("cargo:" + eatee)); 
 });
 
 

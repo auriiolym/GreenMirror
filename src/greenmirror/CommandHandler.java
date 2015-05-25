@@ -8,6 +8,7 @@ import groovy.json.internal.LazyValueMap;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -26,6 +27,7 @@ public abstract class CommandHandler {
     public static @interface ClientSide {}
     @Retention(RetentionPolicy.RUNTIME)
     public static @interface ServerSide {}
+    
     
     // -- Exceptions -------------------------------------------------------------------------
     
@@ -131,7 +133,7 @@ public abstract class CommandHandler {
     }
     
     public static Map<String, Object> toMap(Map<Object, Object> map) {
-        Map<String, Object> resultMap = new HashMap<>();
+        Map<String, Object> resultMap = new LinkedHashMap<>();
         for (Map.Entry<Object, Object> entry : map.entrySet()) {
             resultMap.put((String) entry.getKey(), (Object) entry.getValue());
         }

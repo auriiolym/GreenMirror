@@ -344,7 +344,7 @@ public class Visualizer extends Application {
     
     private void toState(Transition transition) {
         executeOnCorrectThread(() -> {
-            setFadeTransitionFxNodesToVisible(transition);
+            setFxNodeVisibility(transition, true);
             transition.play();
         });
     }
@@ -422,12 +422,16 @@ public class Visualizer extends Application {
     }
     
     /**
-     * Set the JavaFX nodes that are in a <tt>FadeTransition</tt> to visible. It recursively 
-     * searches for any <tt>FadeTransition</tt>s.
-     * @param transition Any kind of <tt>Transition</tt>.
+     * Set the JavaFX nodes that will appear or disappear to (respectively) visible or invisible. 
+     * It recursively searches for any <tt>FadeTransition</tt>s. If <tt>startingTransition</tt> 
+     * is set to true, we assume this method is executed right before the start of a transition. 
+     * If set to false, we assume this method is executed right after the and of a transition.
+     * @param transition         Any kind of <tt>Transition</tt>.
+     * @param startingTransition <tt>true</tt> if we're starting a transition; <tt>false</tt> 
+     *                           if we're ending a transition.
      */
     //@ requires transition != null;
-    private void setFadeTransitionFxNodesToVisible(Transition transition) {
+    private void setFxNodeVisibility(Transition transition, boolean startingTransition) {
         ObservableList<Animation> childTransitions;
         if (transition instanceof SequentialTransition) {
             childTransitions = ((SequentialTransition) transition).getChildren();
@@ -436,13 +440,19 @@ public class Visualizer extends Application {
             childTransitions = ((ParallelTransition) transition).getChildren();
         } else
         if (transition instanceof FadeTransition) {
-            ((FadeTransition) transition).getNode().setVisible(true);
+            final FadeTransition ft = (FadeTransition) transition;
+            if (startingTransition && ft.getFromValue() == 0 && ft.getToValue() > 0) {
+                ft.getNode().setVisible(true);
+            } else
+            if (!startingTransition && ft.getFromValue() > 0 && ft.getToValue() == 0) {
+                ft.getNode().setVisible(false);
+            }
             return;
         } else {
             return;
         }
         for (Animation anim : childTransitions) {
-            setFadeTransitionFxNodesToVisible((Transition) anim);
+            setFxNodeVisibility((Transition) anim, startingTransition);
         }
     }
     
@@ -509,7 +519,8 @@ public class Visualizer extends Application {
                 nodeAfxCont.getFxNode().setOpacity(0);
             });
             // Add appearing animation.
-            addToVisualizationsQueue(nodeAfxCont.animateAppearing(duration));
+            addToVisualizationsQueue(
+                    nodeAfxCont.animateOpacity(0.0, nodeAfxCont.getOpacity(), duration));
         }
         
         // And set the position of the node (in the model) to the new position.
@@ -553,7 +564,8 @@ public class Visualizer extends Application {
             
             // If the FX node will be shown, make it 'appear'.
             if (newFx.isPositionSet()) {
-                addToVisualizationsQueue(fxContainer.animateAppearing(duration));
+                addToVisualizationsQueue(
+                        fxContainer.animateOpacity(0.0, fxContainer.getOpacity(), duration));
             }
             
         // If it is already showing, animate the changes.
@@ -623,7 +635,9 @@ public class Visualizer extends Application {
       @ ensures getCurrentStateIndex() == 0 && !hasNextState() && !hasPreviousState();
       @ ensures getVisualizationsQueue() != null;
       @ ensures getVisualizationsQueue().getChildren().size() == 1; 
-      @ ensures getVisualizationsQueue().getChildren().get(0) instanceof ParallelTransition; */
+      @ ensures getVisualizationsQueue().getChildren().get(0) instanceof ParallelTransition;
+      @ ensures getDefaultAnimationDuration() == DEFAULT_ANIMATION_DURATION;
+      @ ensures getCurrentAnimationDuration() == getDefaultAnimationDuration(); */
     public void reset() {
         setStage(null);
         getController().getNodes().clear();
@@ -637,6 +651,8 @@ public class Visualizer extends Application {
         getStates().clear();
         resetVisualizationQueue();
         setPlaybackState(new PausedState());
+        setDefaultAnimationDuration(DEFAULT_ANIMATION_DURATION);
+        setCurrentAnimationDuration(-1.0);
         
         getController().relistenForConnections();
     }

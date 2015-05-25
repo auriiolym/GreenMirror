@@ -177,12 +177,14 @@ public class RelationList extends LinkedList<Relation> {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Remove all <tt>Relation</tt>s in this <tt>RelationList</tt>.
+     * Remove all <tt>Relation</tt>s in this <tt>RelationList</tt>. Also removes this 
+     * <tt>Relation</tt> from the connected <tt>Node</tt>s.
      */
     //@ ensures this.size() == 0;
     public void removeAll() {
-        this.forEach(relation -> {
-            relation.remove();
+        // We iterate of a copy of this <tt>RelationList</tt>, so we don't get concurrency errors.
+        this.withFilter(relation -> true).forEach(relation -> {
+            relation.removeFromNodes();
             this.remove(relation);
         });
     }

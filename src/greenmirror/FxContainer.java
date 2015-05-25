@@ -58,10 +58,18 @@ public abstract class FxContainer extends Observable {
     // -- Queries ----------------------------------------------------------------------------
  
     /**
-     * @return The type of the FxContainer.
+     * @return The type of the <tt>FxContainer</tt>.
      */
     /*@ pure */ public String getType() {
         return getClass().getSimpleName().replace("FxContainer", "");
+    }
+ 
+    /**
+     * Get the previously saved, original <tt>FxContainer</tt>.
+     * @return The original saved <tt>FxContainer</tt>; <tt>null</tt> if none was saved.
+     */
+    /*@ pure */ public FxContainer getOriginalFx() {
+        return this.originalFx;
     }
     
     /*@ pure */ public javafx.scene.Node getFxNode() {
@@ -103,6 +111,24 @@ public abstract class FxContainer extends Observable {
                 e.printStackTrace();
             }
         }
+        return map;
+    }
+    
+    /**
+     * Returns the result of {@link #toMap()} without any positioning data. It removes x, y, z, 
+     * centerX, centerY and centerZ. If an extending class has other positioning data, it should 
+     * override this method.
+     * @return The property map of this <tt>FxContainer</tt> without positioning data.
+     */
+    //@ ensures \result != null;
+    /*@ pure */ public Map<String, Object> toMapWithoutPositionData() {
+        Map<String, Object> map = toMap();
+        map.remove("x");
+        map.remove("y");
+        map.remove("z");
+        map.remove("centerX");
+        map.remove("centerY");
+        map.remove("centerZ");
         return map;
     }
     
@@ -307,17 +333,13 @@ public abstract class FxContainer extends Observable {
         return transition;
     }
     
-    public FadeTransition animateAppearing(Duration duration) {
-        FadeTransition transition = (FadeTransition) animateOpacity(getOpacity(), duration);
-        transition.setFromValue(0);
-        transition.setOnFinished(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                transition.getNode().setMouseTransparent(false);
-            }
-        });
+    public FadeTransition animateOpacity(double from, double to, Duration duration) {
+        FadeTransition transition = new FadeTransition(duration, getFxNode());
+        transition.setFromValue(from);
+        transition.setToValue(to);
         return transition;
     }
+    
     
     
     // -- Class usage ------------------------------------------------------------------------

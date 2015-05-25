@@ -303,7 +303,8 @@ public abstract class GreenMirrorController {
         } catch (OptionException e) {
             Log.add("Something went wrong with parsing these options: " 
                     + new TreeSet<String>(e.options()).toString() 
-                    + ". Please check if they were passed correctly.");
+                    + ". Are these valid options? Or did you forget to pass them? Type --help "
+                    + "or -? to see all available options.");
             return false;
         }
         

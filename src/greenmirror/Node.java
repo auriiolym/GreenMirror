@@ -23,7 +23,7 @@ public class Node extends Observable implements Observer {
     
     /**
      * A class to generalize the use of the <tt>Node</tt> identifiers. Possible values
-     * are (without quotes): "type:name", "type:", "name".
+     * are (without quotes): "type:name", "type:", "name", "".
      * 
      * @author Karim El Assal
      */
@@ -266,6 +266,16 @@ public class Node extends Observable implements Observer {
     }
     
     /**
+     * Check if this node has a specific <tt>Relation</tt>.
+     * @param relation The <tt>Relation</tt> to check for.
+     * @return         <tt>true</tt> if this node has <tt>relation</tt>.
+     */
+    //@ ensures \result == getRelations().contains(relation);
+    /*@ pure */ public boolean hasRelation(Relation relation) {
+        return getRelations().contains(relation);
+    }
+    
+    /**
      * @return Whether this <tt>Node</tt> has a <tt>Relation</tt> that determines its 
      *         <tt>Placement</tt>.
      */
@@ -342,7 +352,7 @@ public class Node extends Observable implements Observer {
      * This method should be used in the application. {@see #fx()}
      * @return The <tt>FxContainer</tt>.
      */
-    public FxContainer getFxContainer() {
+    /*@ pure */ public FxContainer getFxContainer() {
         return fxContainer;
     }
 
@@ -378,7 +388,7 @@ public class Node extends Observable implements Observer {
     @Override
     /*@ pure */ public String toString() {
         return 
-              "Node id=" + (getId() == null ? "" : getId().toString())
+              "node id=" + (getId() == null ? "" : getId().toString())
             + " | type=" + (getType() == null ? "" : getType().toString())
             + " | name=" + (getName() == null ? "" : getName().toString())
             + " | labels=" + getLabels().toString()
@@ -488,7 +498,7 @@ public class Node extends Observable implements Observer {
         if (!getRelations().contains(relation)) {
             return;
         }
-        relation.remove();
+        relation.removeFromNodes();
     }
     
     /**
@@ -550,20 +560,11 @@ public class Node extends Observable implements Observer {
      * This method should be used in a Groovy user script. {@see #getFxContainer()}
      * @return The <tt>FxContainer</tt>.
      */
-    public FxContainer fx() {
+    /*@ pure */ public FxContainer fx() {
         if (getFxContainer() == null) {
-            throw new IllegalArgumentException("No FX element has been set.");
+            throw new IllegalStateException("No FX element has been set.");
         }
         return getFxContainer();
-    }
-    
-    /**
-     * Notify the observers that a <tt>Relation</tt> was removed.
-     * @param relation
-     */
-    public void relationRemoved(Relation relation) {
-        setChanged();
-        notifyObservers(new RemoveRelationCommand(relation));
     }
 
     /* (non-Javadoc)
