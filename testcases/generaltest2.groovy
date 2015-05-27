@@ -1,12 +1,13 @@
-initialize(800, 500);
+initialize(800, 500, true);
 
 // Add simple center node.
 addNode("center").fx("rectangle")
                  .setSize(400, 200)
                  .setPosition(200, 200)
                  .setFill("red")
-                 .setArcs(5, 5)
+                 .setArcs(60, 60)
                  .setOpacity(0.5)
+                 .setRotate(-5)
                  ;
 
 
@@ -98,7 +99,8 @@ addTransition("trans3", {
                             .setFill(Color.WHITE)),
         new Node("n2").set(fx("rectangle")
                             .setSize(30, 20)
-                            .setFill(Color.BROWN)),
+                            .setFill(Color.BROWN)
+                            .setRotate(45)),
         new Node("n3").set(fx("rectangle")
                             .setSize(10, 5)
                             .setFill(Color.GREEN))
@@ -115,20 +117,23 @@ addTransition("trans3", {
                           .setRigid(true)
     );
     
-    flush(1000);
-    
+    flush(500);
     node("n1").fx().setPosition(400, 200);
+    flush(500);
     
+    node("n1").fx().setRotateBy(90);
     flush(1000);
-    
-    node("n1").fx().setRotateBy(-90); // doesn't work!
+    node("n1").fx().setRotateBy(-180);
 });
-addTransition("trans4", {});
-
-
-// Test rigidly related nodes.
 
 // Test: remove rigid relation, then move the node B of the relation.
+addTransition("trans4", {
+    removeNode(node("n1"));
+});
+
+
+
+
 
 
 

@@ -59,9 +59,10 @@ public class InitializationCommandHandler extends CommandHandler {
             throws DataParseException {
         
 
-        Double width;
-        Double height;
-        Double duration;
+        final Double width;
+        final Double height;
+        final Double duration;
+        final boolean rotateRigidlyRelatedNodesRigidly;
         
         switch (format) {
         default: case JSON:
@@ -76,6 +77,9 @@ public class InitializationCommandHandler extends CommandHandler {
             width = ((BigDecimal) map.get("width")).doubleValue();
             height = ((BigDecimal) map.get("height")).doubleValue();
             duration = ((BigDecimal) map.get("defaultTransitionDuration")).doubleValue();
+            rotateRigidlyRelatedNodesRigidly 
+                = (Boolean) map.get("rotateRigidlyRelatedNodesRigidly");
+            
             
             if (!(width > 0 
                     && height > 0 
@@ -89,6 +93,8 @@ public class InitializationCommandHandler extends CommandHandler {
         if (duration >= 0) {
             getController().getVisualizer().setDefaultAnimationDuration(duration);
         }
+        getController().getVisualizer()
+            .setRotateRigidlyRelatedNodesRigidly(rotateRigidlyRelatedNodesRigidly);
         initialize(width, height);
     }
     

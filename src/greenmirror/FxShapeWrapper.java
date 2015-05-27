@@ -96,6 +96,8 @@ public abstract class FxShapeWrapper extends FxWrapper {
     
     public Transition animateFill(Color value, Duration duration) {
         FillTransition transition = new FillTransition(duration, getFxNode());
+        transition.setFromValue(getFill() == null 
+                ? Color.BLACK : Color.valueOf(getFill().toString()));
         transition.setToValue(value);
         return transition;
     }

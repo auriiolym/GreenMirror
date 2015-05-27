@@ -88,7 +88,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
      */
     //@ requires width > 0 && height > 0;
     public void initialize(double width, double height) {
-        initialize(width, height, -1.0);
+        initialize(width, height, -1.0, true);
     }
     
     /**
@@ -100,7 +100,35 @@ public class GreenMirrorGroovyBaseScript extends Script {
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
     public void initialize(double width, double height, double duration) {
-        getController().initializeVisualizer(width, height, duration);
+        initialize(width, height, duration, true);
+    }
+    
+    /**
+     * Initialize the visualizer.
+     * @param width    The width of the canvas.
+     * @param height   The height of the canvas.
+     * @param rotateRigidlyRelatedNodesRigidly
+     *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
+     */
+    //@ requires width > 0 && height > 0 && duration >= -1.0;
+    public void initialize(double width, double height, boolean rotateRigidlyRelatedNodesRigidly) {
+        initialize(width, height, -1.0, rotateRigidlyRelatedNodesRigidly);
+    }
+    
+    /**
+     * Initialize the visualizer.
+     * @param width    The width of the canvas.
+     * @param height   The height of the canvas.
+     * @param duration The default duration for transitions (in milliseconds); -1 for 
+     *                 unspecified duration.
+     * @param rotateRigidlyRelatedNodesRigidly
+     *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
+     */
+    //@ requires width > 0 && height > 0 && duration >= -1.0;
+    public void initialize(double width, double height, double duration, 
+            boolean rotateRigidlyRelatedNodesRigidly) {
+        getController().initializeVisualizer(width, height, duration, 
+                rotateRigidlyRelatedNodesRigidly);
     }
     
     

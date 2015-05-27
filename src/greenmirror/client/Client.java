@@ -381,10 +381,13 @@ public class Client extends GreenMirrorController implements Observer {
      * @param width    The width of the canvas.
      * @param height   The height of the canvas.
      * @param duration The default duration of transitions; -1 for unspecified duration.
+     * @param rotateRigidlyRelatedNodesRigidly
+     *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
-    public void initializeVisualizer(double width, double height, double duration) {
-        send(new InitializationCommand(width, height, duration));
+    public void initializeVisualizer(double width, double height, double duration,
+            boolean rotateRigidlyRelatedNodesRigidly) {
+        send(new InitializationCommand(width, height, duration, rotateRigidlyRelatedNodesRigidly));
     }
 
     /**

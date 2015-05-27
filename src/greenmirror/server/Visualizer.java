@@ -113,6 +113,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
     private double currentTransitionDelay = DEFAULT_TRANSITION_DELAY;
     
+    private boolean rotateRigidlyRelatedNodesRigidly = true;
+    
     /**
      * The current queue of visualizations.
      */
@@ -194,6 +196,13 @@ public class Visualizer extends Application implements Caretaker, Originator {
     /*@ pure */ public double getCurrentTransitionDelay() {
         return currentTransitionDelay >= 0
                 ? currentTransitionDelay : DEFAULT_TRANSITION_DELAY;
+    }
+
+    /**
+     * @return The rotateRigidlyRelatedNodesRigidly.
+     */
+    public boolean isRotateRigidlyRelatedNodesRigidly() {
+        return rotateRigidlyRelatedNodesRigidly;
     }
 
     /**
@@ -307,6 +316,14 @@ public class Visualizer extends Application implements Caretaker, Originator {
         this.currentAnimationDuration = currentAnimationDuration;
     }
     
+    /**
+     * @param rotateRigidlyRelatedNodesRigidly The rotateRigidlyRelatedNodesRigidly to set.
+     */
+    public void setRotateRigidlyRelatedNodesRigidly(
+            boolean rotateRigidlyRelatedNodesRigidly) {
+        this.rotateRigidlyRelatedNodesRigidly = rotateRigidlyRelatedNodesRigidly;
+    }
+
     /**
      * @param transition The transition to add.
      */
@@ -511,13 +528,12 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
     /**
      * Execute the placing of Node A onto Node B according to the settings of a Relation.
-     * @param relation            The Relation.
-     * @param rotateNodeAIfNeeded Whether to rotate node A if node B has also been rotated.
+     * @param relation            The Relation.=
      * @return                    The animation that executes the placement.
      */
-    public void doPlacement(Relation relation, boolean rotateNodeAIfNeeded) {
-        rotateNodeAIfNeeded = false; //TODO: check this (with chained, rigid relations).
-        // If no placement is set (or node B hasn't even got a FxWrapper), do nothing.
+    public void doPlacement(Relation relation) {
+        
+        // If no placement is set (or node B hasn't even got an FxWrapper), do nothing.
         if (relation.getPlacement().equals(Placement.NONE) 
                 || relation.getNodeB().getFxWrapper() == null) {
             return;
@@ -532,7 +548,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
         // Calculate the middle point (the new location) and adjust for rotation.
         Point3D tempNewMiddlePoint = nodeBFxWrapper.calculatePoint(relation.getPlacement());
-        if (nodeBFxWrapper.getRotate() > 0 && !relation.getPlacement().equals(Placement.MIDDLE)) {
+        if (nodeBFxWrapper.getRotate() != 0 && !relation.getPlacement().equals(Placement.MIDDLE)) {
             tempNewMiddlePoint = nodeBFxWrapper.getPointAdjustedForRotation(tempNewMiddlePoint);
         }
         final Point3D newMiddlePoint = tempNewMiddlePoint;
@@ -544,13 +560,13 @@ public class Visualizer extends Application implements Caretaker, Originator {
         final boolean doMove = !nodeAFxWrapper.isPositionSet() 
                 || !nodeAFxWrapper.calculatePoint(Placement.MIDDLE).equals(newMiddlePoint);
         final boolean doRotate = nodeBFxWrapper.getRotate() != nodeAFxWrapper.getRotate() 
-                && rotateNodeAIfNeeded;
+                && isRotateRigidlyRelatedNodesRigidly();
         // Animate if node A is already visible.
         final boolean animateMovement = nodeAFxWrapper.isPositionSet();
         
         
         // If nothing has to happen, do nothing.
-        if (!doMove && !doRotate) {
+        if (!doMove && !animateMovement && !doRotate) {
             return;
         }
         
@@ -591,7 +607,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
         
         // Do the same with all nodes that are rigidly connected to Node A.
         for (Relation rigidRelation : relation.getNodeA().getRelations(-1).withIsRigid(true)) {
-            doPlacement(rigidRelation, rotateNodeAIfNeeded);
+            doPlacement(rigidRelation);
         }
     }
     
@@ -604,6 +620,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
         // Clone it so we can compare old and new values.
         FxWrapper newFx = fxWrapper.clone();
         newFx.setFromMap(newFxMap);
+
 
         // If the FX node hasn't been shown yet, set the values
         if (!fxWrapper.isPositionSet()) {
@@ -628,7 +645,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
         
         // Possibly also re-set the placement of rigidly connected nodes.
         for (Relation relation : node.getRelations(-1).withIsRigid(true)) {
-            doPlacement(relation, true);
+            doPlacement(relation);
         }
     }
     
@@ -700,6 +717,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
         if (hasPreviousMemento() && getPreviousMemento() != null) {
             getPreviousMemento().getTransition().stop();
         }
+        resetSavedMementos();
         resetVisualizationQueue();
         setPlaybackState(new PausedState());
         setDefaultAnimationDuration(DEFAULT_ANIMATION_DURATION);

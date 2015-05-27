@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
  *                      The default time transitions will take. This value is optional and 
  *                      defaults to the sum of the included "sub-"transitions. Set it to UNKNOWN
  *                      if it shouldn't be set.
+ * rotateRigidlyRelatedNodesRigidly : boolean
  */
 public class InitializationCommand extends Command {
     
@@ -28,6 +29,7 @@ public class InitializationCommand extends Command {
     private double height;
     //@ private invariant defaultTransitionDuration >= -1.0;
     private double defaultTransitionDuration;
+    private boolean rotateRigidlyRelatedNodesRigidly;
 
     // -- Constructors -----------------------------------------------------------------------
 
@@ -36,12 +38,16 @@ public class InitializationCommand extends Command {
      * @param width                     Width of the canvas.
      * @param height                    Height of the canvas.
      * @param defaultTransitionDuration The default duration of transitions.
+     * @param rotateRigidlyRelatedNodesRigidly
+     *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
      */
     //@ requires width > 0 && height > 0 && defaultTransitionDuration >= -1.0;
-    public InitializationCommand(double width, double height, double defaultTransitionDuration) {
+    public InitializationCommand(double width, double height, double defaultTransitionDuration,
+            boolean rotateRigidlyRelatedNodesRigidly) {
         setWidth(width);
         setHeight(height);
         setDefaultTransitionDuration(defaultTransitionDuration);
+        setRotateRigidlyRelatedNodesRigidly(rotateRigidlyRelatedNodesRigidly);
     }
 
     // -- Queries ----------------------------------------------------------------------------
@@ -65,9 +71,16 @@ public class InitializationCommand extends Command {
     /**
      * @return The default transition duration.
      */
-  //@ ensures \result >= -1.0;
+    //@ ensures \result >= -1.0;
     /*@ pure */ public double getDefaultTransitionDuration() {
         return defaultTransitionDuration;
+    }
+
+    /**
+     * @return The rotateRigidlyRelatedNodesRigidly.
+     */
+    /*@ pure */ public boolean isRotateRigidlyRelatedNodesRigidly() {
+        return rotateRigidlyRelatedNodesRigidly;
     }
 
 
@@ -100,6 +113,14 @@ public class InitializationCommand extends Command {
         this.defaultTransitionDuration = defaultTransitionDuration;
     }
 
+    /**
+     * @param rotateRigidlyRelatedNodesRigidly The rotateRigidlyRelatedNodesRigidly to set.
+     */
+    //@ ensures isRotateRigidlyRelatedNodesRigidly() == rotateRigidlyRelatedNodesRigidly;
+    public void setRotateRigidlyRelatedNodesRigidly(boolean rotateRigidlyRelatedNodesRigidly) {
+        this.rotateRigidlyRelatedNodesRigidly = rotateRigidlyRelatedNodesRigidly;
+    }
+
     
     // -- Commands ---------------------------------------------------------------------------
     
@@ -119,11 +140,12 @@ public class InitializationCommand extends Command {
     public String getFormattedString(CommunicationFormat format) {
         switch (format) {
         default: case JSON:
-            return JsonOutput.toJson(new LinkedHashMap<String, Double>() {
+            return JsonOutput.toJson(new LinkedHashMap<String, Object>() {
                 {
                     put("width", getWidth());
                     put("height", getHeight());
                     put("defaultTransitionDuration", getDefaultTransitionDuration());
+                    put("rotateRigidlyRelatedNodesRigidly", isRotateRigidlyRelatedNodesRigidly());
                 }
             });
         }

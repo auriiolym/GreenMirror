@@ -2,7 +2,6 @@ package greenmirror.commands;
 
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
-import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.Relation;
 import greenmirror.server.ServerController;

@@ -11,7 +11,6 @@ import groovy.json.internal.LazyValueMap;
 
 import java.util.Map;
 
-import javafx.animation.FadeTransition;
 import javafx.util.Duration;
 
 /**
