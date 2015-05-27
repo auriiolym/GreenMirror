@@ -6,7 +6,7 @@ import greenmirror.Node;
 import greenmirror.server.ServerController;
 import groovy.json.internal.LazyValueMap;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -45,7 +45,7 @@ public class ChangeNodeFxCommandHandler extends CommandHandler {
             throws MissingDataException, DataParseException {
         
         Node node;
-        Map<String, Object> fxMap = new HashMap<>();
+        Map<String, Object> fxMap = new LinkedHashMap<>();
         
         switch (format) {
         default: case JSON:

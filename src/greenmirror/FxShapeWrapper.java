@@ -13,6 +13,7 @@ import javafx.scene.paint.Paint;
 import javafx.util.Duration;
 
 /**
+ * Proxy design pattern: https://sourcemaking.com/design_patterns/proxy
  * 
  * @author Karim El Assal
  */

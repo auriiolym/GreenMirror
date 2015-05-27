@@ -10,7 +10,7 @@ import greenmirror.Relation;
 import greenmirror.WindowLogger;
 import greenmirror.server.playbackstates.PausedState;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,12 @@ import javafx.util.Duration;
 
 /**
  * The main visualizer class and JavaFX application. It starts the log window and waits for 
- * connections. 
+ * connections.
+ * 
+ * Memento design pattern: https://sourcemaking.com/design_patterns/memento
+ * Originator role: toState(Transition), saveState(SequentialTransition)
+ * Caretaker role: (addMemento(Memento) ->) saveState(SequentialTransition), getPreviousState(), 
+ *                  getNextState()
  * 
  * @author Karim El Assal
  */
@@ -716,7 +721,7 @@ public class Visualizer extends Application {
      *                    (standalone) transition.
      */
     public static Object listTransitions(Transition transitions) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         List<Object> subTransitions = new LinkedList<>();
         if (transitions instanceof SequentialTransition) {
             for (Animation transition : ((SequentialTransition) transitions).getChildren()) {

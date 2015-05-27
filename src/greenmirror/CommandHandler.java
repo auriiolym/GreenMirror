@@ -122,7 +122,7 @@ public abstract class CommandHandler {
     public static Map<String, Object> parseJson(String data) throws DataParseException {
         
         try {
-            Map<String, Object> res = new HashMap<>();
+            Map<String, Object> res = new LinkedHashMap<>();
             res.putAll((LazyValueMap) new JsonSlurper()
                             .setType(JsonParserType.INDEX_OVERLAY).parseText(data));
             return res;

@@ -3,13 +3,14 @@ package greenmirror.server;
 import greenmirror.Node;
 import greenmirror.NodeList;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javafx.animation.SequentialTransition;
 
 /**
  * A class to store a system state of the visualizer.
+ * Memento part of the memento design pattern: https://sourcemaking.com/design_patterns/memento
  * 
  * @author Karim El Assal
  */
@@ -22,7 +23,7 @@ public class VisualizerState {
      * stored.
      */
     //@ private invariant nodes != null;
-    private Map<Integer, Map<String, Object>> nodes = new HashMap<>();
+    private Map<Integer, Map<String, Object>> nodes = new LinkedHashMap<>();
     
     /**
      * The transition needed to go to the next state.
@@ -33,9 +34,9 @@ public class VisualizerState {
 
     public VisualizerState(NodeList nodes, SequentialTransition transition) {
         for (Node node : nodes) {
-            this.nodes.put(node.getId(),
-                        node.getFxWrapper() == null
-                        ? new HashMap<String, Object>() : node.getFxWrapper().toMap());
+            getNodes().put(node.getId(),
+                       node.getFxWrapper() == null
+                       ? new LinkedHashMap<String, Object>() : node.getFxWrapper().toMap());
         }
         this.transition = transition;
     }
