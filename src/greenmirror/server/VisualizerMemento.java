@@ -14,7 +14,21 @@ import javafx.animation.SequentialTransition;
  * 
  * @author Karim El Assal
  */
-public class VisualizerState {
+public class VisualizerMemento {
+    
+    public static interface Originator {
+        public VisualizerMemento saveToMemento(SequentialTransition transition);
+        
+        public void restoreFromMemento(VisualizerMemento memento);
+    }
+    
+    public static interface Caretaker {
+        public void addMemento(VisualizerMemento memento);
+        
+        public VisualizerMemento getMemento(int index);
+        
+        public void resetSavedMementos();
+    }
 
     // -- Instance variables -----------------------------------------------------------------
     
@@ -32,7 +46,7 @@ public class VisualizerState {
 
     // -- Constructors -----------------------------------------------------------------------
 
-    public VisualizerState(NodeList nodes, SequentialTransition transition) {
+    public VisualizerMemento(NodeList nodes, SequentialTransition transition) {
         for (Node node : nodes) {
             getNodes().put(node.getId(),
                        node.getFxWrapper() == null
@@ -44,7 +58,7 @@ public class VisualizerState {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @return {@link greenmirror.server.VisualizerState#nodes}
+     * @return {@link greenmirror.server.VisualizerMemento#nodes}
      */
     //@ ensures \result != null;
     /*@ pure */ public Map<Integer, Map<String, Object>> getNodes() {
@@ -52,7 +66,7 @@ public class VisualizerState {
     }
     
     /**
-     * @return {@link greenmirror.server.VisualizerState#transition}
+     * @return {@link greenmirror.server.VisualizerMemento#transition}
      */
     /*@ pure */ public SequentialTransition getTransition() {
         return this.transition;

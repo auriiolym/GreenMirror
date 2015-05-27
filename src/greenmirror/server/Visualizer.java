@@ -8,6 +8,8 @@ import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.Relation;
 import greenmirror.WindowLogger;
+import greenmirror.server.VisualizerMemento.Caretaker;
+import greenmirror.server.VisualizerMemento.Originator;
 import greenmirror.server.playbackstates.PausedState;
 
 import java.util.LinkedHashMap;
@@ -40,7 +42,7 @@ import javafx.util.Duration;
  * 
  * @author Karim El Assal
  */
-public class Visualizer extends Application {
+public class Visualizer extends Application implements Caretaker, Originator {
     
     // -- Inner classes ----------------------------------------------------------------------
     
@@ -54,11 +56,11 @@ public class Visualizer extends Application {
         /**
          * The method that determines the toolbar button operation in accordance with 
          * <tt>hasPreviousState</tt> and <tt>hasNextState</tt>.
-         * @param hasPreviousState
-         * @param hasNextState
+         * @param hasPreviousMemento
+         * @param hasNextMemento
          */
-        public abstract void determineButtonOperation(boolean hasPreviousState, 
-                boolean hasNextState);
+        public abstract void determineButtonOperation(boolean hasPreviousMemento, 
+                boolean hasNextMemento);
         
         /**
          * @return Whether this <tt>PlaybackState</tt> is a continuous one.
@@ -117,11 +119,11 @@ public class Visualizer extends Application {
     //@ private invariant visualizationsQueue != null;
     private SequentialTransition visualizationsQueue;
     
-    //@ private invariant states != null;
-    private List<VisualizerState> states = new LinkedList<>();
+    //@ private invariant savedMementos != null;
+    private LinkedList<VisualizerMemento> savedMementos = new LinkedList<>();
     
-    //@ private invariant currentStateIndex >= 0;
-    private int currentStateIndex = 0;
+    //@ private invariant currentMementoIndex >= 0;
+    private int currentMementoIndex = 0;
 
     
     // -- Constructors -----------------------------------------------------------------------
@@ -214,52 +216,56 @@ public class Visualizer extends Application {
     }
     
     /**
-     * @return All states of the visualizer.
+     * @return All savedMementos of the visualizer.
      */
     //@ ensures \result != null;
-    /*@ pure */ private List<VisualizerState> getStates() {
-        return this.states;
+    /*@ pure */ private List<VisualizerMemento> getMementos() {
+        return this.savedMementos;
+    }
+    
+    /*@ pure */ public VisualizerMemento getMemento(int index) {
+        return getMementos().get(index);
     }
     
     /**
-     * @return The amount of states currently stored.
+     * @return The amount of savedMementos currently stored.
      */
     //@ ensures \result >= 0;
-    /*@ pure */ public int getStateCount() {
-        return getStates().size();
+    /*@ pure */ public int getMementoCount() {
+        return getMementos().size();
     }
     
     //@ ensures \result >= 0;
-    /*@ pure */ public int getCurrentStateIndex() {
-        return this.currentStateIndex;
+    /*@ pure */ public int getCurrentMementoIndex() {
+        return this.currentMementoIndex;
     }
     
-    /*@ pure */ public int getCurrentStateNumber() {
-        return getCurrentStateIndex();
+    /*@ pure */ public int getCurrentMementoNumber() {
+        return getCurrentMementoIndex();
     }
     
-    /*@ pure */ public boolean hasNextState() {
-        return getCurrentStateNumber() < getStateCount();
+    /*@ pure */ public boolean hasNextMemento() {
+        return getCurrentMementoNumber() < getMementoCount();
     }
     
-    /*@ pure */ public boolean hasPreviousState() {
-        return getCurrentStateNumber() > 1;
+    /*@ pure */ public boolean hasPreviousMemento() {
+        return getCurrentMementoNumber() > 1;
     }
     
     /**
      * @return The <tt>Transition</tt> that transitions to the next state.
      */
-    //@ requires hasNextState();
-    /*@ pure */ public SequentialTransition getNextTransition() {
-        return getStates().get(getCurrentStateIndex()).getTransition();
+    //@ requires hasNextMemento();
+    /*@ pure */ public VisualizerMemento getNextMemento() {
+        return getMementos().get(getCurrentMementoIndex());
     }
     
     /**
      * @return The <tt>Transition</tt> that transitions to the previous state.
      */
-    //@ requires hasPreviousState();
-    /*@ pure */ public SequentialTransition getPreviousTransition() {
-        return getStates().get(getCurrentStateIndex() - 1).getTransition();
+    //@ requires hasPreviousMemento();
+    /*@ pure */ public VisualizerMemento getPreviousMemento() {
+        return getMementos().get(getCurrentMementoIndex() - 1);
     }
 
     
@@ -311,47 +317,53 @@ public class Visualizer extends Application {
     }
     
     //@ ensures \old(getCurrentStateIndex()) + 1 = getCurrentStateIndex();
-    public void incrementCurrentStateIndex() {
-        currentStateIndex++;
+    public void incrementCurrentMementoIndex() {
+        currentMementoIndex++;
     }
     
     //@ ensures \old(getCurrentStateIndex()) - 1 = getCurrentStateIndex();
-    public void decrementCurrentStateIndex() {
-        currentStateIndex--;
+    public void decrementCurrentMementoIndex() {
+        currentMementoIndex--;
     }
 
     
     // -- Commands ---------------------------------------------------------------------------
     
+    public void addMemento(VisualizerMemento memento) {
+        getMementos().add(memento);
+    }
+    
     /**
      * Save the current state with the passed <tt>transition</tt> that holds the animations
      * to go to the next state.
      * @param transitions
+     * @return TODO
      */
-    public void saveState(SequentialTransition transition) {
-        getStates().add(new VisualizerState(getController().getNodes(), transition));
+    public VisualizerMemento saveToMemento(SequentialTransition transition) {
+        return new VisualizerMemento(getController().getNodes(), transition);
     }
+    
     
     /**
      * Transition to the next state. Any code that needs to be executed after the transition 
      * has finished should be set with getNextTransition().setOnFinished(...).
      */
-    public void toNextState() {
-        toState(getNextTransition());
+    public void toNextMemento() {
+        restoreFromMemento(getNextMemento());
     }
     
     /**
      * Transition to the previous state. Any code that needs to be executed after the transition 
      * has finished should be set with getNextTransition().setOnFinished(...).
      */
-    public void toPreviousState() {
-        toState(getPreviousTransition());
+    public void toPreviousMemento() {
+        restoreFromMemento(getPreviousMemento());
     }
     
-    private void toState(Transition transition) {
+    public void restoreFromMemento(VisualizerMemento memento) {
         executeOnCorrectThread(() -> {
-            setFxNodeVisibility(transition, true);
-            transition.play();
+            setFxNodeVisibility(memento.getTransition(), true);
+            memento.getTransition().play();
         });
     }
     
@@ -369,48 +381,48 @@ public class Visualizer extends Application {
         
         // State index and number.
         if (goingForward) {
-            incrementCurrentStateIndex();
+            incrementCurrentMementoIndex();
         } else {
-            decrementCurrentStateIndex();
+            decrementCurrentMementoIndex();
         }
 
         // Add log.
-        Log.add("State " + getCurrentStateNumber() + " reached.");
+        Log.add("State " + getCurrentMementoNumber() + " reached.");
         
         // Toolbar buttons.
-        getPlaybackState().determineButtonOperation(hasPreviousState(), hasNextState());
+        getPlaybackState().determineButtonOperation(hasPreviousMemento(), hasNextMemento());
         
         // State info.
-        updateStateNumberInfo();
+        updateMementoNumberInfo();
 
         // Next state if wanted.
-        if (getPlaybackState().isContinuous() &&  goingForward && hasNextState()) {
+        if (getPlaybackState().isContinuous() &&  goingForward && hasNextMemento()) {
             ToolbarButton.PLAY.action();
         } else
-        if (getPlaybackState().isContinuous() && !goingForward && hasPreviousState()) {
+        if (getPlaybackState().isContinuous() && !goingForward && hasPreviousMemento()) {
             ToolbarButton.PLAY_BACK.action();
         } else {
             // There is no next state available. Pause!
             setPlaybackState(new PausedState());
-            getPlaybackState().determineButtonOperation(hasPreviousState(), hasNextState());
+            getPlaybackState().determineButtonOperation(hasPreviousMemento(), hasNextMemento());
         }
     }
     
     /**
-     * Update the state number in the toolbar.
+     * Update the memento number in the toolbar.
      */
-    public void updateStateNumberInfo() {
+    public void updateMementoNumberInfo() {
         if (getStage() == null) {
             return;
         }
-        Text stateInfoNode = (Text) getStage().getScene().lookup("#stateInfo");
+        Text mementoInfoNode = (Text) getStage().getScene().lookup("#stateInfo");
 
-        if (stateInfoNode == null) {
+        if (mementoInfoNode == null) {
             return;
         }
         executeOnCorrectThread(() -> {
-            stateInfoNode.setText("Current state number: " + getCurrentStateNumber() 
-                    + " out of " + getStateCount());
+            mementoInfoNode.setText("Current state number: " + getCurrentMementoNumber() 
+                    + " out of " + getMementoCount());
         });
     }
     
@@ -505,8 +517,9 @@ public class Visualizer extends Application {
      */
     public void doPlacement(Relation relation, boolean rotateNodeAIfNeeded) {
         rotateNodeAIfNeeded = false; //TODO: check this (with chained, rigid relations).
-        // If no placement is set, do nothing.
-        if (relation.getPlacement().equals(Placement.NONE)) {
+        // If no placement is set (or node B hasn't even got a FxWrapper), do nothing.
+        if (relation.getPlacement().equals(Placement.NONE) 
+                || relation.getNodeB().getFxWrapper() == null) {
             return;
         }
         
@@ -681,14 +694,12 @@ public class Visualizer extends Application {
     public void reset() {
         setStage(null);
         getController().getNodes().clear();
-        currentStateIndex = 0;
-        if (hasNextState() && getNextTransition() != null) {
-            getNextTransition().stop();
+        if (hasNextMemento() && getNextMemento() != null) {
+            getNextMemento().getTransition().stop();
         }
-        if (hasPreviousState() && getPreviousTransition() != null) {
-            getPreviousTransition().stop();
+        if (hasPreviousMemento() && getPreviousMemento() != null) {
+            getPreviousMemento().getTransition().stop();
         }
-        getStates().clear();
         resetVisualizationQueue();
         setPlaybackState(new PausedState());
         setDefaultAnimationDuration(DEFAULT_ANIMATION_DURATION);
@@ -706,6 +717,11 @@ public class Visualizer extends Application {
    public void resetVisualizationQueue() {
        visualizationsQueue = new SequentialTransition();
        visualizationsQueue.getChildren().add(new ParallelTransition());
+   }
+   
+   public void resetSavedMementos() {
+       currentMementoIndex = 0;
+       getMementos().clear();
    }
     
     public static void main(String[] args) {

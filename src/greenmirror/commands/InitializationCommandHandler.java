@@ -158,7 +158,7 @@ public class InitializationCommandHandler extends CommandHandler {
                     Paint.valueOf("linear-gradient(to bottom, #F5F5F5, #C2C2C2)"));
             stage.setScene(scene);
             stage.show();
-            getController().getVisualizer().updateStateNumberInfo();
+            getController().getVisualizer().updateMementoNumberInfo();
             
             Log.add("Visualizer initialized with width " + width + "px and height " 
                     + height + "px.");

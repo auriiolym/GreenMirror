@@ -52,7 +52,7 @@ public class StartVisualizationCommandHandler extends CommandHandler {
         //Visualizer visualizer = getController().getVisualizer();
         
         Log.add("The visualization may start now.");
-        getController().getVisualizer().updateStateNumberInfo();
+        getController().getVisualizer().updateMementoNumberInfo();
         ToolbarButton.STEP.action();
     }
 }

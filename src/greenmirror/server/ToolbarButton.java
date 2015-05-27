@@ -321,10 +321,11 @@ public enum ToolbarButton {
 
         final boolean goingForward = rate > 0;
         final boolean isStep = pbStateWhilePlaying == null || !pbStateWhilePlaying.isContinuous();
-        final int newStateNumber = getVisualizer().getCurrentStateNumber() 
+        final int newStateNumber = getVisualizer().getCurrentMementoNumber() 
                 + (goingForward ? 1 : -1);
         final Transition toTransition = goingForward 
-                ? getVisualizer().getNextTransition() : getVisualizer().getPreviousTransition(); 
+                ? getVisualizer().getNextMemento().getTransition() 
+                : getVisualizer().getPreviousMemento().getTransition(); 
     
         Log.add("Transition to state " + newStateNumber + " started.");
         
@@ -332,7 +333,7 @@ public enum ToolbarButton {
         if (pbStateWhilePlaying != null) {
             getVisualizer().setPlaybackState(pbStateWhilePlaying);
             getVisualizer().getPlaybackState().determineButtonOperation(
-                    getVisualizer().hasPreviousState(), getVisualizer().hasNextState());
+                    getVisualizer().hasPreviousMemento(), getVisualizer().hasNextMemento());
         }
         
         // Set what to do when the transition finishes.
@@ -353,9 +354,9 @@ public enum ToolbarButton {
         
         // And go to the next or previous state.
         if (goingForward) {
-            getVisualizer().toNextState();
+            getVisualizer().toNextMemento();
         } else {
-            getVisualizer().toPreviousState(); 
+            getVisualizer().toPreviousMemento(); 
         }
     }
 }

@@ -140,9 +140,9 @@ public class Relation {
         return
               "Relation name=" + (getName() == null ? "" : getName())
             + "|fromNodeId=" + (getNodeA() == null ? "" : 
-                        (getNodeA().getId() == null ? "" : getNodeA().getId()))
+                        (getNodeA().getId() == null ? "" : Log.n(getNodeA())))
             + "|toNodeId=" + (getNodeB() == null ? "" : 
-                        (getNodeB().getId() == null ? "" : getNodeB().getId()))
+                        (getNodeB().getId() == null ? "" : Log.n(getNodeB())))
             + "|placement=" + getPlacement().toString()
             + "|rigid=" + (isRigid() ? "true" : "false")
             + "|temporaryFxOfNodeA="
@@ -279,20 +279,13 @@ public class Relation {
     }
 
     /**
+     * Set the placement of node A on node B. It assumes node A has a placement.
      * @param placement The <tt>Placement</tt> of <tt>Node</tt> A relative to <tt>Node</tt> B.
-     * @throws IllegalStateException If the placement is set before node B has a location on the 
-     *                               screen.
      */
     //@ requires placement != null;
     //@ ensures getPlacement() == placement;
     //@ ensures \result == this;
     public Relation setPlacement(Placement placement) {
-        if (getNodeB() == null || getNodeB().getFxWrapper() == null
-            || (!getNodeB().getFxWrapper().isPositionSet() 
-                    && !getNodeB().hasPlacementRelation())) {
-            throw new IllegalStateException("The following relation needs an ending node with a "
-                    + "location before it can place the starting node:" + this.toString());
-        }
         this.placement = placement;
         return this;
     }
