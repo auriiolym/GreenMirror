@@ -132,25 +132,24 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     @Override
     public void prepare() throws ModelInitializer.PreparationException {
         
-        String source = "";
+        String originalSource = "";
         
         // Read the source file.
         try (BufferedReader reader = new BufferedReader(filereader)) {
             String line = reader.readLine();
 
             while (line != null) {
-                source += line + "\n";
+                originalSource += line + "\n";
                 line = reader.readLine();
             }
         } catch (IOException e) {
             throw new ModelInitializer.PreparationException("an IO error occured while handling "
                     + "the source file.");
         }
-        source = source.trim();
         
         // Check if the first command is initialize() or //#secondary.
         boolean scriptStartOkay = false;
-        for (String line : source.split("\r?\n")) {
+        for (String line : originalSource.trim().split("\r?\n")) {
             line = line.trim();
             if (line.startsWith("initialize(") || line.startsWith("//#secondary")) {
                 scriptStartOkay = true;
@@ -181,15 +180,16 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
         // Build statements that'll be added before the script.
         String importClasses = "";
         for (String imp : IMPORTS) {
-            importClasses += "import " + imp + ";\n";
+            importClasses += "import " + imp + ";";
         }
-        source = "@BaseScript " + BASECLASS.getName() + " baseclass\n"
-               + "import groovy.transform.BaseScript;\n"
+        final String usedSource = ""
+               + "@BaseScript " + BASECLASS.getName() + " baseclass;"
+               + "import groovy.transform.BaseScript;"
                + importClasses
-               + source;
+               + originalSource;
         
         // And parse the script.
-        script = new GroovyShell(binding).parse(source);
+        script = new GroovyShell(binding).parse(usedSource);
     }
 
     /* (non-Javadoc)

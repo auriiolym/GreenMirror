@@ -14,13 +14,13 @@ addNode("bank:right").fx("rectangle")
                      .setPosition(700, 0)
                      .setFill(Color.GREEN);
 
-
                      
 // Boat
 addNodes(
     new Node("boat").set(fx("Rectangle")
                     .setSize(150, 50)
-                    .setFill(Color.WHITE)),
+                    .setFill(Color.WHITE)
+                    .setRotate(90)),
     /*new Node("ferryman").set(fx("Circle")
                     .setRadius(20)
                     .setFill(Color.BLACK))*/

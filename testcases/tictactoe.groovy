@@ -3,7 +3,7 @@ initialize(800, 500);
 
 // Board
 addNodes(
-    new GridBuilder("tictactoeGrid")
+    new GridBuilder("tictactoeGrid:")
         .setCellCount(3, 3)
         .setCellSize(100, 100)
         .setCellSpacing(10)
@@ -74,6 +74,8 @@ addTransition("move(\\d+)", 1000, {int cell ->
         turnRelation.clone().setNodeA(otherPlayer)
     );
     
-    turnRelation.remove();
+    removeRelation(
+        turnRelation
+    );
     
 });

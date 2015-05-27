@@ -1,0 +1,18 @@
+#######
+# Place all available Placements here.
+#
+# The only requirements on any service providers below are the existence of a 
+# zero-argument constructor and the fact that it should implement Placement.
+#
+greenmirror.Placement$None
+greenmirror.Placement$Middle
+greenmirror.Placement$Random
+greenmirror.Placement$Custom
+greenmirror.Placement$EdgeTop
+greenmirror.Placement$EdgeRight
+greenmirror.Placement$EdgeBottom
+greenmirror.Placement$EdgeLeft
+greenmirror.Placement$CornerTopLeft
+greenmirror.Placement$CornerTopRight
+greenmirror.Placement$CornerBottomRight
+greenmirror.Placement$CornerBottomLeft

@@ -91,7 +91,7 @@ public class WindowLogger extends PrintStream {
                     vbox = new VBox();
                     vbox.setStyle("-fx-padding: 5px; -fx-spacing: 4px;");
                     vbox.setAlignment(Pos.BOTTOM_LEFT);
-                    vbox.setPrefHeight(HEIGHT);
+                    vbox.setMinHeight(HEIGHT);
                     
                     // Enable automatic scrolling to the bottom.
                     vbox.heightProperty().addListener(new ChangeListener<Number>() {
@@ -163,7 +163,7 @@ public class WindowLogger extends PrintStream {
         public synchronized void flush() {
             
             // Remove the optional newline: our FX structure takes care of the newline.
-            if (buffer.substring(buffer.length() - 1).equals("\n")) {
+            if (buffer.length() > 0 && buffer.substring(buffer.length() - 1).equals("\n")) {
                 buffer = buffer.substring(0, buffer.length() - 2);
             }
             try {

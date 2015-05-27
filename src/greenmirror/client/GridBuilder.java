@@ -18,7 +18,8 @@ public class GridBuilder {
     
     // -- Instance variables -----------------------------------------------------------------
 
-    private String gridName;
+    private String cellNodeType;
+    private String cellNodeNamePrefix;
     private int cellCountHorizontal;
     private int cellCountVertical;
     private double cellWidth;
@@ -40,18 +41,27 @@ public class GridBuilder {
 
     // -- Constructors -----------------------------------------------------------------------
 
-    public GridBuilder(String gridName) {
-        setGridName(gridName);
+    public GridBuilder(String gridIdentifier) {
+        Node.Identifier identifier = new Node.Identifier(gridIdentifier);
+        setCellNodeType(identifier.getType());
+        setCellNodeNamePrefix(identifier.getName());
     }
 
 
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @return The gridName.
+     * @return The cellNodeType.
      */
-    public String getGridName() {
-        return gridName;
+    public String getCellNodeType() {
+        return cellNodeType;
+    }
+    
+    /**
+     * @return The cellNodeNamePrefix.
+     */
+    public String getCellNodeNamePrefix() {
+        return cellNodeNamePrefix;
     }
 
     /**
@@ -174,10 +184,17 @@ public class GridBuilder {
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param gridName The gridName to set.
+     * @param cellNodeType The cellNodeType to set.
      */
-    private void setGridName(String gridName) {
-        this.gridName = gridName;
+    private void setCellNodeType(String cellNodeType) {
+        this.cellNodeType = cellNodeType;
+    }
+
+    /**
+     * @param cellNodeNamePrefix The cellNodeNamePrefix to set.
+     */
+    private void setCellNodeNamePrefix(String cellNodeNamePrefix) {
+        this.cellNodeNamePrefix = cellNodeNamePrefix;
     }
 
     /**
@@ -387,7 +404,7 @@ public class GridBuilder {
     public GridBuilder build(double posX, double posY) {
         
         // First check if all values are valid.
-        if (getGridName() == null || getGridName().length() == 0 || getCellCountHorizontal() <= 0 
+        if (getCellCountHorizontal() <= 0 
          || getCellCountVertical() <= 0 || getCellWidth() <= 0 || getCellHeight() <= 0 
          || getBorderSizeTop() < 0 || getBorderSizeRight() < 0 || getBorderSizeBottom() < 0 
          || getBorderSizeLeft() < 0 || getCellSpacing() < 0 || getCellArcWidth() < 0 
@@ -404,7 +421,7 @@ public class GridBuilder {
                           * getCellWidth() + (getCellCountHorizontal() - 1) * getCellSpacing(); 
         double totalHeight = getBorderSizeTop() + getBorderSizeBottom() + getCellCountVertical()
                           * getCellHeight() + (getCellCountVertical() - 1) * getCellSpacing();
-        Node bg = new Node().setType(getGridName()).setName("background").set(
+        Node bg = new Node().setType(getCellNodeType()).setName("background").set(
                 new RectangleFxContainer()
                     .setPosition(posX, posY)
                     .setSize(totalWidth, totalHeight)
@@ -434,9 +451,10 @@ public class GridBuilder {
                 
                 // Create the node and add it to the collection.
                 nodes.add(new Node()
-                            .setType(getGridName())
-                            .setName(String.valueOf(cellI))
-                            .set(fxPrototype.clone().setPosition(currPosX, currPosY)));
+                           .setType(getCellNodeType())
+                           .setName((getCellNodeNamePrefix() == null ? "" : getCellNodeNamePrefix())
+                                   + String.valueOf(cellI))
+                           .set(fxPrototype.clone().setPosition(currPosX, currPosY)));
                 cellI++;
             }
         }

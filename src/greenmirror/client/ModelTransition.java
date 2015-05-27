@@ -174,6 +174,7 @@ public class ModelTransition {
                     ? Integer.parseInt(matchedArgument) : matchedArgument
             );
         }
+        
         return getClosure().call(arguments);
     }
 }

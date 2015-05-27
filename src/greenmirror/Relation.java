@@ -143,7 +143,7 @@ public class Relation {
                         (getNodeA().getId() == null ? "" : getNodeA().getId()))
             + "|toNodeId=" + (getNodeB() == null ? "" : 
                         (getNodeB().getId() == null ? "" : getNodeB().getId()))
-            + "|placement=" + getPlacement()
+            + "|placement=" + getPlacement().toString()
             + "|rigid=" + (isRigid() ? "true" : "false")
             + "|temporaryFxOfNodeA="
             + (getTemporaryFxOfNodeA() == null ? "not_set" : "set");
@@ -266,11 +266,11 @@ public class Relation {
      * @param rigid Whether <tt>Node</tt> A moves when <tt>Node</tt> B moves.
      * @throws IllegalStateException If this Relation is set to be rigid before a placement is set.
      */
-    //@ requires getPlacement() != Placement.NONE;
+    //@ requires !getPlacement().equals(Placement.NONE);
     //@ ensures isRigid() == rigid;
     //@ ensures \result == this;
     public Relation setRigid(boolean rigid) {
-        if (rigid && getPlacement() == Placement.NONE) {
+        if (rigid && getPlacement().equals(Placement.NONE)) {
             throw new IllegalStateException("The following relation needs a placement before "
                     + "it can be set to be rigid: " + this.toString());
         }
@@ -280,11 +280,19 @@ public class Relation {
 
     /**
      * @param placement The <tt>Placement</tt> of <tt>Node</tt> A relative to <tt>Node</tt> B.
+     * @throws IllegalStateException If the placement is set before node B has a location on the 
+     *                               screen.
      */
     //@ requires placement != null;
     //@ ensures getPlacement() == placement;
     //@ ensures \result == this;
     public Relation setPlacement(Placement placement) {
+        if (getNodeB() == null || getNodeB().getFxContainer() == null
+            || (!getNodeB().getFxContainer().isPositionSet() 
+                    && !getNodeB().hasPlacementRelation())) {
+            throw new IllegalStateException("The following relation needs an ending node with a "
+                    + "location before it can place the starting node:" + this.toString());
+        }
         this.placement = placement;
         return this;
     }

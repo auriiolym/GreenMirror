@@ -65,7 +65,7 @@ public class RelationList extends LinkedList<Relation> {
     //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
     /*@ pure */ public RelationList withPlacement(Placement placement) {
-        return withFilter(relation -> relation.getPlacement() == placement);
+        return withFilter(relation -> relation.getPlacement().equals(placement));
     }
 
     /**
@@ -75,7 +75,7 @@ public class RelationList extends LinkedList<Relation> {
     //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
     /*@ pure */ public RelationList withPlacement() {
-        return withFilter(relation -> relation.getPlacement() != Placement.NONE);
+        return withFilter(relation -> !relation.getPlacement().equals(Placement.NONE));
     }
 
     /**
@@ -84,7 +84,7 @@ public class RelationList extends LinkedList<Relation> {
     //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
     /*@ pure */ public RelationList withNoPlacement() {
-        return withFilter(relation -> relation.getPlacement() == Placement.NONE);
+        return withFilter(relation -> relation.getPlacement().equals(Placement.NONE));
     }
 
     /**

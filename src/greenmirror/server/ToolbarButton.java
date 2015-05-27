@@ -70,7 +70,7 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            executeVisualizerTransition(new SteppingBackState(), -1.0);
+            executeVisualizerTransition(new SteppingBackState(), -1.0 * NORMAL_RATE);
         }
         
     },
@@ -95,7 +95,7 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            executeVisualizerTransition(new PlayingBackState(), -1.0);
+            executeVisualizerTransition(new PlayingBackState(), -1.0 * NORMAL_RATE);
         }
         
     },
@@ -151,7 +151,7 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            executeVisualizerTransition(new PlayingState(), 1.0);
+            executeVisualizerTransition(new PlayingState(), NORMAL_RATE);
         }
     },
     
@@ -175,7 +175,7 @@ public enum ToolbarButton {
          */
         @Override
         public void action() {
-            executeVisualizerTransition(new SteppingState(), 1.0);
+            executeVisualizerTransition(new SteppingState(), NORMAL_RATE);
         }
         
     },
@@ -207,6 +207,7 @@ public enum ToolbarButton {
     // -- Constants --------------------------------------------------------------------------
     
     private static final double FAST_RATE = 1000;
+    private static final double NORMAL_RATE = 1.0;
     
     
     // -- Instance variables -----------------------------------------------------------------
@@ -318,10 +319,11 @@ public enum ToolbarButton {
      */
     public void executeVisualizerTransition(PlaybackState pbStateWhilePlaying, double rate) {
 
-        final boolean forward = rate > 0;
+        final boolean goingForward = rate > 0;
         final boolean isStep = pbStateWhilePlaying == null || !pbStateWhilePlaying.isContinuous();
-        final int newStateNumber = getVisualizer().getCurrentStateNumber() + (forward ? 1 : -1);
-        Transition toTransition = forward 
+        final int newStateNumber = getVisualizer().getCurrentStateNumber() 
+                + (goingForward ? 1 : -1);
+        final Transition toTransition = goingForward 
                 ? getVisualizer().getNextTransition() : getVisualizer().getPreviousTransition(); 
     
         Log.add("Transition to state " + newStateNumber + " started.");
@@ -338,7 +340,7 @@ public enum ToolbarButton {
             @Override public void handle(ActionEvent arg0) {
                 
                 // Execute visualizer actions on finishing.
-                getVisualizer().transitionFinished(forward);
+                getVisualizer().transitionFinished(toTransition, goingForward);
             }
         });
         
@@ -346,11 +348,11 @@ public enum ToolbarButton {
         toTransition.setRate(rate);
         
         // Set the delay.
-        double delay = isStep ? 0 : getVisualizer().getCurrentTransitionDelay();
+        final double delay = isStep ? 0 : getVisualizer().getCurrentTransitionDelay();
         toTransition.setDelay(Duration.millis(delay));
         
         // And go to the next or previous state.
-        if (forward) {
+        if (goingForward) {
             getVisualizer().toNextState();
         } else {
             getVisualizer().toPreviousState(); 

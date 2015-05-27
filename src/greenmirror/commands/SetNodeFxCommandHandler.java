@@ -45,8 +45,8 @@ public class SetNodeFxCommandHandler extends CommandHandler {
     public void handle(CommunicationFormat format, String data) 
             throws MissingDataException, DataParseException {
         
-        Node node;
-        LazyValueMap fxMap;
+        final Node node;
+        final LazyValueMap fxMap;
         
         switch (format) {
         default: case JSON:
@@ -72,7 +72,7 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         final Duration duration = Duration.millis(visualizer.getCurrentAnimationDuration());
             
         // Get new instance.
-        FxContainer fxContainer;
+        final FxContainer fxContainer;
         try {
             fxContainer = node.fx(String.valueOf(fxMap.get("type")));
         } catch (IllegalArgumentException e) {
@@ -85,7 +85,7 @@ public class SetNodeFxCommandHandler extends CommandHandler {
 
         // Create the FX Node.
         fxContainer.createFxNode();
-        javafx.scene.Node fxNode = fxContainer.getFxNode();
+        final javafx.scene.Node fxNode = fxContainer.getFxNode();
         
         // Set the initial values in the FX node, except the opacity.
         // At this point, it's invisible.
@@ -93,10 +93,9 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         fxNode.setOpacity(0);
         fxNode.setVisible(false); // Is updated before each fade animation.
         
-        
         // Add the FX Node to the stage.
-        getController().getVisualizer().executeOnCorrectThread(() -> {
-            getController().getVisualizer().getFxNodePane().getChildren().add(fxNode);
+        visualizer.executeOnCorrectThread(() -> {
+            visualizer.getFxNodePane().getChildren().add(fxNode);
             
             // Add a log entry.
             Log.add("Node " + Log.n(node) + " added to the visualization.");

@@ -17,11 +17,8 @@ import java.util.Observable;
 import java.util.ServiceLoader;
 import java.util.Set;
 
-import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point3D;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -201,7 +198,7 @@ public abstract class FxContainer extends Observable {
     //@ ensures \result != null;
     /*@ pure */ public Point3D getPointAdjustedForRotation(Point3D obj) {
         final double angle = Math.toRadians(getRotate());
-        final Point3D pivotPoint = calculatePoint(Placement.MIDDLE);
+        final Point3D pivotPoint = calculatePoint(new Placement.Middle());
         final Point3D relativePoint = obj.subtract(pivotPoint);
         
         final double cos = Math.cos(angle);
@@ -328,15 +325,12 @@ public abstract class FxContainer extends Observable {
     }
     
     public FadeTransition animateOpacity(double value, Duration duration) {
-        FadeTransition transition = new FadeTransition(duration, getFxNode());
-        transition.setToValue(value);
-        return transition;
+        return new FadeTransition(duration, getFxNode(), value);
     }
     
     public FadeTransition animateOpacity(double from, double to, Duration duration) {
-        FadeTransition transition = new FadeTransition(duration, getFxNode());
+        FadeTransition transition = new FadeTransition(duration, getFxNode(), to);
         transition.setFromValue(from);
-        transition.setToValue(to);
         return transition;
     }
     
@@ -498,8 +492,6 @@ public abstract class FxContainer extends Observable {
         return transitions;
     }
     
-
-    
     /**
      * A <tt>Transition</tt> class that animates the change of the rotation. The default 
      * <tt>RotateTransition</tt> class isn't used because it's buggy when playing back 
@@ -511,7 +503,7 @@ public abstract class FxContainer extends Observable {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
          */
         protected RotateTransition(Duration duration, javafx.scene.Node node, Double toValue) {
             super(duration, node, toValue);
@@ -531,6 +523,41 @@ public abstract class FxContainer extends Observable {
         @Override
         protected void setPropertyValue(Double value) {
             getNode().setRotate(value);
+        }
+    }
+
+    
+    /**
+     * A <tt>Transition</tt> class that animates the change in opacity. The default 
+     * <tt>FadeTransition</tt> class isn't used because it's buggy when playing back 
+     * transitions.
+     * 
+     * @author Karim El Assal
+     */
+    public static class FadeTransition extends DoublePropertyTransition<javafx.scene.Node> {
+        
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#
+         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
+         */
+        protected FadeTransition(Duration duration, javafx.scene.Node node, Double toValue) {
+            super(duration, node, toValue);
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
+         */
+        @Override
+        protected Double getPropertyValue() {
+            return getNode().getOpacity();
+        }
+
+        /* (non-Javadoc)
+         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
+         */
+        @Override
+        protected void setPropertyValue(Double value) {
+            getNode().setOpacity(value);
         }
     }
 }

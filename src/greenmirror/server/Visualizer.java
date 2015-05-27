@@ -2,6 +2,7 @@ package greenmirror.server;
 
 import greenmirror.CommunicationFormat;
 import greenmirror.FxContainer;
+import greenmirror.FxContainer.FadeTransition;
 import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.Placement;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.animation.Animation;
-import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Transition;
@@ -74,6 +74,7 @@ public class Visualizer extends Application {
     private static final double DEFAULT_ANIMATION_DURATION = 1000.0;
     
     private static final double DEFAULT_TRANSITION_DELAY = 300.0;
+    
     
     // -- Class variables --------------------------------------------------------------------
 
@@ -353,12 +354,16 @@ public class Visualizer extends Application {
      * Execute when a transition has finished. It also enables or disables the toolbar buttons 
      * based on the current playback state and transitions to the next state if the playback state
      * is continuous (and a next state exists).
-     * @param forward <tt>true</tt> if we are/were going forward; <tt>false</tt> if backward.
+     * @param transition   The <tt>Transition</tt> that just finished.
+     * @param goingForward <tt>true</tt> if we are/were going forward; <tt>false</tt> if backward.
      */
-    public void transitionFinished(boolean forward) {
+    public void transitionFinished(Transition transition, boolean goingForward) {
+        
+        // Update FX node visibility.
+        setFxNodeVisibility(transition, false);
         
         // State index and number.
-        if (forward) {
+        if (goingForward) {
             incrementCurrentStateIndex();
         } else {
             decrementCurrentStateIndex();
@@ -374,10 +379,10 @@ public class Visualizer extends Application {
         updateStateNumberInfo();
 
         // Next state if wanted.
-        if (getPlaybackState().isContinuous() &&  forward && hasNextState()) {
+        if (getPlaybackState().isContinuous() &&  goingForward && hasNextState()) {
             ToolbarButton.PLAY.action();
         } else
-        if (getPlaybackState().isContinuous() && !forward && hasPreviousState()) {
+        if (getPlaybackState().isContinuous() && !goingForward && hasPreviousState()) {
             ToolbarButton.PLAY_BACK.action();
         } else {
             // There is no next state available. Pause!
@@ -423,15 +428,32 @@ public class Visualizer extends Application {
     
     /**
      * Set the JavaFX nodes that will appear or disappear to (respectively) visible or invisible. 
-     * It recursively searches for any <tt>FadeTransition</tt>s. If <tt>startingTransition</tt> 
-     * is set to true, we assume this method is executed right before the start of a transition. 
-     * If set to false, we assume this method is executed right after the and of a transition.
-     * @param transition         Any kind of <tt>Transition</tt>.
-     * @param startingTransition <tt>true</tt> if we're starting a transition; <tt>false</tt> 
-     *                           if we're ending a transition.
+     * It recursively searches for any <tt>FadeTransition</tt>s. If <tt>isStarting</tt> 
+     * is set to true, we assume this method is executed right before the start of an animation. 
+     * If set to false, we assume this method is executed right after the and of an amination.
+     * @param transition Any kind of <tt>Transition</tt>.
+     * @param isStarting <tt>true</tt> if we're starting an animation; <tt>false</tt> 
+     *                   if an animation has just ended. 
      */
     //@ requires transition != null;
-    private void setFxNodeVisibility(Transition transition, boolean startingTransition) {
+    private void setFxNodeVisibility(Transition transition, boolean isStarting) {
+        setFxNodeVisibilityRecursively(transition, isStarting, transition.getRate());
+    }
+
+    /**
+     * The actual recursive method of {@link #setFxNodeVisibility(Transition, boolean)}. This
+     * method takes an extra parameter: the rate of the animation which is only set at the root
+     * animation. This is done because when the <tt>FadeTransition</tt> is found, the direction
+     * of the animation is determined via the rate of the root animation.
+     * @param transition Any kind of <tt>Transition</tt>.
+     * @param isStarting <tt>true</tt> if we're starting an animation; <tt>false</tt> 
+     *                   if an animation has just ended.
+     * @param rate       The rate with which the animation will progress.
+     */
+    //@ requires transition != null;
+    private void setFxNodeVisibilityRecursively(Transition transition, boolean isStarting, 
+            double rate) {
+        
         ObservableList<Animation> childTransitions;
         if (transition instanceof SequentialTransition) {
             childTransitions = ((SequentialTransition) transition).getChildren();
@@ -441,10 +463,24 @@ public class Visualizer extends Application {
         } else
         if (transition instanceof FadeTransition) {
             final FadeTransition ft = (FadeTransition) transition;
-            if (startingTransition && ft.getFromValue() == 0 && ft.getToValue() > 0) {
+            final Double fr = ft.getFromValue();
+            final Double to = ft.getToValue();
+            
+            /**
+             * Explanation of the logic below:
+             * The rate determines if we have to see the 'from' and 'to' values actually as the 
+             * 'from' and 'to' values. When the rate is negative, the 'from' and 'to' values stay 
+             * the same, so we need to take this into account.
+             * The null value of the 'from' value is a possibility because the animation can be
+             * created with only a 'to' value. After playing the animation, the 'from' value is
+             * automatically filled in. 
+             */
+            if (isStarting  && (rate > 0 && (fr == null || fr == 0) && to > 0 
+                             || rate < 0 &&  fr > 0 && to == 0)) {
                 ft.getNode().setVisible(true);
             } else
-            if (!startingTransition && ft.getFromValue() > 0 && ft.getToValue() == 0) {
+            if (!isStarting && (rate > 0 &&  fr  > 0 && to == 0
+                             || rate < 0 &&  fr == 0 && to  > 0)) {
                 ft.getNode().setVisible(false);
             }
             return;
@@ -452,7 +488,7 @@ public class Visualizer extends Application {
             return;
         }
         for (Animation anim : childTransitions) {
-            setFxNodeVisibility((Transition) anim, startingTransition);
+            setFxNodeVisibilityRecursively((Transition) anim, isStarting, rate);
         }
     }
     
@@ -465,7 +501,7 @@ public class Visualizer extends Application {
     public void doPlacement(Relation relation, boolean rotateNodeAIfNeeded) {
         rotateNodeAIfNeeded = false; //TODO: check this (with chained, rigid relations).
         // If no placement is set, do nothing.
-        if (relation.getPlacement() == Placement.NONE) {
+        if (relation.getPlacement().equals(Placement.NONE)) {
             return;
         }
         
@@ -478,7 +514,7 @@ public class Visualizer extends Application {
     
         // Calculate the middle point (the new location) and adjust for rotation.
         Point3D tempNewMiddlePoint = nodeBfxCont.calculatePoint(relation.getPlacement());
-        if (nodeBfxCont.getRotate() > 0 && relation.getPlacement() != Placement.MIDDLE) {
+        if (nodeBfxCont.getRotate() > 0 && !relation.getPlacement().equals(Placement.MIDDLE)) {
             tempNewMiddlePoint = nodeBfxCont.getPointAdjustedForRotation(tempNewMiddlePoint);
         }
         final Point3D newMiddlePoint = tempNewMiddlePoint;
@@ -609,6 +645,7 @@ public class Visualizer extends Application {
         // Open the log window.
         Log.addOutput(new WindowLogger());
         Log.addOutput(Log.DEFAULT);
+        
         
         // Start controller.
         this.controller = new ServerController(this);

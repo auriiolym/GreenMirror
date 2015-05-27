@@ -250,10 +250,10 @@ public class RectangleFxContainer extends FxShapeContainer {
         double posX;
         double posY;
         
-        switch (placement) {
-        case NONE: default:
+        switch (placement.toString()) {
+        case "None": default:
             return null;
-        case RANDOM:
+        case "Random":
             Random random = new Random();
             double minX = getX();
             double maxX = getX() + getWidth();
@@ -263,39 +263,39 @@ public class RectangleFxContainer extends FxShapeContainer {
             posX = minX + random.nextDouble() * (maxX - minX);
             posY = minY + random.nextDouble() * (maxY - minY);
             break;
-        case CUSTOM: case MIDDLE:
+        case "Custom": case "Middle":
             posX = getX() + getWidth() / 2;
             posY = getY() + getHeight() / 2;
             break;
-        case EDGE_TOP:
+        case "EdgeTop":
             posX = getX() + getWidth() / 2;
             posY = getY();
             break;
-        case EDGE_RIGHT:
+        case "EdgeRight":
             posX = getX() + getWidth();
             posY = getY() + getHeight() / 2;
             break;
-        case EDGE_BOTTOM:
+        case "EdgeBottom":
             posX = getX() + getWidth() / 2;
             posY = getY() + getHeight();
             break;
-        case EDGE_LEFT:
+        case "EdgeLeft":
             posX = getX();
             posY = getY() + getHeight() / 2;
             break;
-        case CORNER_TOP_LEFT:
+        case "CornerTopLeft":
             posX = getX(); 
             posY = getY();
             break;
-        case CORNER_TOP_RIGHT:
+        case "CornerTopRight":
             posX = getX() + getWidth();
             posY = getY();
             break;
-        case CORNER_BOTTOM_RIGHT:
+        case "CornerBottomRight":
             posX = getX() + getWidth();
             posY = getY() + getHeight();
             break;
-        case CORNER_BOTTOM_LEFT:
+        case "CornerBottomLeft":
             posX = getX();
             posY = getY() + getHeight();
             break;

@@ -4,7 +4,6 @@ import greenmirror.FxContainer;
 import greenmirror.Node;
 import greenmirror.NodeList;
 import greenmirror.Relation;
-import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.FlushCommand;
 import greenmirror.commands.SetAnimationDurationCommand;
 import greenmirror.commands.SwitchPlacementRelationCommand;
@@ -264,9 +263,12 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * @param duration The duration in milliseconds of all upcoming animations.
+     * Set the duration of all single (upcoming) animations. This means that when <tt>flush()</tt>
+     * is used, the total duration is doubled. If <tt>-1</tt> is passed, the duration is set to the
+     * default (as determined by the default duration per transition or for the whole visualizer).
+     * @param duration The duration in milliseconds; <tt>-1</tt> to set it to default.
      */
-    //@ requires duration >= 0;
+    //@ requires duration >= -1.0;
     public void setAnimationDuration(double duration) {
         getController().send(new SetAnimationDurationCommand(duration));;
     }
