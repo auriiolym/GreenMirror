@@ -42,24 +42,18 @@ public class EndTransitionCommandHandler extends CommandHandler {
             throws MissingDataException, DataParseException {
         
         
-        /*
-        switch (format) {
-        default: case JSON:
-            Map<String, Object> map = CommandHandler.parseJson(data);
-        }
-        */
-
 
         Visualizer visualizer = getController().getVisualizer();
 
         Log.addVerbose("The following animations are saved to transition to state " 
-            + (visualizer.getStateCount() + 1) + ": " 
+            + (visualizer.getMementoCount() + 1) + ": " 
             + JsonOutput.prettyPrint(JsonOutput.toJson(
                     Visualizer.listTransitions(visualizer.getVisualizationsQueue())
               ))
         );
         // Save the state with the visualizations as the transition to the next one.
-        visualizer.saveState(visualizer.getVisualizationsQueue());
+        visualizer.addMemento(
+                visualizer.saveToMemento(visualizer.getVisualizationsQueue()));
         // And reset the queue;
         visualizer.resetVisualizationQueue();
     }
