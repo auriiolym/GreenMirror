@@ -34,8 +34,8 @@ public class VisualizerState {
     public VisualizerState(NodeList nodes, SequentialTransition transition) {
         for (Node node : nodes) {
             this.nodes.put(node.getId(),
-                        node.getFxContainer() == null
-                        ? new HashMap<String, Object>() : node.getFxContainer().toMap());
+                        node.getFxWrapper() == null
+                        ? new HashMap<String, Object>() : node.getFxWrapper().toMap());
         }
         this.transition = transition;
     }

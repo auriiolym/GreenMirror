@@ -1,8 +1,8 @@
 package greenmirror.server;
 
 import greenmirror.CommunicationFormat;
-import greenmirror.FxContainer;
-import greenmirror.FxContainer.FadeTransition;
+import greenmirror.FxWrapper;
+import greenmirror.FxWrapper.FadeTransition;
 import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.Placement;
@@ -506,16 +506,16 @@ public class Visualizer extends Application {
         }
         
         // Shorthands.
-        final FxContainer nodeAfxCont = relation.getNodeA().getFxContainer();
-        final FxContainer nodeBfxCont = relation.getNodeB().getFxContainer();
+        final FxWrapper nodeAFxWrapper = relation.getNodeA().getFxWrapper();
+        final FxWrapper nodeBFxWrapper = relation.getNodeB().getFxWrapper();
         
         // Get the duration of the animation.
         final Duration duration = Duration.millis(getCurrentAnimationDuration());
     
         // Calculate the middle point (the new location) and adjust for rotation.
-        Point3D tempNewMiddlePoint = nodeBfxCont.calculatePoint(relation.getPlacement());
-        if (nodeBfxCont.getRotate() > 0 && !relation.getPlacement().equals(Placement.MIDDLE)) {
-            tempNewMiddlePoint = nodeBfxCont.getPointAdjustedForRotation(tempNewMiddlePoint);
+        Point3D tempNewMiddlePoint = nodeBFxWrapper.calculatePoint(relation.getPlacement());
+        if (nodeBFxWrapper.getRotate() > 0 && !relation.getPlacement().equals(Placement.MIDDLE)) {
+            tempNewMiddlePoint = nodeBFxWrapper.getPointAdjustedForRotation(tempNewMiddlePoint);
         }
         final Point3D newMiddlePoint = tempNewMiddlePoint;
         
@@ -523,12 +523,12 @@ public class Visualizer extends Application {
          * The conditionals:
          */
         // Only move if node A is visible and the new location is different from the old.
-        final boolean doMove = !nodeAfxCont.isPositionSet() 
-                || !nodeAfxCont.calculatePoint(Placement.MIDDLE).equals(newMiddlePoint);
-        final boolean doRotate = nodeBfxCont.getRotate() != nodeAfxCont.getRotate() 
+        final boolean doMove = !nodeAFxWrapper.isPositionSet() 
+                || !nodeAFxWrapper.calculatePoint(Placement.MIDDLE).equals(newMiddlePoint);
+        final boolean doRotate = nodeBFxWrapper.getRotate() != nodeAFxWrapper.getRotate() 
                 && rotateNodeAIfNeeded;
         // Animate if node A is already visible.
-        final boolean animateMovement = nodeAfxCont.isPositionSet();
+        final boolean animateMovement = nodeAFxWrapper.isPositionSet();
         
         
         // If nothing has to happen, do nothing.
@@ -540,32 +540,30 @@ public class Visualizer extends Application {
         if (animateMovement) {
             
             // Create the animation and add it to the returned collection.
-            addToVisualizationsQueue(nodeAfxCont.animateToMiddlePoint(
-                                                                newMiddlePoint, 
-                                                                duration));
+            addToVisualizationsQueue(nodeAFxWrapper.animateToMiddlePoint(newMiddlePoint, duration));
             
          
         // If it wasn't visible yet, make it appear at the correct location.
         } else {
             executeOnCorrectThread(() -> {
                 // Set the FX node to correct position.
-                nodeAfxCont.setFxToPositionWithMiddlePoint(newMiddlePoint);
+                nodeAFxWrapper.setFxToPositionWithMiddlePoint(newMiddlePoint);
     
                 // Make sure its opacity is set to zero.
-                nodeAfxCont.getFxNode().setOpacity(0);
+                nodeAFxWrapper.getFxNode().setOpacity(0);
             });
             // Add appearing animation.
             addToVisualizationsQueue(
-                    nodeAfxCont.animateOpacity(0.0, nodeAfxCont.getOpacity(), duration));
+                    nodeAFxWrapper.animateOpacity(0.0, nodeAFxWrapper.getOpacity(), duration));
         }
         
         // And set the position of the node (in the model) to the new position.
-        nodeAfxCont.setToPositionWithMiddlePoint(newMiddlePoint);
+        nodeAFxWrapper.setToPositionWithMiddlePoint(newMiddlePoint);
 
         if (doRotate) {
-            final double rotateTo = nodeBfxCont.getRotate();
-            addToVisualizationsQueue(nodeAfxCont.animateRotate(rotateTo, duration));
-            nodeAfxCont.setRotate(rotateTo);
+            final double rotateTo = nodeBFxWrapper.getRotate();
+            addToVisualizationsQueue(nodeAFxWrapper.animateRotate(rotateTo, duration));
+            nodeAFxWrapper.setRotate(rotateTo);
         }
 
         // Add a log entry.
@@ -581,33 +579,33 @@ public class Visualizer extends Application {
     
     public void changeFx(Node node, Map<String, Object> newFxMap) {
 
-        // Get the FxContainer.
-        FxContainer fxContainer = node.getFxContainer();
+        // Get the FxWrapper.
+        FxWrapper fxWrapper = node.getFxWrapper();
         Duration duration = Duration.millis(getCurrentAnimationDuration());
         
         // Clone it so we can compare old and new values.
-        FxContainer newFx = fxContainer.clone();
+        FxWrapper newFx = fxWrapper.clone();
         newFx.setFromMap(newFxMap);
 
         // If the FX node hasn't been shown yet, set the values
-        if (!fxContainer.isPositionSet()) {
-            fxContainer.setFromMap(newFxMap);
+        if (!fxWrapper.isPositionSet()) {
+            fxWrapper.setFromMap(newFxMap);
             // Execute this on FX thread.
             executeOnCorrectThread(() -> {
                 newFxMap.put("opacity", 0);
-                fxContainer.setFxNodeValuesFromMap(newFxMap);
+                fxWrapper.setFxNodeValuesFromMap(newFxMap);
             });
             
             // If the FX node will be shown, make it 'appear'.
             if (newFx.isPositionSet()) {
                 addToVisualizationsQueue(
-                        fxContainer.animateOpacity(0.0, fxContainer.getOpacity(), duration));
+                        fxWrapper.animateOpacity(0.0, fxWrapper.getOpacity(), duration));
             }
             
         // If it is already showing, animate the changes.
         } else {
-            addToVisualizationsQueue(fxContainer.animateFromMap(newFxMap, duration));
-            fxContainer.setFromMap(newFxMap);
+            addToVisualizationsQueue(fxWrapper.animateFromMap(newFxMap, duration));
+            fxWrapper.setFromMap(newFxMap);
         }
         
         // Possibly also re-set the placement of rigidly connected nodes.

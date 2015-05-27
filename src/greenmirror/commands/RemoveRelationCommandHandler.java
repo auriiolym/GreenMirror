@@ -75,8 +75,8 @@ public class RemoveRelationCommandHandler extends CommandHandler {
         // Revert the temporary FX of node A.
         if (relation.getTemporaryFxOfNodeA() != null) {
             getController().getVisualizer().changeFx(nodeA, 
-                    nodeA.getFxContainer().getOriginalFx().toMapWithoutPositionData());
-            nodeA.getFxContainer().saveAsOriginal();
+                    nodeA.getFxWrapper().getOriginalFx().toMapWithoutPositionData());
+            nodeA.getFxWrapper().saveAsOriginal();
         }
         
         // Remove the relation.

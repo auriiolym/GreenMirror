@@ -133,9 +133,9 @@ public class Node extends Observable implements Observer {
     private Set<String> labels = new HashSet<String>();
 
     /**
-     * The container that handles the appearance.
+     * The wrapper that handles the appearance.
      */
-    private FxContainer fxContainer;
+    private FxWrapper fxWrapper;
     
     /**
      * All <tt>Relation</tt>s.
@@ -350,10 +350,10 @@ public class Node extends Observable implements Observer {
     
     /**
      * This method should be used in the application. {@see #fx()}
-     * @return The <tt>FxContainer</tt>.
+     * @return The <tt>FxWrapper</tt>.
      */
-    /*@ pure */ public FxContainer getFxContainer() {
-        return fxContainer;
+    /*@ pure */ public FxWrapper getFxWrapper() {
+        return fxWrapper;
     }
 
     /**
@@ -393,7 +393,7 @@ public class Node extends Observable implements Observer {
             + " | name=" + (getName() == null ? "" : getName().toString())
             + " | labels=" + getLabels().toString()
             + " | relations=" + getRelations().toString()
-            + " | FX=" + String.valueOf(getFxContainer());
+            + " | FX=" + String.valueOf(getFxWrapper());
     }
 
     
@@ -502,20 +502,20 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * Set the new <tt>FxContainer</tt>. This can only be done once. Observers get notified 
-     * of the new <tt>FxContainer</tt> and this <tt>Node</tt> starts observing the 
-     * <tt>FxContainer</tt>.
-     * @param fxContainer
+     * Set the new <tt>FxWrapper</tt>. This can only be done once. Observers get notified 
+     * of the new <tt>FxWrapper</tt> and this <tt>Node</tt> starts observing the 
+     * <tt>FxWrapper</tt>.
+     * @param fxWrapper
      * @return                          <tt>this</tt>
-     * @throws IllegalArgumentException If the <tt>FxContainer</tt> was already set.
+     * @throws IllegalArgumentException If the <tt>FxWrapper</tt> was already set.
      */
-    //@ requires fxContainer != null;
-    public Node set(FxContainer fxContainer) {
-        if (getFxContainer() != null) {
+    //@ requires fxWrapper != null;
+    public Node set(FxWrapper fxWrapper) {
+        if (getFxWrapper() != null) {
             throw new IllegalArgumentException("You have already set the FX type");
         }
-        setFxContainer(fxContainer);
-        getFxContainer().addObserver(this);
+        setFxWrapper(fxWrapper);
+        getFxWrapper().addObserver(this);
         setChanged();
         notifyObservers(new SetNodeFxCommand(this));
         
@@ -523,21 +523,21 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * @param fxContainer The <tt>FxContainer</tt> to set.
+     * @param fxWrapper The <tt>FxWrapper</tt> to set.
      */
-    //@ ensures getFxContainer() == fxContainer;
-    private void setFxContainer(FxContainer fxContainer) {
-        this.fxContainer = fxContainer;
+    //@ ensures getFxWrapper() == fxWrapper;
+    private void setFxWrapper(FxWrapper fxWrapper) {
+        this.fxWrapper = fxWrapper;
     }
 
     
     // -- Commands ---------------------------------------------------------------------------
     
     
-    public FxContainer fx(String type) {
-        if (getFxContainer() != null) {
-            // If the FxContainer was already set.
-            if (!getFxContainer().getType().equals(
+    public FxWrapper fx(String type) {
+        if (getFxWrapper() != null) {
+            // If the FxWrapper was already set.
+            if (!getFxWrapper().getType().equals(
                 Character.toUpperCase(type.charAt(0)) + type.substring(1))) {
                 // Throw exception if it's a different type.
                 throw new IllegalArgumentException("You have already set the FX type.");
@@ -547,8 +547,8 @@ public class Node extends Observable implements Observer {
             }
         }
         // If it wasn't created yet, try to create it, add observers and notify our own observers.
-        setFxContainer(FxContainer.getNewInstance(type));
-        getFxContainer().addObserver(this);
+        setFxWrapper(FxWrapper.getNewInstance(type));
+        getFxWrapper().addObserver(this);
         
         setChanged();
         notifyObservers(new SetNodeFxCommand(this));
@@ -557,14 +557,14 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * This method should be used in a Groovy user script. {@see #getFxContainer()}
-     * @return The <tt>FxContainer</tt>.
+     * This method should be used in a Groovy user script. {@see #getFxWrapper()}
+     * @return The <tt>FxWrapper</tt>.
      */
-    /*@ pure */ public FxContainer fx() {
-        if (getFxContainer() == null) {
+    /*@ pure */ public FxWrapper fx() {
+        if (getFxWrapper() == null) {
             throw new IllegalStateException("No FX element has been set.");
         }
-        return getFxContainer();
+        return getFxWrapper();
     }
 
     /* (non-Javadoc)
@@ -574,7 +574,7 @@ public class Node extends Observable implements Observer {
     public void update(Observable observable, Object arg1) {
         // The appearance was changed. Notify the controller that the server should know
         // that the (original) FX has changed.
-        if (observable instanceof FxContainer) {
+        if (observable instanceof FxWrapper) {
             setChanged();
             notifyObservers(new ChangeNodeFxCommand(this));
             return;
@@ -592,8 +592,8 @@ public class Node extends Observable implements Observer {
         for (String label : this.getLabels()) {
             node.addLabel(label);
         }
-        if (this.getFxContainer() != null) {
-            node.set(this.getFxContainer().clone());
+        if (this.getFxWrapper() != null) {
+            node.set(this.getFxWrapper().clone());
         }
         return node;
     }

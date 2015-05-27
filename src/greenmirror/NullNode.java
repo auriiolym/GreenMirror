@@ -90,11 +90,11 @@ public class NullNode extends Node {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.Node#getFxContainer()
+     * @see greenmirror.Node#getFxWrapper()
      */
     @Override
-    public FxContainer getFxContainer() {
-        return super.getFxContainer();
+    public FxWrapper getFxWrapper() {
+        return super.getFxWrapper();
     }
 
     /* (non-Javadoc)
@@ -162,10 +162,10 @@ public class NullNode extends Node {
 
 
     /* (non-Javadoc)
-     * @see greenmirror.Node#set(greenmirror.FxContainer)
+     * @see greenmirror.Node#set(greenmirror.FxWrapper)
      */
     @Override
-    public Node set(FxContainer fxContainer) {
+    public Node set(FxWrapper fxWrapper) {
         throw new RemovedNodeUsedException(this);
     }
 
@@ -174,7 +174,7 @@ public class NullNode extends Node {
      * @see greenmirror.Node#fx(java.lang.String)
      */
     @Override
-    public FxContainer fx(String type) {
+    public FxWrapper fx(String type) {
         throw new RemovedNodeUsedException(this);
     }
 
@@ -182,7 +182,7 @@ public class NullNode extends Node {
      * @see greenmirror.Node#fx()
      */
     @Override
-    public FxContainer fx() {
+    public FxWrapper fx() {
         throw new RemovedNodeUsedException(this);
     }
 

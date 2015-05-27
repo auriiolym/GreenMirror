@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
  * 
  * Values sent:
  * id : int             The node id
- * fx : FxContainer     The values of the FX.
+ * fx : FxWrapper     The values of the FX.
  */
 public class SetNodeFxCommand extends Command {
 
@@ -61,15 +61,15 @@ public class SetNodeFxCommand extends Command {
      * @param format The format in which the data will be.
      */
     public String getFormattedString(CommunicationFormat format) {
-        Log.add("Node " + Log.n(getNode()) + " FX set: " + getNode().getFxContainer().toString());
+        Log.add("Node " + Log.n(getNode()) + " FX set: " + getNode().getFxWrapper().toString());
         
         switch (format) {
         default: case JSON:
             return JsonOutput.toJson(new LinkedHashMap<String, Object>() {
                 {
                     put("id", getNode().getId());
-                    put("fx", getNode().getFxContainer() == null 
-                                ? null : getNode().getFxContainer().toMap());
+                    put("fx", getNode().getFxWrapper() == null 
+                                ? null : getNode().getFxWrapper().toMap());
                 }
             });
         }

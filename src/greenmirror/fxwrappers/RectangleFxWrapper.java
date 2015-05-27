@@ -1,6 +1,6 @@
-package greenmirror.fxcontainers;
+package greenmirror.fxwrappers;
 
-import greenmirror.FxShapeContainer;
+import greenmirror.FxShapeWrapper;
 import greenmirror.Placement;
 import greenmirror.fxpropertytypes.DoubleFxProperty;
 import greenmirror.fxpropertytypes.FxPropertyWrapper;
@@ -21,7 +21,7 @@ import javafx.util.Duration;
  * 
  * @author Karim El Assal
  */
-public class RectangleFxContainer extends FxShapeContainer {
+public class RectangleFxWrapper extends FxShapeWrapper {
     
     // -- Enumerations -----------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     // -- Queries ----------------------------------------------------------------------------
     
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#getChangableProperties()
+     * @see greenmirror.FxWrapper#getChangableProperties()
      */
     @Override
     protected List<FxPropertyWrapper> getAnimatableProperties() {
@@ -64,7 +64,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     }
     
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#getChangableProperties()
+     * @see greenmirror.FxWrapper#getChangableProperties()
      */
     @Override
     protected List<FxPropertyWrapper> getChangableProperties() {
@@ -106,7 +106,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     }
     
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#isPositionSet()
+     * @see greenmirror.FxWrapper#isPositionSet()
      */
     @Override
     /*@ pure */ public boolean isPositionSet() {
@@ -115,21 +115,21 @@ public class RectangleFxContainer extends FxShapeContainer {
     
     // -- Setters ----------------------------------------------------------------------------
 
-    public RectangleFxContainer setX(double value) {
+    public RectangleFxWrapper setX(double value) {
         this.posX = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public RectangleFxContainer setY(double value) {
+    public RectangleFxWrapper setY(double value) {
         this.posY = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public RectangleFxContainer setPosition(double posX, double posY) {
+    public RectangleFxWrapper setPosition(double posX, double posY) {
         this.posX = posX;
         this.posY = posY;
         setChanged();
@@ -137,21 +137,21 @@ public class RectangleFxContainer extends FxShapeContainer {
         return this;
     }
     
-    public RectangleFxContainer setWidth(double value) {
+    public RectangleFxWrapper setWidth(double value) {
         this.width = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public RectangleFxContainer setHeight(double value) {
+    public RectangleFxWrapper setHeight(double value) {
         this.height = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public RectangleFxContainer setSize(double width, double height) {
+    public RectangleFxWrapper setSize(double width, double height) {
         this.width = width;
         this.height = height;
         setChanged();
@@ -159,21 +159,21 @@ public class RectangleFxContainer extends FxShapeContainer {
         return this;
     }
     
-    public RectangleFxContainer setArcWidth(double value) {
+    public RectangleFxWrapper setArcWidth(double value) {
         this.arcWidth = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public RectangleFxContainer setArcHeight(double value) {
+    public RectangleFxWrapper setArcHeight(double value) {
         this.arcHeight = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public RectangleFxContainer setArcs(double width, double height) {
+    public RectangleFxWrapper setArcs(double width, double height) {
         this.arcWidth = width;
         this.arcHeight = height;
         setChanged();
@@ -181,24 +181,24 @@ public class RectangleFxContainer extends FxShapeContainer {
         return this;
     }
     
-    public RectangleFxContainer setArcs(double value) {
+    public RectangleFxWrapper setArcs(double value) {
         return setArcs(value, value);
     }
     
     /* (non-Javadoc)
-     * @see greenmirror.FxShapeContainer#setFill(javafx.scene.paint.Paint)
+     * @see greenmirror.FxShapeWrapper#setFill(javafx.scene.paint.Paint)
      */
     @Override
-    public RectangleFxContainer setFill(Paint value) {
-        return (RectangleFxContainer) super.setFill(value);
+    public RectangleFxWrapper setFill(Paint value) {
+        return (RectangleFxWrapper) super.setFill(value);
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.FxShapeContainer#setFill(java.lang.String)
+     * @see greenmirror.FxShapeWrapper#setFill(java.lang.String)
      */
     @Override
-    public RectangleFxContainer setFill(String value) {
-        return (RectangleFxContainer) super.setFill(value);
+    public RectangleFxWrapper setFill(String value) {
+        return (RectangleFxWrapper) super.setFill(value);
     }
 
     public Transition animateX(double value, Duration duration) {
@@ -228,8 +228,8 @@ public class RectangleFxContainer extends FxShapeContainer {
     // -- Class usage ------------------------------------------------------------------------
     
     @Override
-    public RectangleFxContainer clone() {
-        RectangleFxContainer rect = new RectangleFxContainer();
+    public RectangleFxWrapper clone() {
+        RectangleFxWrapper rect = new RectangleFxWrapper();
         rect.setFromMap(this.toMap());
         return rect;
     }
@@ -243,7 +243,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     // -- Commands ---------------------------------------------------------------------------
 
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#calculatePosition(greenmirror.Placement)
+     * @see greenmirror.FxWrapper#calculatePosition(greenmirror.Placement)
      */
     @Override
     public Point3D calculatePoint(Placement placement) {
@@ -306,7 +306,7 @@ public class RectangleFxContainer extends FxShapeContainer {
 
 
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#createFxNode()
+     * @see greenmirror.FxWrapper#createFxNode()
      */
     @Override
     public void createFxNode() {
@@ -314,7 +314,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#animateToPositionWithMiddlePoint(javafx.geometry.Point3D, 
+     * @see greenmirror.FxWrapper#animateToPositionWithMiddlePoint(javafx.geometry.Point3D, 
      *                              javafx.util.Duration)
      */
     @Override
@@ -325,7 +325,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     }
     
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#calculateCoordinates(javafx.geometry.Point3D)
+     * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
      */
     @Override
     protected Point3D calculateCoordinates(Point3D middlePoint) {
@@ -334,7 +334,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#setToPositionWithMiddlePoint(javafx.geometry.Point3D)
+     * @see greenmirror.FxWrapper#setToPositionWithMiddlePoint(javafx.geometry.Point3D)
      */
     @Override
     public void setToPositionWithMiddlePoint(Point3D middlePoint) {
@@ -344,7 +344,7 @@ public class RectangleFxContainer extends FxShapeContainer {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#setFxToPositionWithMiddlePoint(javafx.geometry.Point3D)
+     * @see greenmirror.FxWrapper#setFxToPositionWithMiddlePoint(javafx.geometry.Point3D)
      */
     @Override
     public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {

@@ -6,7 +6,7 @@ import java.util.List;
 import javafx.util.Duration;
 
 /**
- * A class that holds shared code for several FxContainerProperty types.
+ * A class that holds shared code for several FxWrapperProperty types.
  * 
  * @author Karim El Assal
  */

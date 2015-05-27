@@ -2,7 +2,7 @@ package greenmirror.commands;
 
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
-import greenmirror.FxContainer;
+import greenmirror.FxWrapper;
 import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.Relation;
@@ -103,10 +103,10 @@ public class AddRelationCommandHandler extends CommandHandler {
                             .setNodeB(nodeB)
                             .setPlacement(placement)
                             .setRigid(rigid);
-            if (tempFxMap != null && nodeA.getFxContainer() != null) {
-                FxContainer tempFxContainer = nodeA.getFxContainer().clone();
-                tempFxContainer.setFromMap(tempFxMap);
-                relation.setTemporaryFxOfNodeA(tempFxContainer);
+            if (tempFxMap != null && nodeA.getFxWrapper() != null) {
+                FxWrapper tempFxWrapper = nodeA.getFxWrapper().clone();
+                tempFxWrapper.setFromMap(tempFxMap);
+                relation.setTemporaryFxOfNodeA(tempFxWrapper);
             }
         }
         
@@ -127,7 +127,7 @@ public class AddRelationCommandHandler extends CommandHandler {
             
             // Save the current FX as the original, so we can revert back when the relation is 
             //  removed.
-            nodeA.getFxContainer().saveAsOriginal();
+            nodeA.getFxWrapper().saveAsOriginal();
             
             // Apply the changes (animated).
             getController().getVisualizer().changeFx(nodeA, 

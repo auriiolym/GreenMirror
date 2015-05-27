@@ -1,6 +1,6 @@
 package greenmirror;
 
-import greenmirror.fxcontainers.RectangleFxContainer;
+import greenmirror.fxwrappers.RectangleFxWrapper;
 import greenmirror.fxpropertytypes.DoubleFxProperty;
 import greenmirror.fxpropertytypes.FxPropertyWrapper;
 import greenmirror.fxpropertytypes.StringFxProperty;
@@ -25,9 +25,10 @@ import javafx.util.Duration;
 
 /**
  * 
+ * 
  * @author Karim El Assal
  */
-public abstract class FxContainer extends Observable {
+public abstract class FxWrapper extends Observable {
     
     // -- Enumerations -----------------------------------------------------------------------
 
@@ -38,11 +39,11 @@ public abstract class FxContainer extends Observable {
     // -- Class variables --------------------------------------------------------------------
     
     /** All different prototypes. */
-    private static Set<FxContainer> prototypes;
+    private static Set<FxWrapper> prototypes;
 
     // -- Instance variables -----------------------------------------------------------------
     
-    private FxContainer originalFx;
+    private FxWrapper originalFx;
     
     private javafx.scene.Node fxNode;
     
@@ -55,17 +56,17 @@ public abstract class FxContainer extends Observable {
     // -- Queries ----------------------------------------------------------------------------
  
     /**
-     * @return The type of the <tt>FxContainer</tt>.
+     * @return The type of the <tt>FxWrapper</tt>.
      */
     /*@ pure */ public String getType() {
-        return getClass().getSimpleName().replace("FxContainer", "");
+        return getClass().getSimpleName().replace("FxWrapper", "");
     }
  
     /**
-     * Get the previously saved, original <tt>FxContainer</tt>.
-     * @return The original saved <tt>FxContainer</tt>; <tt>null</tt> if none was saved.
+     * Get the previously saved, original <tt>FxWrapper</tt>.
+     * @return The original saved <tt>FxWrapper</tt>; <tt>null</tt> if none was saved.
      */
-    /*@ pure */ public FxContainer getOriginalFx() {
+    /*@ pure */ public FxWrapper getOriginalFx() {
         return this.originalFx;
     }
     
@@ -115,7 +116,7 @@ public abstract class FxContainer extends Observable {
      * Returns the result of {@link #toMap()} without any positioning data. It removes x, y, z, 
      * centerX, centerY and centerZ. If an extending class has other positioning data, it should 
      * override this method.
-     * @return The property map of this <tt>FxContainer</tt> without positioning data.
+     * @return The property map of this <tt>FxWrapper</tt> without positioning data.
      */
     //@ ensures \result != null;
     /*@ pure */ public Map<String, Object> toMapWithoutPositionData() {
@@ -131,7 +132,7 @@ public abstract class FxContainer extends Observable {
     
     // test DoubleFxProperty
     public static void main1(String[] args) {
-        RectangleFxContainer rect = new RectangleFxContainer();
+        RectangleFxWrapper rect = new RectangleFxWrapper();
         rect.setX(4);
         rect.setY(1);
         rect.setWidth(2);
@@ -140,7 +141,7 @@ public abstract class FxContainer extends Observable {
         Map<String, Object> map = rect.toMap();
         System.out.println(JsonOutput.prettyPrint(JsonOutput.toJson(map)));
         
-        RectangleFxContainer rect2 = new RectangleFxContainer();
+        RectangleFxWrapper rect2 = new RectangleFxWrapper();
         rect2.setFromMap(map);
         Map<String, Object> map2 = rect2.toMap();
         System.out.println(JsonOutput.prettyPrint(JsonOutput.toJson(map2)));
@@ -173,7 +174,7 @@ public abstract class FxContainer extends Observable {
     }
     
     /**
-     * @return A String representation of this FxContainer.
+     * @return A String representation of this FxWrapper.
      */
     @Override
     /*@ pure */ public String toString() {
@@ -225,28 +226,28 @@ public abstract class FxContainer extends Observable {
         this.fxNode = node;
     }
     
-    public FxContainer setRotate(double value) {
+    public FxWrapper setRotate(double value) {
         this.rotate = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public FxContainer setRotateBy(double value) {
+    public FxWrapper setRotateBy(double value) {
         this.rotate += value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public FxContainer setOpacity(double value) {
+    public FxWrapper setOpacity(double value) {
         this.opacity = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public FxContainer setStyle(String value) {
+    public FxWrapper setStyle(String value) {
         this.style = value;
         setChanged();
         notifyObservers();
@@ -278,7 +279,7 @@ public abstract class FxContainer extends Observable {
                 
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            Log.add("Automatic setting of FX container property (" + property + ") failed: ", e);
+            Log.add("Automatic setting of FX wrapper property (" + property + ") failed: ", e);
         }
     }
     
@@ -338,35 +339,35 @@ public abstract class FxContainer extends Observable {
     
     // -- Class usage ------------------------------------------------------------------------
     
-    private static Set<FxContainer> getPrototypes() {
+    private static Set<FxWrapper> getPrototypes() {
         return prototypes;
     }
     
     /**
-     * Instantiate a new <tt>FxContainer</tt>. It does this by using <tt>ServiceLoader</tt>
+     * Instantiate a new <tt>FxWrapper</tt>. It does this by using <tt>ServiceLoader</tt>
      * (lazily).
      * @param type The type, which should be the same as the class name in the 
-     *             <tt>greenmirror.fxcontainers</tt> package, appended with <tt>FxContainer</tt>.
+     *             <tt>greenmirror.fxwrappers</tt> package, appended with <tt>FxWrapper</tt>.
      *             The first letter will be capitalized.
      * @return     The new instance.
      * @throws IllegalArgumentException If the passed type is invalid.
      */
     //@ requires type != null;
-    public static FxContainer getNewInstance(String type) {
+    public static FxWrapper getNewInstance(String type) {
         
         if (getPrototypes() == null) {
-            prototypes = new HashSet<FxContainer>();
-            for (FxContainer fxContainer : ServiceLoader.load(FxContainer.class)) {
-                getPrototypes().add(fxContainer);
+            prototypes = new HashSet<FxWrapper>();
+            for (FxWrapper fxWrapper : ServiceLoader.load(FxWrapper.class)) {
+                getPrototypes().add(fxWrapper);
             }
         }
         
         String simpleClassName = Character.toUpperCase(type.charAt(0)) + type.substring(1)
-                + "FxContainer";
+                + "FxWrapper";
         
-        for (FxContainer fxContainerPrototype : getPrototypes()) {
-            if (simpleClassName.equals(fxContainerPrototype.getClass().getSimpleName())) {
-                return fxContainerPrototype.clone();
+        for (FxWrapper fxWrapperPrototype : getPrototypes()) {
+            if (simpleClassName.equals(fxWrapperPrototype.getClass().getSimpleName())) {
+                return fxWrapperPrototype.clone();
             }
         }
 
@@ -385,7 +386,7 @@ public abstract class FxContainer extends Observable {
     }
     
     @Override
-    public abstract FxContainer clone();
+    public abstract FxWrapper clone();
     
     /**
      * Calculate the coordinates of the FX node with middle point <tt>middlePoint</tt>. These
@@ -443,7 +444,7 @@ public abstract class FxContainer extends Observable {
         
         // Check per property if we received a change.
         // The newValues variable is used so the properties are already parsed.
-        FxContainer newValues = this.clone();
+        FxWrapper newValues = this.clone();
         newValues.setFromMap(newMap);
         Map<String, Object> currentMap = this.toMap();
         

@@ -1,7 +1,7 @@
 package greenmirror.client;
 
 import greenmirror.Node;
-import greenmirror.fxcontainers.RectangleFxContainer;
+import greenmirror.fxwrappers.RectangleFxWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -422,7 +422,7 @@ public class GridBuilder {
         double totalHeight = getBorderSizeTop() + getBorderSizeBottom() + getCellCountVertical()
                           * getCellHeight() + (getCellCountVertical() - 1) * getCellSpacing();
         Node bg = new Node().setType(getCellNodeType()).setName("background").set(
-                new RectangleFxContainer()
+                new RectangleFxWrapper()
                     .setPosition(posX, posY)
                     .setSize(totalWidth, totalHeight)
                     .setFill(getBackgroundFill())
@@ -434,7 +434,7 @@ public class GridBuilder {
         int cellI = 0; // Cell index (and name).
         double currPosX;
         double currPosY;
-        RectangleFxContainer fxPrototype = new RectangleFxContainer()
+        RectangleFxWrapper fxPrototype = new RectangleFxWrapper()
                                                 .setSize(getCellWidth(), getCellHeight())
                                                 .setFill(getCellFill())
                                                 .setArcWidth(getCellArcWidth())

@@ -11,11 +11,11 @@ import java.util.Map;
 
 /**
  * The command to change the FX of a node. This command is sent to the server.
- * Empty values for the FxContainer are not sent.
+ * Empty values for the FxWrapper are not sent.
  * 
  * Values sent:
  * id : int          The node id
- * fx : FxContainer  The new FX.
+ * fx : FxWrapper  The new FX.
  * 
  * @author Karim El Assal
  */
@@ -67,12 +67,12 @@ public class ChangeNodeFxCommand extends Command {
     //@ requires format != null;
     public String getFormattedString(CommunicationFormat format) {
         Log.add("Node " + Log.n(getNode()) + " FX changed to: " 
-                + getNode().getFxContainer().toString());
+                + getNode().getFxWrapper().toString());
         
         switch (format) {
         default: case JSON:
             Map<String, Object> fxMap = new LinkedHashMap<>();
-            for (Map.Entry<String, Object> entry : getNode().getFxContainer().toMap().entrySet()) {
+            for (Map.Entry<String, Object> entry : getNode().getFxWrapper().toMap().entrySet()) {
                 if (entry.getValue() != null) {
                     fxMap.put(entry.getKey(), entry.getValue());
                 }

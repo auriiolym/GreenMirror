@@ -79,13 +79,13 @@ public class RemoveNodeCommandHandler extends CommandHandler {
             if (relation.getTemporaryFxOfNodeA() != null) {
                 final Node nodeA = relation.getNodeA();
                 getController().getVisualizer().changeFx(nodeA, 
-                        nodeA.getFxContainer().getOriginalFx().toMapWithoutPositionData());
-                nodeA.getFxContainer().saveAsOriginal();
+                        nodeA.getFxWrapper().getOriginalFx().toMapWithoutPositionData());
+                nodeA.getFxWrapper().saveAsOriginal();
             }
         }
         node.getRelations().removeAll();
         visualizer.addToVisualizationsQueue(
-                node.getFxContainer().animateOpacity(0.0, 
+                node.getFxWrapper().animateOpacity(0.0, 
                         Duration.millis(visualizer.getCurrentAnimationDuration())));
         
         

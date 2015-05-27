@@ -211,7 +211,7 @@ public class Client extends GreenMirrorController implements Observer {
         send(new AddNodeCommand(node));
         
         // If the appearance has already been set, also notify the server.
-        if (node.getFxContainer() != null) {
+        if (node.getFxWrapper() != null) {
             send(new SetNodeFxCommand(node));
         }
         

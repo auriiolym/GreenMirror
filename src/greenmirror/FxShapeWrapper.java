@@ -16,7 +16,7 @@ import javafx.util.Duration;
  * 
  * @author Karim El Assal
  */
-public abstract class FxShapeContainer extends FxContainer {
+public abstract class FxShapeWrapper extends FxWrapper {
 
     // -- Enumerations -----------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ public abstract class FxShapeContainer extends FxContainer {
     // -- Queries ----------------------------------------------------------------------------
     
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#getAnimatableProperties()
+     * @see greenmirror.FxWrapper#getAnimatableProperties()
      */
     @Override
     protected List<FxPropertyWrapper> getAnimatableProperties() {
@@ -49,7 +49,7 @@ public abstract class FxShapeContainer extends FxContainer {
     }
     
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#getChangableProperties()
+     * @see greenmirror.FxWrapper#getChangableProperties()
      */
     @Override
     protected List<FxPropertyWrapper> getChangableProperties() {
@@ -64,7 +64,7 @@ public abstract class FxShapeContainer extends FxContainer {
     }
     
     /* (non-Javadoc)
-     * @see greenmirror.FxContainer#getFxNode()
+     * @see greenmirror.FxWrapper#getFxNode()
      */
     @Override
     /*@ pure */ public javafx.scene.shape.Shape getFxNode() {
@@ -78,14 +78,14 @@ public abstract class FxShapeContainer extends FxContainer {
     // -- Setters ----------------------------------------------------------------------------
     
 
-    public FxShapeContainer setFill(Paint value) {
+    public FxShapeWrapper setFill(Paint value) {
         this.fill = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public FxShapeContainer setFill(String value) {
+    public FxShapeWrapper setFill(String value) {
         return setFill(Paint.valueOf(value));
     }
     

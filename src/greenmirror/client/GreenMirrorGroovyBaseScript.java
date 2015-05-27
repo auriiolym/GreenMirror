@@ -1,6 +1,6 @@
 package greenmirror.client;
 
-import greenmirror.FxContainer;
+import greenmirror.FxWrapper;
 import greenmirror.Node;
 import greenmirror.NodeList;
 import greenmirror.Relation;
@@ -274,14 +274,14 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Create a new <tt>FxContainer</tt>.
-     * @param type The type of the <tt>FxContainer</tt>.
-     * @return     The <tt>FxContainer</tt> instance.
+     * Create a new <tt>FxWrapper</tt>.
+     * @param type The type of the <tt>FxWrapper</tt>.
+     * @return     The <tt>FxWrapper</tt> instance.
      * @throws IllegalArgumentException If the type was invalid.
      */
     //@ requires type != null;
-    public FxContainer fx(String type) {
-        return FxContainer.getNewInstance(type);
+    public FxWrapper fx(String type) {
+        return FxWrapper.getNewInstance(type);
     }
     
     /**

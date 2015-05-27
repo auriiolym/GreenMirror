@@ -2,7 +2,7 @@ package greenmirror.commands;
 
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
-import greenmirror.FxContainer;
+import greenmirror.FxWrapper;
 import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.server.ServerController;
@@ -72,24 +72,24 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         final Duration duration = Duration.millis(visualizer.getCurrentAnimationDuration());
             
         // Get new instance.
-        final FxContainer fxContainer;
+        final FxWrapper fxWrapper;
         try {
-            fxContainer = node.fx(String.valueOf(fxMap.get("type")));
+            fxWrapper = node.fx(String.valueOf(fxMap.get("type")));
         } catch (IllegalArgumentException e) {
             throw new DataParseException("An unknown FX type was selected or the FX was "
                     + "already set.");
         }
         
-        // Set the initial values in the container.
-        fxContainer.setFromMap(fxMap);
+        // Set the initial values in the wrapper.
+        fxWrapper.setFromMap(fxMap);
 
         // Create the FX Node.
-        fxContainer.createFxNode();
-        final javafx.scene.Node fxNode = fxContainer.getFxNode();
+        fxWrapper.createFxNode();
+        final javafx.scene.Node fxNode = fxWrapper.getFxNode();
         
         // Set the initial values in the FX node, except the opacity.
         // At this point, it's invisible.
-        fxContainer.setFxNodeValuesFromMap(fxMap);
+        fxWrapper.setFxNodeValuesFromMap(fxMap);
         fxNode.setOpacity(0);
         fxNode.setVisible(false); // Is updated before each fade animation.
         
@@ -103,9 +103,9 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         
         
         // If a position is set, add the fade in transition to the queue.
-        if (fxContainer.isPositionSet()) {
+        if (fxWrapper.isPositionSet()) {
             visualizer.addToVisualizationsQueue(
-                    fxContainer.animateOpacity(0.0, fxContainer.getOpacity(), duration));
+                    fxWrapper.animateOpacity(0.0, fxWrapper.getOpacity(), duration));
         }
 
     }

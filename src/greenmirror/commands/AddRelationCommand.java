@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
  * placement : String The placement data of node A on node B.
  * rigid : boolean    Whether the relation is rigid or not. This value is optional and defaults to
  *                    false.
- * tempFx :   FxContainer        The temporary appearance of node A.
+ * tempFx :   FxWrapper        The temporary appearance of node A.
  */
 public class AddRelationCommand extends Command {
     

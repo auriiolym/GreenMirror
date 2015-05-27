@@ -40,7 +40,7 @@ public class Relation {
     /**
      * The FX of <tt>Node</tt> A for the duration of this <tt>Relation</tt>. Optional.
      */
-    private FxContainer temporaryFxOfNodeA = null;
+    private FxWrapper temporaryFxOfNodeA = null;
 
     
     // -- Constructors -----------------------------------------------------------------------
@@ -128,7 +128,7 @@ public class Relation {
     /**
      * @return The FX of Node A for the duration of this <tt>Relation</tt>.
      */
-    /*@ pure */ public FxContainer getTemporaryFxOfNodeA() {
+    /*@ pure */ public FxWrapper getTemporaryFxOfNodeA() {
         return temporaryFxOfNodeA;
     }
     
@@ -175,7 +175,7 @@ public class Relation {
     //@ ensures getNodeA() == node;
     //@ ensures \result == this;
     public Relation setNodeA(Node node) {
-        if (getTemporaryFxOfNodeA() != null && node.getFxContainer() == null) {
+        if (getTemporaryFxOfNodeA() != null && node.getFxWrapper() == null) {
             throw new IllegalStateException("Node A should have its own FX if it's going "
                     + "to receive a temporary FX.");
         }
@@ -287,8 +287,8 @@ public class Relation {
     //@ ensures getPlacement() == placement;
     //@ ensures \result == this;
     public Relation setPlacement(Placement placement) {
-        if (getNodeB() == null || getNodeB().getFxContainer() == null
-            || (!getNodeB().getFxContainer().isPositionSet() 
+        if (getNodeB() == null || getNodeB().getFxWrapper() == null
+            || (!getNodeB().getFxWrapper().isPositionSet() 
                     && !getNodeB().hasPlacementRelation())) {
             throw new IllegalStateException("The following relation needs an ending node with a "
                     + "location before it can place the starting node:" + this.toString());
@@ -327,8 +327,8 @@ public class Relation {
     //@ requires fx != null;
     //@ ensures getTemporaryFxOfNodeA() == fx;
     //@ ensures \result == this;    
-    public Relation setTemporaryFxOfNodeA(FxContainer fx) {
-        if (getNodeA() != null && getNodeA().getFxContainer() == null) {
+    public Relation setTemporaryFxOfNodeA(FxWrapper fx) {
+        if (getNodeA() != null && getNodeA().getFxWrapper() == null) {
             throw new IllegalStateException("Node A has no FX set. Set this first.");
         }
         temporaryFxOfNodeA = fx;
