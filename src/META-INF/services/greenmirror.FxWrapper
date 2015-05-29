@@ -5,3 +5,4 @@
 # zero-argument constructor and the fact that it should implement FxWrapper.
 #
 greenmirror.fxwrappers.RectangleFxWrapper
+greenmirror.fxwrappers.ImageFxWrapper

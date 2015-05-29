@@ -223,7 +223,10 @@ public abstract class GreenMirrorController {
             closeStreams();
             return;
         }
-        Log.addVerbose("Data sent to peer: " + data);
+        
+        final String dataFormatted = data.replaceAll("(?s)\"image\":\"(.+?)\"", 
+                "\"image\":--removed for convenience--");
+        Log.addVerbose("Data sent to peer: " + dataFormatted);
     }
     
     /**

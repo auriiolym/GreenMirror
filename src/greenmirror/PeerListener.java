@@ -88,7 +88,9 @@ public class PeerListener extends Thread {
                     throw new IOException();
                 }
                 
-                Log.addVerbose("Data received from peer: " + in);
+                final String inFormatted = in.replaceAll("(?s)\"image\":\"(.+?)\"", 
+                                "\"image\":--removed for convenience--");
+                Log.addVerbose("Data received from peer: " + inFormatted);
                 
                 // Extract data.
                 String command = extractCommand(in);

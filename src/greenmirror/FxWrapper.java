@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Random;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ import javafx.util.Duration;
  * 
  * @author Karim El Assal
  */
-public abstract class FxWrapper extends Observable {
+public abstract class FxWrapper extends Observable implements Cloneable {
     
     // -- Enumerations -----------------------------------------------------------------------
 
@@ -178,7 +179,12 @@ public abstract class FxWrapper extends Observable {
      */
     @Override
     /*@ pure */ public String toString() {
-        String str = getClass().getSimpleName() + toMap().toString();
+        Map<String, Object> map = toMap();
+        if (map.containsKey("image") && map.get("image") != null 
+                && ((String) map.get("image")).length() > 40) {
+            map.put("image", "--removed for convenience (it was set)--");
+        }
+        String str = getClass().getSimpleName() + map.toString();
         return str;
     }
     
@@ -338,6 +344,59 @@ public abstract class FxWrapper extends Observable {
     
     
     // -- Class usage ------------------------------------------------------------------------
+    
+    public static Point3D calculatePointOnRectangle(double width, double height, 
+            Placement placement) {
+        
+        double calcX = 0;
+        double calcY = 0;
+        
+        switch (placement.toString()) {
+        case "None": default:
+            return null;
+        case "Random":
+            Random random = new Random();
+            double minX = 0;
+            double maxX = width;
+            double minY = 0;
+            double maxY = height;
+
+            calcX = minX + random.nextDouble() * (maxX - minX);
+            calcY = minY + random.nextDouble() * (maxY - minY);
+            break;
+        case "Custom": case "Middle":
+            calcX = width / 2;
+            calcY = height / 2;
+            break;
+        case "EdgeTop":
+            calcX = width / 2;
+            break;
+        case "EdgeRight":
+            calcX = width;
+            calcY = height / 2;
+            break;
+        case "EdgeBottom":
+            calcX = width / 2;
+            calcY = height;
+            break;
+        case "EdgeLeft":
+            calcY = height / 2;
+            break;
+        case "CornerTopLeft":
+            break;
+        case "CornerTopRight":
+            calcX = width;
+            break;
+        case "CornerBottomRight":
+            calcX = width;
+            calcY = height;
+            break;
+        case "CornerBottomLeft":
+            calcY = height;
+            break;
+        }
+        return new Point3D(calcX, calcY, 0).add(placement.getRelativePosition());
+    }
     
     private static Set<FxWrapper> getPrototypes() {
         return prototypes;

@@ -1,6 +1,5 @@
 package greenmirror.server;
 
-import javafx.animation.Transition;
 import javafx.util.Duration;
 
 /**
@@ -8,86 +7,19 @@ import javafx.util.Duration;
  * @author Karim El Assal
  */
 public abstract class DoublePropertyTransition<E extends javafx.scene.Node>
-    extends Transition {
+    extends AbstractTransition<E, Double> {
 
     // --- Instance variables ----------------------------------------------------------------
-
-    private Double fromValue;
-    
-    private Double toValue;
-    
-    private E node;
-    
     
     // --- Constructors ----------------------------------------------------------------------
     
     public DoublePropertyTransition(Duration duration, E node, Double toValue) {
-        setDuration(duration);
-        setNode(node);
-        setToValue(toValue);
+        super(duration, node, toValue);
     }
     
     // --- Queries ---------------------------------------------------------------------------
     
-    /**
-     * @return The fromValue.
-     */
-    /*@ pure */ public Double getFromValue() {
-        return fromValue;
-    }
-
-    /**
-     * @return The toValue.
-     */
-    /*@ pure */ public Double getToValue() {
-        return toValue;
-    }
-
-    /**
-     * @return The node.
-     */
-    /*@ pure */ public E getNode() {
-        return node;
-    }
-
-    /**
-     * @return The duration.
-     */
-    /*@ pure */ public Duration getDuration() {
-        return this.getCycleDuration();
-    }
-    
-    
     // --- Setters ---------------------------------------------------------------------------
-
-    /**
-     * @param fromValue The fromValue to set.
-     */
-    public void setFromValue(Double fromValue) {
-        this.fromValue = fromValue;
-    }
-
-    /**
-     * @param toValue The toValue to set.
-     */
-    public void setToValue(Double toValue) {
-        this.toValue = toValue;
-    }
-
-    /**
-     * @param node The node to set.
-     */
-    public void setNode(E node) {
-        this.node = node;
-    }
-
-    /**
-     * @param duration The duration to set.
-     */
-    public void setDuration(Duration duration) {
-        this.setCycleDuration(duration);
-    }
-
     
     // --- Commands --------------------------------------------------------------------------
     

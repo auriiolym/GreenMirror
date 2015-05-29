@@ -48,9 +48,9 @@ public class VisualizerMemento {
 
     public VisualizerMemento(NodeList nodes, SequentialTransition transition) {
         for (Node node : nodes) {
-            getNodes().put(node.getId(),
+            /*getNodes().put(node.getId(),
                        node.getFxWrapper() == null
-                       ? new LinkedHashMap<String, Object>() : node.getFxWrapper().toMap());
+                       ? new LinkedHashMap<String, Object>() : node.getFxWrapper().toMap());*/
         }
         this.transition = transition;
     }

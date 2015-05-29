@@ -11,6 +11,7 @@ import groovy.json.internal.LazyValueMap;
 
 import java.util.Map;
 
+import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 /**
@@ -97,7 +98,7 @@ public class SetNodeFxCommandHandler extends CommandHandler {
             visualizer.getFxNodePane().getChildren().add(fxNode);
             
             // Add a log entry.
-            Log.add("Node " + Log.n(node) + " added to the visualization.");
+            Log.add("Node " + Log.n(node) + " added to the visualizer.");
         });
         
         
@@ -105,7 +106,14 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         if (fxWrapper.isPositionSet()) {
             visualizer.addToVisualizationsQueue(
                     fxWrapper.animateOpacity(0.0, fxWrapper.getOpacity(), duration));
+            System.err.println(2);
         }
+        System.err.println("wrapper: " + fxWrapper.toString());
+        System.err.println("fx fitWidth: " + ((ImageView) fxNode).getFitWidth());
+        System.err.println("img width:   " + ((ImageView) fxNode).getImage().getWidth());
+        System.err.println("img height:  " + ((ImageView) fxNode).getImage().getHeight());
+        System.err.println("img error:   " + ((ImageView) fxNode).getImage().errorProperty().getValue());
+        System.err.println("img except:  " + ((ImageView) fxNode).getImage().exceptionProperty().getValue().getMessage());
 
     }
 

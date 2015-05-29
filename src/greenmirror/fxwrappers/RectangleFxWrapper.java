@@ -1,6 +1,7 @@
 package greenmirror.fxwrappers;
 
 import greenmirror.FxShapeWrapper;
+import greenmirror.FxWrapper;
 import greenmirror.Placement;
 import greenmirror.fxpropertytypes.DoubleFxProperty;
 import greenmirror.fxpropertytypes.FxPropertyWrapper;
@@ -77,6 +78,10 @@ public class RectangleFxWrapper extends FxShapeWrapper {
         };
     }
     
+    /* (non-Javadoc)
+     * @see greenmirror.FxWrapper#getFxNode()
+     */
+    @Override
     /*@ pure */ public javafx.scene.shape.Rectangle getFxNode() {
         return (javafx.scene.shape.Rectangle) super.getFxNode();
     }
@@ -247,60 +252,8 @@ public class RectangleFxWrapper extends FxShapeWrapper {
      */
     @Override
     public Point3D calculatePoint(Placement placement) {
-        double posX;
-        double posY;
-        
-        switch (placement.toString()) {
-        case "None": default:
-            return null;
-        case "Random":
-            Random random = new Random();
-            double minX = getX();
-            double maxX = getX() + getWidth();
-            double minY = getY();
-            double maxY = getY() + getHeight();
-
-            posX = minX + random.nextDouble() * (maxX - minX);
-            posY = minY + random.nextDouble() * (maxY - minY);
-            break;
-        case "Custom": case "Middle":
-            posX = getX() + getWidth() / 2;
-            posY = getY() + getHeight() / 2;
-            break;
-        case "EdgeTop":
-            posX = getX() + getWidth() / 2;
-            posY = getY();
-            break;
-        case "EdgeRight":
-            posX = getX() + getWidth();
-            posY = getY() + getHeight() / 2;
-            break;
-        case "EdgeBottom":
-            posX = getX() + getWidth() / 2;
-            posY = getY() + getHeight();
-            break;
-        case "EdgeLeft":
-            posX = getX();
-            posY = getY() + getHeight() / 2;
-            break;
-        case "CornerTopLeft":
-            posX = getX(); 
-            posY = getY();
-            break;
-        case "CornerTopRight":
-            posX = getX() + getWidth();
-            posY = getY();
-            break;
-        case "CornerBottomRight":
-            posX = getX() + getWidth();
-            posY = getY() + getHeight();
-            break;
-        case "CornerBottomLeft":
-            posX = getX();
-            posY = getY() + getHeight();
-            break;
-        }
-        return new Point3D(posX, posY, 0).add(placement.getRelativePosition());
+        return new Point3D(getX(), getY(), 0)
+            .add(FxWrapper.calculatePointOnRectangle(getWidth(), getHeight(), placement));
     }
     
 
@@ -314,7 +267,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#animateToPositionWithMiddlePoint(javafx.geometry.Point3D, 
+     * @see greenmirror.FxWrapper#animateToWithMiddlePoint(javafx.geometry.Point3D, 
      *                              javafx.util.Duration)
      */
     @Override
