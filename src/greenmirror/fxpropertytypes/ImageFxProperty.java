@@ -1,12 +1,12 @@
 package greenmirror.fxpropertytypes;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
+import greenmirror.Log;
+import greenmirror.fxwrappers.MyImage;
+
 import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.util.Base64;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
 /**
@@ -49,14 +49,14 @@ public class ImageFxProperty extends FxPropertyWrapper {
      * @return         The cast instance; <tt>null</tt> if <tt>instance</tt> is null.
      */
     @Override
-    public Image cast(Object instance) {
+    public MyImage cast(Object instance) {
         byte[] bytes = null;
         
         if (instance == null) {
             return null;
         }
-        if (instance instanceof Image) {
-            return (Image) instance;
+        if (instance instanceof MyImage) {
+            return (MyImage) instance;
         }
         
         // A base64 encoded byte array is assumed if it's a String. 
@@ -71,7 +71,9 @@ public class ImageFxProperty extends FxPropertyWrapper {
             bytes = (byte[]) instance;
         }
         if (bytes != null) {
-            return new Image(new ByteArrayInputStream(bytes));
+            final MyImage image = new MyImage(new ByteArrayInputStream(bytes));
+            image.setBytes(bytes);
+            return image;
         }
         
         return null;
@@ -82,26 +84,26 @@ public class ImageFxProperty extends FxPropertyWrapper {
      */
     @Override
     public String castToMapValue(Object instance) {
-        if (!(instance instanceof Image)) {
+        if (!(instance instanceof MyImage)) {
             return null;
         }
-        final Image image = (Image) instance;
-        final BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
-        if (bufferedImage == null) {
-            return "invalid image";
+        final MyImage image = (MyImage) instance;
+        
+        if (image.isError() && image.getException() != null 
+                && !(image.getException() instanceof EOFException)) {
+            Log.add("The image can't be cast to a map value because of this exception: " 
+                    + image.getException().getMessage());
+            return null;
         }
         
-        final DataBuffer dataBuffer = bufferedImage.getData().getDataBuffer();
-        int[] ints = null;
-        if (dataBuffer instanceof DataBufferInt) {
-            ints = ((DataBufferInt) dataBuffer).getData();
+        final byte[] bytes = image.getBytes();
+        
+        if (bytes == null) {
+            Log.add("The image can't be cast to a map value because there is no byte data "
+                    + "stored.");
+            return null;
         }
-        byte[] byt = new byte[ints.length];
-        for (int i = 0; i < byt.length; i++) {
-            byt[i] = (byte) ints[i];
-        }
-        //final byte[] bytes = ((DataBufferByte) bufferedImage.getData().getDataBuffer()).getData();
-        return Base64.getEncoder().encodeToString(byt);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
 }

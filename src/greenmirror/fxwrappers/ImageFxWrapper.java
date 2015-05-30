@@ -9,9 +9,13 @@ import greenmirror.fxpropertytypes.ImageFxProperty;
 import greenmirror.server.AbstractTransition;
 import greenmirror.server.DoublePropertyTransition;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -208,27 +212,51 @@ public class ImageFxWrapper extends FxWrapper {
     //@ ensures getImage() == value;
     //@ ensures \result == this;
     public ImageFxWrapper setImage(Image value) {
+        if (!(value instanceof MyImage)) {
+            throw new IllegalArgumentException("Image has to be of type MyImage.");
+        }
         this.image = value;
-        System.err.println("image set. null? " + String.valueOf(value == null));
         setChanged();
         notifyObservers();
         return this;
     }
 
     /**
-     * @param value The image to set.
+     * @param filePath The image to set.
      */
     //@ ensures \result == this;
-    public ImageFxWrapper setImage(String value) {
-        InputStream input;
-        if ((input = ImageFxWrapper.class.getResourceAsStream(value)) == null) {
+    public ImageFxWrapper setImageFromFile(String filePath) {
+        
+        // Get InputStream of the file.
+        InputStream inputStream;
+        if ((inputStream = ImageFxWrapper.class.getResourceAsStream(filePath)) == null) {
             try {
-                input = new FileInputStream(value);
+                inputStream = new FileInputStream(filePath);
             } catch (FileNotFoundException e) {
-                throw new IllegalArgumentException("File " + value + " could not been found.");
+                throw new IllegalArgumentException("File " + filePath + " could not be found.");
             }
         }
-        return setImage(new Image(input));
+        final byte[] bytes = MyImage.readBytes(inputStream);
+        final MyImage img = new MyImage(new BufferedInputStream(inputStream));
+        img.setBytes(bytes);
+        return setImage(img);
+    }
+    
+    public ImageFxWrapper setImageFromUrl(String url) {
+        try {
+            final InputStream inputStream = new URL(url).openConnection().getInputStream();
+            final byte[] bytes = MyImage.readBytes(inputStream);
+            final MyImage image = new MyImage(inputStream);
+            image.setBytes(bytes);
+            setImage(image);
+            
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("The following URL is malformed: " + url);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("This went wrong with opening url " + url 
+                    + ": " + e.getMessage());
+        }
+        return this;
     }
 
     /**
@@ -554,14 +582,15 @@ public class ImageFxWrapper extends FxWrapper {
                 setFromValue(getNode().getImage());
             }
 
-            final double partFrac = frac * 2;
+            final double part1Frac = frac * 2;
+            final double part2Frac = (frac - 0.5) * 2;
             // First half: only change the opacity to 0.
             if (frac <= 0.5) {
                 if (getNode().getImage() != getFromValue()) {
                     getNode().setImage(getFromValue());
                 }
                 final double valueDiff = 0 - getOriginalOpacity();
-                getNode().setOpacity(getOriginalOpacity() + valueDiff * partFrac);
+                getNode().setOpacity(getOriginalOpacity() + valueDiff * part1Frac);
              
             // Second half: change the opacity back to the original and set the new image.
             } else {
@@ -569,7 +598,7 @@ public class ImageFxWrapper extends FxWrapper {
                     getNode().setImage(getToValue());
                 }
                 final Double valueDiff = getOriginalOpacity() - 0;
-                getNode().setOpacity(0 + valueDiff * frac);
+                getNode().setOpacity(0 + valueDiff * part2Frac);
             }
         }
     }
