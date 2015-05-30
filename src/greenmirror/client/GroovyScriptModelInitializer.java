@@ -37,10 +37,11 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     /**
      * The imports performed in the Groovy user script.
      */
-    private static final String[] IMPORTS = new String[]{
+    private static final Object[] IMPORTS = new Object[]{
         "greenmirror.*",
-        "greenmirror.client.GridBuilder",
+        greenmirror.client.GridBuilder.class,
         "javafx.scene.paint.*",
+        "javafx.geometry.*",
     };
     
     
@@ -179,8 +180,9 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
 
         // Build statements that'll be added before the script.
         String importClasses = "";
-        for (String imp : IMPORTS) {
-            importClasses += "import " + imp + ";";
+        for (Object imp : IMPORTS) {
+            importClasses += "import " + (imp instanceof Class 
+                    ? ((Class<?>) imp).getName() : String.valueOf(imp)) + ";";
         }
         final String usedSource = ""
                + "@BaseScript " + BASECLASS.getName() + " baseclass;"

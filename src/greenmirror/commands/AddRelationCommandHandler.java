@@ -92,7 +92,7 @@ public class AddRelationCommandHandler extends CommandHandler {
                     throw new DataParseException("The name and/or placement data was null.");
                 }
             } catch (IllegalArgumentException e) {
-                throw new DataParseException("The placment data was invalid.");
+                throw new DataParseException("The placement data was invalid.");
             }
             
             

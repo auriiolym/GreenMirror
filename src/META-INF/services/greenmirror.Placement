@@ -7,6 +7,7 @@
 greenmirror.Placement$None
 greenmirror.Placement$Middle
 greenmirror.Placement$Random
+greenmirror.Placement$Edge
 greenmirror.Placement$Custom
 greenmirror.Placement$EdgeTop
 greenmirror.Placement$EdgeRight

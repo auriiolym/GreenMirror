@@ -548,6 +548,11 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
         // Calculate the middle point (the new location) and adjust for rotation.
         Point3D tempNewMiddlePoint = nodeBFxWrapper.calculatePoint(relation.getPlacement());
+        if (relation.getPlacement() instanceof Placement.Random) {
+            final Point3D relativeToNodeB = tempNewMiddlePoint.subtract(
+                    nodeBFxWrapper.calculatePoint(Placement.MIDDLE));
+            relation.setPlacement(new Placement.Custom().withRelativePosition(relativeToNodeB));
+        }
         if (nodeBFxWrapper.getRotate() != 0 && !relation.getPlacement().equals(Placement.MIDDLE)) {
             tempNewMiddlePoint = nodeBFxWrapper.getPointAdjustedForRotation(tempNewMiddlePoint);
         }

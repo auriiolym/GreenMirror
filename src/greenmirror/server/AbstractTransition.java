@@ -18,6 +18,8 @@ public abstract class AbstractTransition<E extends javafx.scene.Node, T extends 
     private T toValue;
     
     private E node;
+
+    private Double originalOpacity;
     
     
     // --- Constructors ----------------------------------------------------------------------
@@ -56,6 +58,16 @@ public abstract class AbstractTransition<E extends javafx.scene.Node, T extends 
      */
     /*@ pure */ public Duration getDuration() {
         return this.getCycleDuration();
+    }
+    
+    /**
+     * @return The node's originalOpacity.
+     */
+    public double getOriginalOpacity() {
+        if (originalOpacity == null) {
+            originalOpacity = getNode().getOpacity();
+        }
+        return originalOpacity;
     }
     
     

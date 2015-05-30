@@ -34,7 +34,7 @@ public abstract class Placement implements Cloneable {
      * a relative position should be set.
      */
     //@ private invariant relativePosition != null;
-    private Point3D relativePosition = new Point3D(0, 0, 0);
+    private Point3D relativePosition = Point3D.ZERO;
     
     
     // -- Constructors -----------------------------------------------------------------------
@@ -150,6 +150,19 @@ public abstract class Placement implements Cloneable {
         return withRelativePosition(new Point3D(posX, posY, posZ));
     }
     
+    public Placement withData(String data) {
+        String[] dataParts = data.split(":");
+        if (dataParts.length < 3) {
+            throw new IllegalArgumentException("The passed placement data was invalid.");
+        }
+        
+        withRelativePosition(new Point3D(
+                Double.valueOf(dataParts[0]), 
+                Double.valueOf(dataParts[1]),
+                Double.valueOf(dataParts[2])));
+        return this;
+    }
+    
 
     // -- Class usage ------------------------------------------------------------------------
 
@@ -161,19 +174,16 @@ public abstract class Placement implements Cloneable {
      */
     //@ requires data != null;
     public static Placement fromData(String data) {
-        String[] dataParts = data.split(":");
-        if (dataParts.length != 4) {
+        if (!data.contains(":")) {
             throw new IllegalArgumentException("The passed placement data was invalid.");
         }
+        String[] dataParts = data.split(":", 2);
         
         retrievePlacements();
         
         for (Placement p : getPrototypes()) {
             if (p.toString().equals(dataParts[0])) {
-                return p.clone().withRelativePosition(new Point3D(
-                                    Double.valueOf(dataParts[1]), 
-                                    Double.valueOf(dataParts[2]),
-                                    Double.valueOf(dataParts[3])));
+                return p.clone().withData(dataParts[1]);
             }
         }
         return null;
@@ -213,10 +223,13 @@ public abstract class Placement implements Cloneable {
         }
     }
     
-    
+    /**
+     * Wordt omgezet in een Custom.
+     */
     public static final Placement RANDOM = new Random();
     
     public static class Random extends Placement {
+        
         /* (non-Javadoc)
          * @see greenmirror.Placement#clone()
          */
@@ -261,6 +274,59 @@ public abstract class Placement implements Cloneable {
         @Override
         public Middle clone() {
             return new Middle();
+        }
+    }
+    
+    
+    public static class Edge extends Placement {
+        
+        private double angle = 0;
+        
+        public Edge() {
+            
+        }
+        
+        public Edge(double angle) {
+            withAngle(angle);
+        }
+        
+        public double getAngle() {
+            return this.angle;
+        }
+        
+        /**
+         * @param angle Angle in degrees.
+         * @return      <tt>this</tt>
+         */
+        public Edge withAngle(double angle) {
+            if (angle < 0) {
+                angle = 360 - angle;
+            }
+            this.angle = angle % 360;
+            return this;
+        }
+        
+        @Override
+        public Edge withData(String data) {
+            super.withData(data);
+            String[] dataParts = data.split(":");
+            if (dataParts.length < 4) {
+                throw new IllegalArgumentException("The passed placement data was invalid.");
+            }
+            return withAngle(Double.valueOf(dataParts[3]));
+        }
+        
+        @Override
+        public String toData() {
+            return super.toData() + ":" + getAngle();
+        }
+        
+        /* (non-Javadoc)
+         * @see greenmirror.Placement#clone()
+         */
+        @Override
+        public Edge clone() {
+            return new Edge(getAngle());
         }
     }
     

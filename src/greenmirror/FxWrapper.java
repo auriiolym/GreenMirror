@@ -204,15 +204,16 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     //@ requires obj != null;
     //@ ensures \result != null;
     /*@ pure */ public Point3D getPointAdjustedForRotation(Point3D obj) {
-        final double angle = Math.toRadians(getRotate());
         final Point3D pivotPoint = calculatePoint(new Placement.Middle());
+        final double angle = Math.toRadians(getRotate());
         final Point3D relativePoint = obj.subtract(pivotPoint);
-        
+  
         final double cos = Math.cos(angle);
         final double sin = Math.sin(angle);
         
-        return pivotPoint.add(cos * relativePoint.getX() - sin * relativePoint.getY(),
-                              sin * relativePoint.getX() + cos * relativePoint.getY(), 0);
+        return pivotPoint.add(
+                new Point3D(cos * relativePoint.getX() - sin * relativePoint.getY(),
+                            sin * relativePoint.getX() + cos * relativePoint.getY(), 0));
     }
     
     /**
@@ -345,6 +346,13 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     
     // -- Class usage ------------------------------------------------------------------------
     
+    /**
+     * http://stackoverflow.com/questions/4061576/finding-points-on-a-rectangle-at-a-given-angle
+     * @param width
+     * @param height
+     * @param placement
+     * @return
+     */
     public static Point3D calculatePointOnRectangle(double width, double height, 
             Placement placement) {
         
@@ -353,7 +361,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         
         switch (placement.toString()) {
         case "None": default:
-            return null;
+            return Point3D.ZERO;
         case "Random":
             Random random = new Random();
             double minX = 0;
@@ -367,6 +375,46 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         case "Custom": case "Middle":
             calcX = width / 2;
             calcY = height / 2;
+            break;
+        case "Edge":
+            if (height == 0) {
+                height = 0.0000001; // Avert division by zero errors.
+            }
+            final double degrees = ((Placement.Edge) placement).getAngle();
+            // Boundary angles, starting from the top right corner, going clockwise.
+            final double b1 = Math.toDegrees(Math.atan(width / height));
+            final double b2 = 180 - b1;
+            final double b3  = b1 + 180;
+            final double b4  = b2 + 180;
+            boolean verticalQuadrant = true;
+            boolean primaryQuadrant = true;
+            // First quadrant: right
+            if (degrees > b1 && degrees <= b2) {
+                verticalQuadrant = false;
+            } else
+            // Second quadrant: bottom
+            if (degrees > b2 && degrees < b3) {
+                primaryQuadrant = false;
+            } else
+            // Third quadrant: left
+            if (degrees >= b3 && degrees <= b4) {
+                verticalQuadrant = false;
+                primaryQuadrant = false;
+            }
+            // Fourth quadrant: top
+            //  degrees > b4 || degrees < b1
+            
+            // Get the angle in radians, shift the origin and normalize it.
+            // TODO: check if normalization is necessary.
+            final double radians = Math.toRadians(
+                    new Placement.Edge(360 + 90 - degrees).getAngle());
+            if (verticalQuadrant) {
+                calcY = primaryQuadrant ? 0 : height;
+                calcX = width / 2 + width / (2 * Math.tan(radians)); 
+            } else {
+                calcX = primaryQuadrant ? width : 0;
+                calcY = height / 2 + height / 2 * Math.tan(radians);
+            }
             break;
         case "EdgeTop":
             calcX = width / 2;
@@ -396,6 +444,33 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             break;
         }
         return new Point3D(calcX, calcY, 0).add(placement.getRelativePosition());
+    }
+    
+    public static void main3(String[] args) {
+        double[] tests = {0, 45, 90, 180, 270, 359};
+        int[][] results = {{50,0},{100,0},{100,50},{50,100},{0,50},{49,0}};
+        for (int i = 0; i < tests.length; i++) {
+            Point3D p = calculatePointOnRectangle(100, 100, new Placement.Edge(tests[i]));
+            if (Math.round(p.getX()) == results[i][0] 
+                    && Math.round(p.getY()) == results[i][1]) {
+                System.out.println("success (" + tests[i] + ")");
+            } else {
+                System.out.println("fail (" + tests[i] + "): " + p.toString());
+                System.out.println("needed: [x = " + results[i][0] + ", y = " + results[i][1] + "]");
+            }
+            System.out.println();
+            System.out.println();
+        }
+        
+        for (int i = 0; i < tests.length; i++) {
+            double result = 360 - tests[i] + 90;
+            System.out.println(tests[i] + " becomes " + new Placement.Edge(result).getAngle());
+        }
+        
+    }
+    
+    public static double getRandomBetween(double min, double max) {
+        return min + new Random().nextDouble() * (max - min);
     }
     
     private static Set<FxWrapper> getPrototypes() {

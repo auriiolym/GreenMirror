@@ -2,8 +2,8 @@ package greenmirror;
 
 import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.ChangeNodeFxCommand;
-import greenmirror.commands.RemoveRelationCommand;
 import greenmirror.commands.SetNodeFxCommand;
+import greenmirror.fxpropertytypes.FxPropertyWrapper;
 
 import java.util.HashSet;
 import java.util.Observable;
@@ -511,7 +511,10 @@ public class Node extends Observable implements Observer {
      */
     //@ requires fxWrapper != null;
     public Node set(FxWrapper fxWrapper) {
-        if (getFxWrapper() != null) {
+        
+        if (getFxWrapper() != null
+                && !getFxWrapper().getType().equals(
+                        FxPropertyWrapper.capitalizeFirstChar(fxWrapper.getType()))) {
             throw new IllegalArgumentException("You have already set the FX type");
         }
         setFxWrapper(fxWrapper);
@@ -537,8 +540,7 @@ public class Node extends Observable implements Observer {
     public FxWrapper fx(String type) {
         if (getFxWrapper() != null) {
             // If the FxWrapper was already set.
-            if (!getFxWrapper().getType().equals(
-                Character.toUpperCase(type.charAt(0)) + type.substring(1))) {
+            if (!getFxWrapper().getType().equals(FxPropertyWrapper.capitalizeFirstChar(type))) {
                 // Throw exception if it's a different type.
                 throw new IllegalArgumentException("You have already set the FX type.");
             } else {
