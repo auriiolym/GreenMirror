@@ -1,11 +1,11 @@
 package greenmirror.fxwrappers;
 
+import greenmirror.FxPropertyWrapper;
 import greenmirror.FxWrapper;
 import greenmirror.Placement;
-import greenmirror.fxpropertytypes.BooleanFxProperty;
-import greenmirror.fxpropertytypes.DoubleFxProperty;
-import greenmirror.fxpropertytypes.FxPropertyWrapper;
-import greenmirror.fxpropertytypes.ImageFxProperty;
+import greenmirror.fxpropertywrappers.BooleanFxProperty;
+import greenmirror.fxpropertywrappers.DoubleFxProperty;
+import greenmirror.fxpropertywrappers.ImageFxProperty;
 import greenmirror.server.AbstractTransition;
 import greenmirror.server.DoublePropertyTransition;
 
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -170,7 +171,7 @@ public class ImageFxWrapper extends FxWrapper {
     /**
      * @param posX The posX to set.
      * @param posY The posY to set.
-     * @return     <tt>this</tt>
+     * @return     <code>this</code>
      */
     //@ ensures getX().doubleValue() == posX && getY().doubleValue() == posY;
     //@ ensures \result == this;
@@ -244,11 +245,17 @@ public class ImageFxWrapper extends FxWrapper {
     
     public ImageFxWrapper setImageFromUrl(String url) {
         try {
-            final InputStream inputStream = new URL(url).openConnection().getInputStream();
+            final URLConnection connection = new URL(url).openConnection();
+            connection.connect();
+            final InputStream inputStream = connection.getInputStream();
             final byte[] bytes = MyImage.readBytes(inputStream);
             final MyImage image = new MyImage(inputStream);
             image.setBytes(bytes);
             setImage(image);
+            
+            if (bytes == null || bytes.length == 0) {
+                throw new IllegalArgumentException("Unable to retrieve image from " + url);
+            }
             
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("The following URL is malformed: " + url);
@@ -311,8 +318,13 @@ public class ImageFxWrapper extends FxWrapper {
      */
     @Override
     /*@ pure */ public Point3D calculatePoint(Placement placement) {
+        final double width = getFitWidth() == null ? getImage().getWidth() : getFitWidth();
+        final double height = getFitHeight() == null ? getImage().getHeight() : getFitHeight();
+        
+        //System.err.println("Image: width=" + width + ", height=" + height + ", placement=" + placement.toString());
+        
         return new Point3D(getX(), getY(), 0)
-            .add(FxWrapper.calculatePointOnRectangle(getFitWidth(), getFitHeight(), placement));
+            .add(FxWrapper.calculatePointOnRectangle(width, height, placement));
     }
 
     /* (non-Javadoc)
@@ -329,7 +341,7 @@ public class ImageFxWrapper extends FxWrapper {
      */
     @Override
     public Transition animateToMiddlePoint(Point3D middlePoint, Duration duration) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         return new ParallelTransition(
                 new XTransition(duration, getFxNode(), coord.getX()),
                 new YTransition(duration, getFxNode(), coord.getY()));
@@ -339,9 +351,12 @@ public class ImageFxWrapper extends FxWrapper {
      * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
      */
     @Override
-    protected Point3D calculateCoordinates(Point3D middlePoint) {
-        return new Point3D(middlePoint.getX() - getFitWidth() / 2, 
-                           middlePoint.getY() - getFitHeight() / 2, 0);
+    protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
+        final double width = getFitWidth() == null ? getImage().getWidth() : getFitWidth();
+        final double height = getFitHeight() == null ? getImage().getHeight() : getFitHeight();
+        
+        return new Point3D(middlePoint.getX() - width / 2, 
+                           middlePoint.getY() - height / 2, 0);
     }
 
     /* (non-Javadoc)
@@ -349,7 +364,7 @@ public class ImageFxWrapper extends FxWrapper {
      */
     @Override
     public void setToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         setX(coord.getX());
         setY(coord.getY());
     }
@@ -359,7 +374,7 @@ public class ImageFxWrapper extends FxWrapper {
      */
     @Override
     public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setX(coord.getX());
         getFxNode().setY(coord.getY());
     }
@@ -367,7 +382,7 @@ public class ImageFxWrapper extends FxWrapper {
     
 
     /**
-     * A <tt>Transition</tt> class that animates the x value of an <tt>ImageView</tt>.
+     * A <code>Transition</code> class that animates the x value of an <code>ImageView</code>.
      * 
      * @author Karim El Assal
      */
@@ -375,7 +390,7 @@ public class ImageFxWrapper extends FxWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected XTransition(Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);
@@ -399,7 +414,7 @@ public class ImageFxWrapper extends FxWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the y value of an <tt>ImageView</tt>.
+     * A <code>Transition</code> class that animates the y value of an <code>ImageView</code>.
      * 
      * @author Karim El Assal
      */
@@ -407,7 +422,7 @@ public class ImageFxWrapper extends FxWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected YTransition(Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);
@@ -431,7 +446,7 @@ public class ImageFxWrapper extends FxWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the width.
+     * A <code>Transition</code> class that animates the change of the width.
      * 
      * @author Karim El Assal
      */
@@ -439,7 +454,7 @@ public class ImageFxWrapper extends FxWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected FitWidthTransition(Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);
@@ -463,7 +478,7 @@ public class ImageFxWrapper extends FxWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the height.
+     * A <code>Transition</code> class that animates the change of the height.
      * 
      * @author Karim El Assal
      */
@@ -471,7 +486,7 @@ public class ImageFxWrapper extends FxWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected FitHeightTransition(Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);

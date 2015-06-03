@@ -4,6 +4,7 @@ import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.Node;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * The handler that adds a node. This command is received from the client.
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class AddNodeCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

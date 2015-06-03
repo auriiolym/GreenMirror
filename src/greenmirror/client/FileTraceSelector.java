@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The <tt>TraceSelector</tt> that selects its trace from a file. In the file, transitions
+ * The <code>TraceSelector</code> that selects its trace from a file. In the file, transitions
  * should be separated by a newline.
  * 
  * @author Karim El Assal
@@ -18,7 +18,7 @@ public class FileTraceSelector implements TraceSelector {
     // -- Constants --------------------------------------------------------------------------
 
     /**
-     * The unique identifier of this <tt>TraceSelector</tt>.
+     * The unique identifier of this <code>TraceSelector</code>.
      */
     private static final String UID = "file";
     

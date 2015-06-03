@@ -281,7 +281,7 @@ public enum ToolbarButton {
     /**
      * Retrieve a prototype toolbar button. It's disabled by default. Specific customization
      * can be done by the overriding methods.
-     * @param inst The current instance of <tt>ToolbarButton</tt>, so the click event can be 
+     * @param inst The current instance of <code>ToolbarButton</code>, so the click event can be 
      *             registered.
      * @return     The button.
      */
@@ -309,8 +309,8 @@ public enum ToolbarButton {
 
     /**
      * Execute a visualizer transition. This method assumes a forward or backward transition
-     * is possible. If <tt>rate</tt> is positive, a forward transition is assumed. If
-     * <tt>pbStateWhilePlaying</tt> is <tt>null</tt> or the <tt>pbStateWhilePlaying</tt> is NOT
+     * is possible. If <code>rate</code> is positive, a forward transition is assumed. If
+     * <code>pbStateWhilePlaying</code> is <code>null</code> or the <code>pbStateWhilePlaying</code> is NOT
      * continuous, a 'stepping' transition is assumed: the delay is removed and after the
      * transition is finished, the playback state is set to paused.
      * @param pbStateWhilePlaying The playback status set during the transition.

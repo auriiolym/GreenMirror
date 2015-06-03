@@ -27,7 +27,7 @@ public class StartVisualizationCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare the <tt>Command</tt>.
+     * Prepare the <code>Command</code>.
      */
     public void prepare() {
         // Nothing to prepare.

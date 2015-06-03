@@ -24,8 +24,8 @@ public class RemoveNodeCommand extends Command {
     // --- Constructors ----------------------------------------------------------------------
 
     /**
-     * Create a new <tt>RemoveNodeCommand</tt>.
-     * @param node The <tt>Node</tt> that will be removed from the visualizer.
+     * Create a new <code>RemoveNodeCommand</code>.
+     * @param node The <code>Node</code> that will be removed from the visualizer.
      */
     //@ requires node != null;
     public RemoveNodeCommand(Node node) {
@@ -35,7 +35,7 @@ public class RemoveNodeCommand extends Command {
     // --- Queries ---------------------------------------------------------------------------
     
     /**
-     * @return The <tt>Node</tt> that will be removed from the visualizer.
+     * @return The <code>Node</code> that will be removed from the visualizer.
      */
     //@ ensures \result != null;
     /*@ pure */ private Node getNode() {

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 // Extends java.util.LinkedList<Node>.
 /**
- * A custom <tt>List</tt> implementation to apply specific filters.
+ * A custom <code>List</code> implementation to apply specific filters.
  * 
  * @author Karim El Assal
  */
@@ -16,14 +16,14 @@ public class NodeList extends LinkedList<Node> {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create an empty <tt>NodeList</tt>.
+     * Create an empty <code>NodeList</code>.
      */
     //@ ensures this.size() == 0;
     public NodeList() {}
     
     /**
-     * Create a new <tt>NodeList</tt> with the given <tt>Node</tt>s.
-     * @param nodes All <tt>Node</tt>s you automatically want to be added.
+     * Create a new <code>NodeList</code> with the given <code>Node</code>s.
+     * @param nodes All <code>Node</code>s you automatically want to be added.
      */
     //@ ensures this.size() == nodes.length;
     public NodeList(Node... nodes) {
@@ -33,7 +33,7 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
-     * Create a <tt>NodeList</tt> with elements from <tt>oldList</tt>.
+     * Create a <code>NodeList</code> with elements from <code>oldList</code>.
      * @param oldList The old list.
      */
     //@ requires oldList != null;
@@ -47,10 +47,10 @@ public class NodeList extends LinkedList<Node> {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @param currentNode The current <tt>Node</tt>.
-     * @return            The next <tt>Node</tt> in the list; if <tt>currentNode</tt> is the
-     *                    last in the list or <tt>currentNode</tt> doesn't appear in the list, 
-     *                    the first <tt>Node</tt> will be returned.
+     * @param currentNode The current <code>Node</code>.
+     * @return            The next <code>Node</code> in the list; if <code>currentNode</code> is the
+     *                    last in the list or <code>currentNode</code> doesn't appear in the list, 
+     *                    the first <code>Node</code> will be returned.
      */
     //@ requires this.size() > 0;
     //@ ensures \result != null;
@@ -61,7 +61,7 @@ public class NodeList extends LinkedList<Node> {
 
     /**
      * @param predicate The filter.
-     * @return          A new <tt>NodeList</tt> with a filter applied.
+     * @return          A new <code>NodeList</code> with a filter applied.
      */
     //@ requires predicate != null;
     //@ ensures \result != null;
@@ -72,10 +72,10 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
-     * Get a <tt>NodeList</tt> which contains <tt>Node</tt>s that correspond to the 
-     * <tt>identifier</tt>.
+     * Get a <code>NodeList</code> which contains <code>Node</code>s that correspond to the 
+     * <code>identifier</code>.
      * @param identifier See {@link greenmirror.Node.Identifier}.
-     * @return           A new <tt>NodeList</tt> with the matching <tt>Node</tt>s.
+     * @return           A new <code>NodeList</code> with the matching <code>Node</code>s.
      */
     //@ requires identifier != null;
     //@ ensures \result != null;
@@ -98,10 +98,10 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
-     * Get a <tt>NodeList</tt> which contains <tt>Node</tt>s that correspond to the 
-     * <tt>identifier</tt>.
+     * Get a <code>NodeList</code> which contains <code>Node</code>s that correspond to the 
+     * <code>identifier</code>.
      * @param identifier See {@link greenmirror.Node.Identifier#Identifier(String)}.
-     * @return           A new <tt>NodeList</tt> with the matching <tt>Node</tt>s.
+     * @return           A new <code>NodeList</code> with the matching <code>Node</code>s.
      */
     //@ requires identifier != null;
     //@ ensures \result != null;
@@ -110,8 +110,8 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
-     * @param name The name part of a <tt>Node.Identifier</tt>.
-     * @return     Every <tt>Node</tt> with <tt>name</tt>. 
+     * @param name The name part of a <code>Node.Identifier</code>.
+     * @return     Every <code>Node</code> with <code>name</code>. 
      */
     //@ requires name != null;
     //@ ensures \result != null;
@@ -122,8 +122,8 @@ public class NodeList extends LinkedList<Node> {
     }
 
     /**
-     * @param type The name part of a <tt>Node.Identifier</tt>.
-     * @return     Every <tt>Node</tt> of <tt>type</tt>.
+     * @param type The name part of a <code>Node.Identifier</code>.
+     * @return     Every <code>Node</code> of <code>type</code>.
      */
     //@ requires type != null;
     //@ ensures \result != null;
@@ -135,7 +135,7 @@ public class NodeList extends LinkedList<Node> {
 
     /**
      * @param label The label to match for.
-     * @return      Every <tt>Node</tt> that has <tt>label</tt>.
+     * @return      Every <code>Node</code> that has <code>label</code>.
      */
     //@ requires label != null;
     //@ ensures \result != null;
@@ -144,12 +144,12 @@ public class NodeList extends LinkedList<Node> {
     }
 
     /**
-     * Get <tt>Node</tt>s that have a <tt>Relation</tt> with any of <tt>nodes</tt> in the 
-     * specified </tt>direction</tt>.
-     * @param direction The direction of the <tt>Relation</tt>s. See 
+     * Get <code>Node</code>s that have a <code>Relation</code> with any of <code>nodes</code> in the 
+     * specified </code>direction</code>.
+     * @param direction The direction of the <code>Relation</code>s. See 
      *                  {@link greenmirror.Node#getRelations(int)}.
-     * @param nodes     Possible <tt>Node</tt>s on the other end of the <tt>Relation</tt>.
-     * @return          The matching <tt>Node</tt>s.
+     * @param nodes     Possible <code>Node</code>s on the other end of the <code>Relation</code>.
+     * @return          The matching <code>Node</code>s.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
     //@ requires nodes != null;
@@ -166,11 +166,11 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
-     * Get <tt>Node</tt>s that have a specific <tt>Relation</tt>.
-     * @param direction    The direction of the <tt>Relation</tt>. See
+     * Get <code>Node</code>s that have a specific <code>Relation</code>.
+     * @param direction    The direction of the <code>Relation</code>. See
      *                     {@link greenmirror.Node#getRelations(int)}.
      * @param relationName The name of the relation.
-     * @return             The matching <tt>Node</tt>s.
+     * @return             The matching <code>Node</code>s.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
     //@ requires relationName != null;
@@ -180,9 +180,9 @@ public class NodeList extends LinkedList<Node> {
     }
 
     /**
-     * @return This <tt>NodeList</tt> truncated with only the first element left;
-     *         or just an empty <tt>NodeList</tt> if <tt>this</tt> doesn't contain any 
-     *         <tt>Node</tt>s.
+     * @return This <code>NodeList</code> truncated with only the first element left;
+     *         or just an empty <code>NodeList</code> if <code>this</code> doesn't contain any 
+     *         <code>Node</code>s.
      */
     //@ ensures (this.size() == 0) ? (\result == null) : (\result.size() == 1);
     /*@ pure */ public NodeList one() {
@@ -193,9 +193,9 @@ public class NodeList extends LinkedList<Node> {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Add a <tt>Relation</tt> to multiple <tt>Node</tt>s at once (although still sequential).
-     * @param relation The <tt>Relation</tt> to add.
-     * @return         <tt>this</tt>
+     * Add a <code>Relation</code> to multiple <code>Node</code>s at once (although still sequential).
+     * @param relation The <code>Relation</code> to add.
+     * @return         <code>this</code>
      */
     //@ requires relation != null;
     public NodeList addRelation(Relation relation) {
@@ -204,9 +204,9 @@ public class NodeList extends LinkedList<Node> {
     }
 
     /**
-     * Remove a <tt>Relation</tt> from multiple <tt>Node</tt>s at once (altough still sequential).
-     * @param relationName The name of the <tt>Relation</tt>.
-     * @return             <tt>this</tt>
+     * Remove a <code>Relation</code> from multiple <code>Node</code>s at once (altough still sequential).
+     * @param relationName The name of the <code>Relation</code>.
+     * @return             <code>this</code>
      */
     public NodeList removeRelation(String relationName) {
         this.forEach(node -> {

@@ -3,6 +3,7 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import greenmirror.server.Visualizer;
 import groovy.json.JsonOutput;
@@ -13,7 +14,7 @@ import groovy.json.JsonOutput;
  * 
  * @author Karim El Assal
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class EndTransitionCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

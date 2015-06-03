@@ -25,7 +25,7 @@ public class SetAnimationDurationCommand extends Command {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initialize the <tt>Command</tt>.
+     * Initialize the <code>Command</code>.
      * @param duration The duration of following animations.
      */
     //@ requires duration >= -1.0;
@@ -49,7 +49,7 @@ public class SetAnimationDurationCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare the <tt>Command</tt>.
+     * Prepare the <code>Command</code>.
      */
     public void prepare() {
         // Nothing to prepare.

@@ -1,11 +1,9 @@
 package greenmirror.commandlineoptionhandlers;
 
+import greenmirror.ClientSide;
 import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.client.Client;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSpec;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,12 +12,15 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSpec;
+
 /**
- * The host <tt>CommandLineOptionHandler</tt> (client side).
+ * The host <code>CommandLineOptionHandler</code> (client side).
  * 
  * @author Karim El Assal
  */
-@CommandLineOptionHandler.ClientSide
+@ClientSide
 public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Instance variables -----------------------------------------------------------------

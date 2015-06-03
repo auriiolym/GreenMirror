@@ -1,10 +1,12 @@
 package greenmirror.fxwrappers;
 
+import greenmirror.FxPropertyWrapper;
 import greenmirror.FxShapeWrapper;
 import greenmirror.FxWrapper;
+import greenmirror.GreenMirrorUtils;
 import greenmirror.Placement;
-import greenmirror.fxpropertytypes.DoubleFxProperty;
-import greenmirror.fxpropertytypes.FxPropertyWrapper;
+import greenmirror.fxpropertywrappers.DoubleFxProperty;
+import greenmirror.placements.EdgePlacement;
 import greenmirror.server.DoublePropertyTransition;
 
 import java.util.ArrayList;
@@ -83,8 +85,18 @@ public class CircleFxWrapper extends FxShapeWrapper {
         return this.centerX;
     }
     
+    // Only added for support in Groovy scripts.
+    /*@ pure */ public Double getX() {
+        return getCenterX();
+    }
+    
     /*@ pure */ public Double getCenterY() {
         return this.centerY;
+    }
+    
+    // Only added for support in Groovy scripts.
+    /*@ pure */ public Double getY() {
+        return getCenterY();
     }
     
     /*@ pure */ public Double getRadius() {
@@ -107,12 +119,22 @@ public class CircleFxWrapper extends FxShapeWrapper {
         notifyObservers();
         return this;
     }
+
+    // Only used for extra support in Groovy scripts.
+    public CircleFxWrapper setX(double value) {
+        return setCenterX(value);
+    }
     
     public CircleFxWrapper setCenterY(double value) {
         this.centerY = value;
         setChanged();
         notifyObservers();
         return this;
+    }
+
+    // Only used for extra support in Groovy scripts.
+    public CircleFxWrapper setY(double value) {
+        return setCenterY(value);
     }
     
     public CircleFxWrapper setPosition(double posX, double posY) {
@@ -180,9 +202,9 @@ public class CircleFxWrapper extends FxShapeWrapper {
         case "None": default:
             return Point3D.ZERO;
         case "Random":
-            final double yRad = FxWrapper.getRandomBetween(-0.5 * Math.PI, 0.5 * Math.PI);
+            final double yRad = GreenMirrorUtils.getRandomBetween(-0.5 * Math.PI, 0.5 * Math.PI);
             final double xRadLimit = Math.cos(yRad);
-            final double xRad = FxWrapper.getRandomBetween(-1 * xRadLimit, xRadLimit);
+            final double xRad = GreenMirrorUtils.getRandomBetween(-1 * xRadLimit, xRadLimit);
 
             calcX = xRad * 2 / Math.PI * radius;
             calcY = yRad * 2 / Math.PI * radius;
@@ -190,7 +212,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
         case "Custom": case "Middle":
             break;
         case "Edge":
-            degrees = ((Placement.Edge) placement).getAngle();
+            degrees = ((EdgePlacement) placement).getAngle();
             break;
         case "EdgeTop":
             calcY = -1 * radius;
@@ -221,7 +243,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
         if (!Double.isNaN(degrees)) {
             final double angle = Math.toRadians(degrees);
             calcX = Math.sin(angle) * radius;
-            calcY = Math.cos(angle) * radius;
+            calcY = Math.cos(angle) * radius * -1; // because positive on the canvas means down.
         }
         
         return new Point3D(getCenterX(), getCenterY(), 0)
@@ -254,7 +276,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
      * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
      */
     @Override
-    protected Point3D calculateCoordinates(Point3D middlePoint) {
+    protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
         return new Point3D(middlePoint.getX(), 
                            middlePoint.getY(), 0);
     }
@@ -264,7 +286,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
      */
     @Override
     public void setToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         setCenterX(coord.getX());
         setCenterY(coord.getY());
     }
@@ -274,14 +296,14 @@ public class CircleFxWrapper extends FxShapeWrapper {
      */
     @Override
     public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setCenterX(coord.getX());
         getFxNode().setCenterY(coord.getY());
     }
 
 
     /**
-     * A <tt>Transition</tt> class that animates the centerX value of a <tt>Circle</tt>.
+     * A <code>Transition</code> class that animates the centerX value of a <code>Circle</code>.
      * 
      * @author Karim El Assal
      */
@@ -289,7 +311,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected CenterXTransition(Duration duration, Circle node, Double toValue) {
             super(duration, node, toValue);
@@ -313,7 +335,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the centerY value of a <tt>Circle</tt>.
+     * A <code>Transition</code> class that animates the centerY value of a <code>Circle</code>.
      * 
      * @author Karim El Assal
      */
@@ -321,7 +343,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected CenterYTransition(Duration duration, Circle node, Double toValue) {
             super(duration, node, toValue);
@@ -345,7 +367,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the radius.
+     * A <code>Transition</code> class that animates the change of the radius.
      * 
      * @author Karim El Assal
      */
@@ -353,7 +375,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected RadiusTransition(Duration duration, Circle node, Double toValue) {
             super(duration, node, toValue);

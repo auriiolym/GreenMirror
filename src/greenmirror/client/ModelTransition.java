@@ -55,7 +55,7 @@ public class ModelTransition {
     }
 
     /**
-     * @param regex    A valid regex which compiles into a <tt>Pattern</tt>.
+     * @param regex    A valid regex which compiles into a <code>Pattern</code>.
      * @param closure  {@link greenmirror.client.ModelTransition#closure}
      * @param duration {@link greenmirror.client.ModelTransition#duration}
      */
@@ -109,7 +109,7 @@ public class ModelTransition {
     }
 
     /**
-     * @param regex The regex which compiles to a valid <tt>Pattern</tt> to set.
+     * @param regex The regex which compiles to a valid <code>Pattern</code> to set.
      */
     //@ requires pattern != null;
     //@ ensures getPattern() == Pattern.compile(regex);
@@ -140,8 +140,8 @@ public class ModelTransition {
     
     /**
      * @param traceTransition A transition given by a trace.
-     * @return                Whether <tt>traceTransition</tt> is a match for this 
-     *                        <tt>ModelTransition</tt>.
+     * @return                Whether <code>traceTransition</code> is a match for this 
+     *                        <code>ModelTransition</code>.
      */
     //@ requires traceTransition != null;
     public boolean executableBy(String traceTransition) {
@@ -150,11 +150,11 @@ public class ModelTransition {
     
     /**
      * Executes the closure of this transition while extracting its optional arguments from 
-     * <tt>traceTransition</tt>. If <tt>traceTransition</tt> doesn't match this transition's
-     * <tt>Pattern</tt>, nothing happens and <tt>null</tt> is returned.
+     * <code>traceTransition</code>. If <code>traceTransition</code> doesn't match this transition's
+     * <code>Pattern</code>, nothing happens and <code>null</code> is returned.
      * @param  traceTransition A transition given by a trace.
-     * @return                 The return value of the <tt>Closure</tt>; <tt>null</tt> if
-     *                         <tt>traceTransition</tt> doesn't match the <tt>Pattern</tt>.
+     * @return                 The return value of the <code>Closure</code>; <code>null</code> if
+     *                         <code>traceTransition</code> doesn't match the <code>Pattern</code>.
      */
     //@ requires traceTransition != null;
     public Object execute(String traceTransition) {

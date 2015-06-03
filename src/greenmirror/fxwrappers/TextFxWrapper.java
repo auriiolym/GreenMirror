@@ -1,11 +1,11 @@
 package greenmirror.fxwrappers;
 
+import greenmirror.FxPropertyWrapper;
 import greenmirror.FxShapeWrapper;
 import greenmirror.FxWrapper;
 import greenmirror.Placement;
-import greenmirror.fxpropertytypes.DoubleFxProperty;
-import greenmirror.fxpropertytypes.FxPropertyWrapper;
-import greenmirror.fxpropertytypes.StringFxProperty;
+import greenmirror.fxpropertywrappers.DoubleFxProperty;
+import greenmirror.fxpropertywrappers.StringFxProperty;
 import greenmirror.server.AbstractTransition;
 import greenmirror.server.DoublePropertyTransition;
 
@@ -145,7 +145,7 @@ public class TextFxWrapper extends FxShapeWrapper {
     /**
      * @param posX The posX to set.
      * @param posY The posY to set.
-     * @return     <tt>this</tt>
+     * @return     <code>this</code>
      */
     //@ ensures getX().doubleValue() == posX && getY().doubleValue() == posY;
     //@ ensures \result == this;
@@ -245,7 +245,7 @@ public class TextFxWrapper extends FxShapeWrapper {
      */
     @Override
     public Transition animateToMiddlePoint(Point3D middlePoint, Duration duration) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         return new ParallelTransition(
                 new XTransition(duration, getFxNode(), coord.getX()),
                 new YTransition(duration, getFxNode(), coord.getY()));
@@ -255,7 +255,7 @@ public class TextFxWrapper extends FxShapeWrapper {
      * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
      */
     @Override
-    protected Point3D calculateCoordinates(Point3D middlePoint) {
+    protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
         return new Point3D(middlePoint.getX() - getWrappingWidth() / 2, 
                            middlePoint.getY() - 1 / 2, 0);
     }
@@ -265,7 +265,7 @@ public class TextFxWrapper extends FxShapeWrapper {
      */
     @Override
     public void setToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         setX(coord.getX());
         setY(coord.getY());
     }
@@ -275,7 +275,7 @@ public class TextFxWrapper extends FxShapeWrapper {
      */
     @Override
     public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setX(coord.getX());
         getFxNode().setY(coord.getY());
     }
@@ -283,7 +283,7 @@ public class TextFxWrapper extends FxShapeWrapper {
     
 
     /**
-     * A <tt>Transition</tt> class that animates the x value of a <tt>Text</tt>.
+     * A <code>Transition</code> class that animates the x value of a <code>Text</code>.
      * 
      * @author Karim El Assal
      */
@@ -291,7 +291,7 @@ public class TextFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected XTransition(Duration duration, Text node, Double toValue) {
             super(duration, node, toValue);
@@ -315,7 +315,7 @@ public class TextFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the y value of a <tt>Text</tt>.
+     * A <code>Transition</code> class that animates the y value of a <code>Text</code>.
      * 
      * @author Karim El Assal
      */
@@ -323,7 +323,7 @@ public class TextFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected YTransition(Duration duration, Text node, Double toValue) {
             super(duration, node, toValue);
@@ -347,7 +347,7 @@ public class TextFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the wrapping width.
+     * A <code>Transition</code> class that animates the change of the wrapping width.
      * 
      * @author Karim El Assal
      */
@@ -355,7 +355,7 @@ public class TextFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected WrappingWidthTransition(Duration duration, Text node, Double toValue) {
             super(duration, node, toValue);

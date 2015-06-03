@@ -2,6 +2,7 @@ package greenmirror.commandlineoptionhandlers;
 
 import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 
 import joptsimple.OptionParser;
@@ -11,11 +12,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The port <tt>CommandLineOptionHandler</tt> (server side).
+ * The port <code>CommandLineOptionHandler</code> (server side).
  * 
  * @author Karim El Assal
  */
-@CommandLineOptionHandler.ServerSide
+@ServerSide
 public class PortCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Instance variables -----------------------------------------------------------------

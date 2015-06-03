@@ -5,138 +5,129 @@ import groovy.json.JsonParserType;
 import groovy.json.JsonSlurper;
 import groovy.json.internal.LazyValueMap;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
 /**
- * The abstract <tt>CommandHandler</tt> class. It contains shared code for all 
- * <tt>CommandHandler</tt>s. All extending classes should either use the <tt>ClientSide</tt> or
- * the <tt>ServerSide</tt> annotation, or else they won't be registered.
+ * A class that handles commands received over the network. Every subclass should have at 
+ * least one of the {@link greenmirror.ClientSide ClientSide} and
+ * {@link greenmirror.ServerSide ServerSide} annotations to indicate on which
+ * part of the application they are used.
  * 
  * @author Karim El Assal
  */
 public abstract class CommandHandler {
-    
-    // -- Annotations ------------------------------------------------------------------------
 
-    @Retention(RetentionPolicy.RUNTIME)
-    public static @interface ClientSide {}
-    @Retention(RetentionPolicy.RUNTIME)
-    public static @interface ServerSide {}
-    
-    
     // -- Exceptions -------------------------------------------------------------------------
-    
+
     /**
-     * An <tt>Exception</tt> to indicate that the received data couldn't be parsed correctly.
+     * An <code>Exception</code> to indicate that the received data couldn't be
+     * parsed correctly.
      * 
      * @author Karim El Assal
      */
     public static class DataParseException extends Exception {
+
+        /**
+         * @param msg the message that can be retrieved by using <code>getMessage()</code>
+         */
         public DataParseException(String msg) {
             super(msg);
         }
     }
-    
+
     /**
-     * An <tt>Exception</tt> to indicate that the received data is incomplete.
+     * An <code>Exception</code> to indicate that the received data is
+     * incomplete.
      * 
      * @author Karim El Assal
      */
     public static class MissingDataException extends Exception {
-
+        
     }
 
+    
     // -- Instance variables -----------------------------------------------------------------
-    
-    /**
-     * The controller.
-     */
-    private GreenMirrorController controller;
-    
 
+    /** The GreenMirror controller. */
+    private GreenMirrorController controller;
+
+    
     // -- Queries ----------------------------------------------------------------------------
 
-    /**
-     * @return The controller.
-     */
-    /*@ pure */ public GreenMirrorController getController() {
+    /** @return the GreenMirror controller */
+    /* @ pure */public GreenMirrorController getController() {
         return controller;
     }
 
     /**
-     * @return The textual description of the <tt>Command</tt> belonging to this handler.
+     * Returns a one word description of this command handler. For example, an instance of
+     * <code>AddNodeCommandHandler</tt> would let this method return <code>AddNode</code>.
+     * 
+     * @return the textual, one word description of the <code>command</code> belonging to this
+     *         command handler
      */
-    //@ ensures \result != null;
-    /*@ pure */ public String getCommand() {
-        return this.getClass().getSimpleName().replace("CommandHandler", "");
+    // @ ensures \result != null;
+    /* @ pure */public String getCommand() {
+        return getClass().getSimpleName().replace("CommandHandler", "");
     }
     
-    
+
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param controller  The controller to set.
+     * @param controller the GreenMirror controller to store for later use
      */
-    //@ ensures getController() == controller;
+    // @ ensures getController() == controller;
     public void setController(GreenMirrorController controller) {
         this.controller = controller;
     }
 
+    
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * The method that actually handles the received <tt>Command</tt>. The <tt>Command</tt> is
-     * passed via <tt>data</tt> in the specified <tt>format</tt>.
-     * @param format The communication format in which <tt>data</tt> is.
-     * @param data   The <tt>String</tt> representation of the received <tt>Command</tt>.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When the data can't be parsed correctly.
+     * The method that actually handles the received <code>Command</code>. The
+     * <code>Command</code> is passed via <code>data</code> in the specified
+     * communication format. The controller should've already been set.
+     * 
+     * @param format the communication format in which <code>data</code> is formatted
+     * @param data   the string representation of the received <code>Command</code>
+     * @throws MissingDataException when the data is incomplete
+     * @throws DataParseException   when the data can't be parsed correctly
+     * @see    CommunicationFormat
+     * @see    #setController(GreenMirrorController)
      */
-    //@ requires format != null && data != null && getController() != null;
-    public abstract void handle(CommunicationFormat format, String data) 
+    // @ requires format != null && data != null && getController() != null;
+    public abstract void handle(CommunicationFormat format, String data)
             throws MissingDataException, DataParseException;
 
-    /**
-     * Get the <tt>List</tt> of <tt>Transition</tt>s in the queue.
-     * @return
-     * /
-    public List<javafx.animation.Transition> getTransitions() {
-        // TODO - implement CommandHandler.getTransitions
-        throw new UnsupportedOperationException();
-    }*/
-
-    // -- Class usage ------------------------------------------------------------------------
     
+    // -- Class usage ------------------------------------------------------------------------
+
     /**
      * Parse JSON data.
-     * @param data The JSON data.
-     * @return     A <tt>Map</tt> which contains the parsed data.
-     * @throws DataParseException If the JSON string was invalid.
+     * 
+     * @param data the JSON data
+     * @return     a <code>Map</code> containing the parsed data
+     * @throws DataParseException   if the JSON string was invalid
+     * @throws NullPointerException if <code>data</code> is <code>null</code>
      */
-    //@ requires data != null;
-    public static Map<String, Object> parseJson(String data) throws DataParseException {
-        
+    // @ requires data != null;
+    public static Map<String, Object> parseJson(String data)
+            throws DataParseException {
+        if (data == null) {
+            throw new NullPointerException("data can't be null.");
+        }
+
         try {
-            Map<String, Object> res = new LinkedHashMap<>();
-            res.putAll((LazyValueMap) new JsonSlurper()
-                            .setType(JsonParserType.INDEX_OVERLAY).parseText(data));
+            final Map<String, Object> res = new LinkedHashMap<String, Object>();
+            res.putAll((LazyValueMap) new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY)
+                                                       .parseText(data));
             return res;
         } catch (JsonException e) {
             throw new DataParseException("There was an error in the received JSON data: " 
                             + e.getMessage());
         }
-    }
-    
-    public static Map<String, Object> toMap(Map<Object, Object> map) {
-        Map<String, Object> resultMap = new LinkedHashMap<>();
-        for (Map.Entry<Object, Object> entry : map.entrySet()) {
-            resultMap.put((String) entry.getKey(), (Object) entry.getValue());
-        }
-        return resultMap;
     }
 }

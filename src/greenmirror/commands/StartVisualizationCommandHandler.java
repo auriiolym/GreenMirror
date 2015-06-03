@@ -3,6 +3,7 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import greenmirror.server.ToolbarButton;
 
@@ -12,7 +13,7 @@ import greenmirror.server.ToolbarButton;
  * 
  * @author Karim El Assal
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class StartVisualizationCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

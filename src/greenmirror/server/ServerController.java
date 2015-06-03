@@ -7,11 +7,12 @@ import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.Log;
 import greenmirror.PeerListener;
+import greenmirror.ServerSide;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -58,8 +59,8 @@ public class ServerController extends GreenMirrorController {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create a new <tt>ServerController</tt> instance. It registers all available 
-     * <tt>CommandHandler</tt>s and <tt>CommandLineOptionHandler</tt>s that are meant for the 
+     * Create a new <code>ServerController</code> instance. It registers all available 
+     * <code>CommandHandler</code>s and <code>CommandLineOptionHandler</code>s that are meant for the 
      * server.
      * @param visualizer The main application instance.
      */
@@ -69,7 +70,7 @@ public class ServerController extends GreenMirrorController {
         
         // Register CommandHandlers.
         for (CommandHandler ch : ServiceLoader.load(CommandHandler.class)) {
-            if (ch.getClass().isAnnotationPresent(CommandHandler.ServerSide.class)) {
+            if (ch.getClass().isAnnotationPresent(ServerSide.class)) {
                 ch.setController(this);
                 getCommandHandlers().add(ch);
             }
@@ -77,7 +78,7 @@ public class ServerController extends GreenMirrorController {
 
         // Register CommandLineOptionHandlers.
         ServiceLoader.load(CommandLineOptionHandler.class).forEach(cloh -> {
-            if (cloh.getClass().isAnnotationPresent(CommandLineOptionHandler.ServerSide.class)) {
+            if (cloh.getClass().isAnnotationPresent(ServerSide.class)) {
                 getCommandLineOptionHandlers().add(cloh);
             }
         });
@@ -131,7 +132,7 @@ public class ServerController extends GreenMirrorController {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Create a new <tt>Thread</tt> on which the server will listen for connections.
+     * Create a new <code>Thread</code> on which the server will listen for connections.
      */
     //@ requires getPort() != null;
     public void listenForConnections() {

@@ -30,8 +30,8 @@ public class ChangeNodeFxCommand extends Command {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initialize the <tt>Command</tt>.
-     * @param node The <tt>Node</tt> that has been added.
+     * Initialize the <code>Command</code>.
+     * @param node The <code>Node</code> that has been added.
      */
     //@ requires node != null;
     //@ ensures getNode() == node;
@@ -43,7 +43,7 @@ public class ChangeNodeFxCommand extends Command {
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return The <tt>Node</tt> that has been added.
+     * @return The <code>Node</code> that has been added.
      */
     //@ ensures \result != null;
     /*@ pure */ public Node getNode() {
@@ -54,7 +54,7 @@ public class ChangeNodeFxCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare the <tt>Command</tt>.
+     * Prepare the <code>Command</code>.
      */
     public void prepare() {
         // Nothing to prepare.
@@ -71,7 +71,7 @@ public class ChangeNodeFxCommand extends Command {
         
         switch (format) {
         default: case JSON:
-            Map<String, Object> fxMap = new LinkedHashMap<>();
+            final Map<String, Object> fxMap = new LinkedHashMap<String, Object>();
             for (Map.Entry<String, Object> entry : getNode().getFxWrapper().toMap().entrySet()) {
                 if (entry.getValue() != null) {
                     fxMap.put(entry.getKey(), entry.getValue());

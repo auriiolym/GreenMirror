@@ -1,5 +1,17 @@
 package greenmirror;
 
+import greenmirror.placements.CornerBottomLeftPlacement;
+import greenmirror.placements.CornerBottomRightPlacement;
+import greenmirror.placements.CornerTopLeftPlacement;
+import greenmirror.placements.CornerTopRightPlacement;
+import greenmirror.placements.EdgeBottomPlacement;
+import greenmirror.placements.EdgeLeftPlacement;
+import greenmirror.placements.EdgeRightPlacement;
+import greenmirror.placements.EdgeTopPlacement;
+import greenmirror.placements.MiddlePlacement;
+import greenmirror.placements.NoPlacement;
+import greenmirror.placements.RandomPlacement;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -7,13 +19,13 @@ import java.util.ServiceLoader;
 import javafx.geometry.Point3D;
 
 /**
- * The <tt>Placement</tt> abstract class used for indicating where a <tt>Node</tt> 
- * should be placed relative to another <tt>Node</tt>.
+ * The <code>Placement</code> abstract class used for indicating where a <code>Node</code> 
+ * should be placed relative to another <code>Node</code>.
  * 
  * If you want to use just the placement information, use The singleton Placement.SUBCLASS. E.g.:
- * <tt>Placement.MIDDLE</tt>. If you want to use extra, relative position information, create
- * a new instance of a subclass, like: <tt>new Placement.Middle()</tt>.
- * The <tt>Custom</tt> subclass does not have a singleton, because extra, relative position 
+ * <code>Placement.MIDDLE</code>. If you want to use extra, relative position information, create
+ * a new instance of a subclass, like: <code>new Placement.Middle()</code>.
+ * The <code>Custom</code> subclass does not have a singleton, because extra, relative position 
  * information must be given.
  * 
  * @author Karim El Assal
@@ -22,14 +34,14 @@ public abstract class Placement implements Cloneable {
     
     // -- Class variables --------------------------------------------------------------------
 
-    /** The prototypes of all <tt>Placement</tt>s. */
-    private static List<Placement> prototypes = new LinkedList<>();
+    /** The prototypes of all <code>Placement</code>s. */
+    private static List<Placement> prototypes = new LinkedList<Placement>();
     
     
     // -- Instance variables -----------------------------------------------------------------
 
     /**
-     * The relative position to the selected <tt>Placement</tt>. If Placement.CUSTOM is chosen,
+     * The relative position to the selected <code>Placement</code>. If Placement.CUSTOM is chosen,
      * it should default to Placement.MIDDLE. This means that when choosing Placement.CUSTOM,
      * a relative position should be set.
      */
@@ -40,24 +52,25 @@ public abstract class Placement implements Cloneable {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create a new <tt>Placement</tt> without any more relative position information.
+     * Create a new <code>Placement</code> without any more relative position information.
      */
     public Placement() {}
     
     /**
-     * Create a new <tt>Placement</tt> with more relative position information.
-     * @param posX The x coordinate relative to this <tt>Placement</tt>.
-     * @param posY The y coordinate relative to this <tt>Placement</tt>.
+     * Create a new <code>Placement</code> with more relative position information.
+     * @param posX The x coordinate relative to this <code>Placement</code>.
+     * @param posY The y coordinate relative to this <code>Placement</code>.
      */
+    //TODO: remove this and implement the same functionality at CustomPlacement.
     public Placement(double posX, double  posY) {
         withRelativePosition(posX, posY);
     }
 
     /**
-     * Create a new <tt>Placement</tt> with more relative position information.
-     * @param posX The x coordinate relative to this <tt>Placement</tt>.
-     * @param posY The y coordinate relative to this <tt>Placement</tt>.
-     * @param posZ The z coordinate relative to this <tt>Placement</tt>.
+     * Create a new <code>Placement</code> with more relative position information.
+     * @param posX The x coordinate relative to this <code>Placement</code>.
+     * @param posY The y coordinate relative to this <code>Placement</code>.
+     * @param posZ The z coordinate relative to this <code>Placement</code>.
      */
     public Placement(double posX, double posY, double posZ) {
         withRelativePosition(posX, posY, posZ);
@@ -79,7 +92,7 @@ public abstract class Placement implements Cloneable {
      */
     //@ ensures \result != null;
     /*@ pure */ public String toString() {
-        return getClass().getSimpleName();
+        return getClass().getSimpleName().replace("Placement", "");
     }
     
     /**
@@ -94,16 +107,16 @@ public abstract class Placement implements Cloneable {
     }
     
     /**
-     * @return A deep copy of this <tt>Placement</tt>.
+     * @return A deep copy of this <code>Placement</code>.
      */
     //@ ensures \result != null;
     /*@ pure */ public abstract Placement clone();
     
     /**
-     * Check if <tt>object</tt> is the same as <tt>this</tt> according to the type of 
+     * Check if <code>object</code> is the same as <code>this</code> according to the type of 
      * placement and relative position.
      * @param object The object to check.
-     * @return       <tt>true</tt> if the placement type and relative position are the same.
+     * @return       <code>true</code> if the placement type and relative position are the same.
      */
     @Override
     /*@ pure */ public boolean equals(Object object) {
@@ -118,7 +131,7 @@ public abstract class Placement implements Cloneable {
     
     /**
      * @param relativePosition The relative position to set.
-     * @return                 <tt>this</tt>
+     * @return                 <code>this</code>
      */
     //@ ensures getRelativePosition() == relativePosition;
     //@ ensures \result == this;
@@ -130,7 +143,7 @@ public abstract class Placement implements Cloneable {
     /**
      * @param posX The relative x coordinate.
      * @param posY The relative y coordinate.
-     * @return     <tt>this</tt>
+     * @return     <code>this</code>
      */
     //@ ensures getRelativePosition().equals(new Point3D(posX, posY, 0));
     //@ ensures \result == this;
@@ -142,7 +155,7 @@ public abstract class Placement implements Cloneable {
      * @param posX The relative x coordinate.
      * @param posY The relative y coordinate.
      * @param posY The relative z coordinate.
-     * @return     <tt>this</tt>
+     * @return     <code>this</code>
      */
     //@ ensures getRelativePosition().equals(new Point3D(posX, posY, posZ));
     //@ ensures \result == this;
@@ -152,14 +165,14 @@ public abstract class Placement implements Cloneable {
     
     public Placement withData(String data) {
         String[] dataParts = data.split(":");
-        if (dataParts.length < 3) {
+        if (dataParts.length < 4) {
             throw new IllegalArgumentException("The passed placement data was invalid.");
         }
         
         withRelativePosition(new Point3D(
-                Double.valueOf(dataParts[0]), 
-                Double.valueOf(dataParts[1]),
-                Double.valueOf(dataParts[2])));
+                Double.valueOf(dataParts[1]), 
+                Double.valueOf(dataParts[2]),
+                Double.valueOf(dataParts[3])));
         return this;
     }
     
@@ -167,10 +180,10 @@ public abstract class Placement implements Cloneable {
     // -- Class usage ------------------------------------------------------------------------
 
     /**
-     * @param data The requested <tt>Placement</tt>.
-     * @return     A <tt>Placement</tt> according to <tt>data</tt>; <tt>null</tt> if none was
+     * @param data The requested <code>Placement</code>.
+     * @return     A <code>Placement</code> according to <code>data</code>; <code>null</code> if none was
      *             found.
-     * @throws IllegalArgumentException     If <tt>data</tt> was invalid.
+     * @throws IllegalArgumentException     If <code>data</code> was invalid.
      */
     //@ requires data != null;
     public static Placement fromData(String data) {
@@ -183,14 +196,14 @@ public abstract class Placement implements Cloneable {
         
         for (Placement p : getPrototypes()) {
             if (p.toString().equals(dataParts[0])) {
-                return p.clone().withData(dataParts[1]);
+                return p.clone().withData(data);
             }
         }
         return null;
     }
     
     /**
-     * @return The prototypes of all available <tt>Placement</tt>s.
+     * @return The prototypes of all available <code>Placement</code>s.
      */
     //@ ensures \result != null;
     /*@ pure */ private static List<Placement> getPrototypes() {
@@ -198,239 +211,40 @@ public abstract class Placement implements Cloneable {
     }
     
     /**
-     * Retrieve all available <tt>Placement</tt>s.
+     * Retrieve all available <code>Placement</code>s.
      */
     //@ ensures getPrototypes().size() > 0;
     private static void retrievePlacements() {
         if (getPrototypes().size() == 0) {
-            ServiceLoader.load(Placement.class).forEach(pm -> {
+            for (Placement pm : ServiceLoader.load(Placement.class)) {
                 getPrototypes().add(pm);
-            });
+            };
         }
     }
     
     
     
-    public static final Placement NONE = new None();
+    public static final Placement NONE = new NoPlacement();
+    
+    public static final Placement RANDOM = new RandomPlacement();
+    
+    public static final Placement MIDDLE = new MiddlePlacement();
+        
+    public static final Placement EDGE_TOP = new EdgeTopPlacement();
+    
+    public static final Placement EDGE_RIGHT = new EdgeRightPlacement();
+        
+    public static final Placement EDGE_BOTTOM = new EdgeBottomPlacement();
+    
+    public static final Placement EDGE_LEFT = new EdgeLeftPlacement();
+    
+    public static final Placement CORNER_TOP_LEFT = new CornerTopLeftPlacement();
+    
+    public static final Placement CORNER_TOP_RIGHT = new CornerTopRightPlacement();
+    
+    public static final Placement CORNER_BOTTOM_RIGHT = new CornerBottomRightPlacement();    
+    
+    public static final Placement CORNER_BOTTOM_LEFT = new CornerBottomLeftPlacement();
+    
 
-    public static class None extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public None clone() {
-            return new None();
-        }
-    }
-    
-    /**
-     * Wordt omgezet in een Custom.
-     */
-    public static final Placement RANDOM = new Random();
-    
-    public static class Random extends Placement {
-        
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public Random clone() {
-            return new Random();
-        }
-    }
-    
-    
-    
-    public static class Custom extends Placement {
-
-        public Custom() {
-            super();
-        }
-        
-        public Custom(double posX, double  posY) {
-            super(posX, posY);
-        }
-        
-        public Custom(double posX, double posY, double posZ) {
-            super(posX, posY, posZ);
-        }
-        
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public Custom clone() {
-            return new Custom();
-        }
-    }
-    
-    
-    public static final Placement MIDDLE = new Middle();
-    
-    public static class Middle extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public Middle clone() {
-            return new Middle();
-        }
-    }
-    
-    
-    public static class Edge extends Placement {
-        
-        private double angle = 0;
-        
-        public Edge() {
-            
-        }
-        
-        public Edge(double angle) {
-            withAngle(angle);
-        }
-        
-        public double getAngle() {
-            return this.angle;
-        }
-        
-        /**
-         * @param angle Angle in degrees.
-         * @return      <tt>this</tt>
-         */
-        public Edge withAngle(double angle) {
-            if (angle < 0) {
-                angle = 360 - angle;
-            }
-            this.angle = angle % 360;
-            return this;
-        }
-        
-        @Override
-        public Edge withData(String data) {
-            super.withData(data);
-            String[] dataParts = data.split(":");
-            if (dataParts.length < 4) {
-                throw new IllegalArgumentException("The passed placement data was invalid.");
-            }
-            return withAngle(Double.valueOf(dataParts[3]));
-        }
-        
-        @Override
-        public String toData() {
-            return super.toData() + ":" + getAngle();
-        }
-        
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public Edge clone() {
-            return new Edge(getAngle());
-        }
-    }
-    
-    
-    public static final Placement EDGE_TOP = new EdgeTop();
-    
-    public static class EdgeTop extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public EdgeTop clone() {
-            return new EdgeTop();
-        }
-    }
-    
-    
-    public static final Placement EDGE_RIGHT = new EdgeRight();
-    
-    public static class EdgeRight extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public EdgeRight clone() {
-            return new EdgeRight();
-        }
-    }
-    
-    
-    public static final Placement EDGE_BOTTOM = new EdgeBottom();
-    
-    public static class EdgeBottom extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public EdgeBottom clone() {
-            return new EdgeBottom();
-        }
-    }
-    
-    
-    public static final Placement EDGE_LEFT = new EdgeLeft();
-    
-    public static class EdgeLeft extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public EdgeLeft clone() {
-            return new EdgeLeft();
-        }
-    }
-    
-    
-    public static final Placement CORNER_TOP_LEFT = new CornerTopLeft();
-    
-    public static class CornerTopLeft extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public CornerTopLeft clone() {
-            return new CornerTopLeft();
-        }
-    }
-    
-    
-    public static final Placement CORNER_TOP_RIGHT = new CornerTopRight();
-    
-    public static class CornerTopRight extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public CornerTopRight clone() {
-            return new CornerTopRight();
-        }
-    }
-    
-    
-    public static final Placement CORNER_BOTTOM_RIGHT = new CornerBottomRight();    
-    
-    public static class CornerBottomRight extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public CornerBottomRight clone() {
-            return new CornerBottomRight();
-        }
-    }
-    
-    
-    public static final Placement CORNER_BOTTOM_LEFT = new CornerBottomLeft();
-    
-    public static class CornerBottomLeft extends Placement {
-        /* (non-Javadoc)
-         * @see greenmirror.Placement#clone()
-         */
-        @Override
-        public CornerBottomLeft clone() {
-            return new CornerBottomLeft();
-        }
-    }
 }

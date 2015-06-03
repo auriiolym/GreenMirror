@@ -1,5 +1,6 @@
 package greenmirror.commandlineoptionhandlers;
 
+import greenmirror.ClientSide;
 import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.client.Client;
@@ -13,11 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The trace selector <tt>CommandLineOptionHandler</tt> (client side).
+ * The trace selector <code>CommandLineOptionHandler</code> (client side).
  * 
  * @author Karim El Assal
  */
-@CommandLineOptionHandler.ClientSide
+@ClientSide
 public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Instance variables -----------------------------------------------------------------

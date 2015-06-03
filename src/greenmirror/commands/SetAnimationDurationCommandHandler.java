@@ -3,6 +3,7 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
  * 
  * @author Karim El Assal
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class SetAnimationDurationCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

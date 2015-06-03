@@ -1,8 +1,15 @@
 package greenmirror;
 
 /**
- * The abstract <tt>Command</tt> class. It contains some shared code for all
- * network <tt>Command</tt>s.
+ * All commands that are sent over the network are wrapped in subclasses of this abstract class. 
+ * The order of using a subclass is as follows:
+ * <ol>
+ *  <li>instantiate (with the appropriate parameters, according to the specifications);</li>
+ *  <li>set the controller;</li>
+ *  <li>execute the <code>prepare</code> method;</li>
+ *  <li>get the formatted string using <code>getFormattedString(CommunicationFormat)</code>;
+ *  <li>send the formatted string over the network with your own implementation;</li>
+ * </ol>
  * 
  * @author Karim El Assal
  */
@@ -10,33 +17,34 @@ public abstract class Command {
 
     // -- Instance variables -----------------------------------------------------------------
     
-    /**
-     * The controller.
-     */
+    /** The GreenMirror controller. */
     private GreenMirrorController controller;
 
     
     // -- Queries ----------------------------------------------------------------------------
     
-    /**
-     * @return The controller.
-     */
-    /*@ pure */ public GreenMirrorController getController() {
+    /** @return the GreenMirror controller */
+    /*@ pure spec_public */ protected GreenMirrorController getController() {
         return controller;
     }
 
     /**
-     * @return The textual description of this <tt>Command</tt>.
+     * Returns a one word description of this command. For example, an instance of
+     * <code>AddNodeCommand</tt> would let this method return <code>AddNode</code>.
+     * 
+     * @return the textual, one word description of this command
      */
     //@ ensures \result != null;
     /*@ pure */ public String getCommand() {
-        return this.getClass().getSimpleName().replace("Command", "");
+        return getClass().getSimpleName().replace("Command", "");
     }
 
     /**
-     * Retrieve this <tt>Command</tt> as a <tt>String</tt> which will be sent to the server with
-     * the specified communication <tt>format</tt>.
+     * Returns this <code>Command</code> as a formatted string which will be sent to the server in
+     * the specified format.
+     * 
      * @param format The communication format.
+     * @see CommunicationFormat
      */
     //@ requires format != null;
     //@ ensures \result != null;
@@ -46,7 +54,9 @@ public abstract class Command {
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param controller The controller to set.
+     * Stores the GreenMirror controller.
+     * 
+     * @param controller
      */
     //@ ensures getController() == controller;
     public void setController(GreenMirrorController controller) {
@@ -57,8 +67,8 @@ public abstract class Command {
     // -- Commands ---------------------------------------------------------------------------
     
     /**
-     * A method to prepare this <tt>Command</tt> before the formatted <tt>String</tt> is 
-     * constructed and sent to the peer.
+     * A method to prepare this <code>Command</code> before the formatted string is 
+     * constructed and retrieved.
      */
     public abstract void prepare();
 }

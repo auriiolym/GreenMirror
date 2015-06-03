@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * A custom <tt>LinkedList&gt;Relation&lt;</tt> class which includes some filters.
+ * A custom <code>LinkedList&gt;Relation&lt;</code> class which includes some filters.
  * 
  * @author Karim El Assal
  */
@@ -26,7 +26,7 @@ public class RelationList extends LinkedList<Relation> {
     
     /**
      * @param id
-     * @return <tt>Relation</tt>s with the given <tt>id</tt>.
+     * @return <code>Relation</code>s with the given <code>id</code>.
      */
     //@ requires id != null;
     //@ ensures \result != null;
@@ -37,7 +37,7 @@ public class RelationList extends LinkedList<Relation> {
     
     /**
      * @param name
-     * @return <tt>Relation</tt>s with the given <tt>name</tt>.
+     * @return <code>Relation</code>s with the given <code>name</code>.
      */
     //@ requires name != null;
     //@ ensures \result != null;
@@ -48,7 +48,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param rigid
-     * @return <tt>Relation</tt>s with the given <tt>rigid</tt>ity.
+     * @return <code>Relation</code>s with the given <code>rigid</code>ity.
      */
     //@ requires rigid != null;
     //@ ensures \result != null;
@@ -59,7 +59,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param placement
-     * @return <tt>Relation</tt>s with the given <tt>placement</tt>.
+     * @return <code>Relation</code>s with the given <code>placement</code>.
      */
     //@ requires placement != null;
     //@ ensures \result != null;
@@ -70,7 +70,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param placement
-     * @return <tt>Relation</tt>s with any <tt>placement</tt> other than <tt>NONE</tt>.
+     * @return <code>Relation</code>s with any <code>placement</code> other than <code>NONE</code>.
      */
     //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
@@ -79,7 +79,7 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @return <tt>Relation</tt>s with no placement.
+     * @return <code>Relation</code>s with no placement.
      */
     //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
@@ -89,7 +89,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param nodes
-     * @return <tt>Relation</tt>s that are connected to one of the nodes of <tt>nodes</tt>.
+     * @return <code>Relation</code>s that are connected to one of the nodes of <code>nodes</code>.
      */
     //@ requires nodes != null;
     //@ ensures \result != null;
@@ -102,7 +102,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param node
-     * @return <tt>Relation</tt>s that are connected to <tt>node</tt>.
+     * @return <code>Relation</code>s that are connected to <code>node</code>.
      */
     //@ requires node != null;
     //@ ensures \result != null;
@@ -115,7 +115,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param nodes
-     * @return <tt>Relation</tt>s in which node A is one of the nodes of <tt>nodes</tt>.
+     * @return <code>Relation</code>s in which node A is one of the nodes of <code>nodes</code>.
      */
     //@ requires nodes != null;
     //@ ensures \result != null;
@@ -127,7 +127,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param node
-     * @return <tt>Relation</tt>s in which node A equals <tt>node</tt>.
+     * @return <code>Relation</code>s in which node A equals <code>node</code>.
      */
     //@ requires node != null;
     //@ ensures \result != null;
@@ -139,7 +139,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param nodes
-     * @return <tt>Relation</tt>s in which node B is one of the nodes of <tt>nodes</tt>.
+     * @return <code>Relation</code>s in which node B is one of the nodes of <code>nodes</code>.
      */
     //@ requires nodes != null;
     //@ ensures \result != null;
@@ -151,7 +151,7 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param node
-     * @return <tt>Relation</tt>s in which node B equals <tt>node</tt>.
+     * @return <code>Relation</code>s in which node B equals <code>node</code>.
      */
     //@ requires node != null;
     //@ ensures \result != null;
@@ -163,7 +163,7 @@ public class RelationList extends LinkedList<Relation> {
     
     /**
      * @param predicate The filter.
-     * @return          A new <tt>RelationList</tt> with a filter applied.
+     * @return          A new <code>RelationList</code> with a filter applied.
      */
     //@ requires predicate != null;
     //@ ensures \result != null;
@@ -177,12 +177,12 @@ public class RelationList extends LinkedList<Relation> {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Remove all <tt>Relation</tt>s in this <tt>RelationList</tt>. Also removes this 
-     * <tt>Relation</tt> from the connected <tt>Node</tt>s.
+     * Remove all <code>Relation</code>s in this <code>RelationList</code>. Also removes this 
+     * <code>Relation</code> from the connected <code>Node</code>s.
      */
     //@ ensures this.size() == 0;
     public void removeAll() {
-        // We iterate of a copy of this <tt>RelationList</tt>, so we don't get concurrency errors.
+        // We iterate of a copy of this <code>RelationList</code>, so we don't get concurrency errors.
         this.withFilter(relation -> true).forEach(relation -> {
             relation.removeFromNodes();
             this.remove(relation);

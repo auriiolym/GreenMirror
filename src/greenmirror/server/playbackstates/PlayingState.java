@@ -4,7 +4,7 @@ import greenmirror.server.ToolbarButton;
 import greenmirror.server.Visualizer.PlaybackState;
 
 /**
- * The playing <tt>PlaybackState</tt>.
+ * The playing <code>PlaybackState</code>.
  * 
  * @author Karim El Assal
  */

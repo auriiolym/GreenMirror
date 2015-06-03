@@ -5,7 +5,7 @@ import java.util.List;
 
 
 /**
- * A class to model relations between <tt>Node</tt>s.
+ * A class to model relations between <code>Node</code>s.
  * 
  * @author Karim El Assal
  */
@@ -15,30 +15,30 @@ public class Relation {
     // -- Instance variables -----------------------------------------------------------------
     
     /**
-     * The <tt>Node</tt>s between this <tt>Relation</tt> exists. This <tt>Relation</tt> is
-     * directed from <tt>Node</tt> A to <tt>Node</tt> B.
+     * The <code>Node</code>s between this <code>Relation</code> exists. This <code>Relation</code> is
+     * directed from <code>Node</code> A to <code>Node</code> B.
      */
     private Node nodeA = null;
     private Node nodeB = null;
     
     /**
-     * The optional name of this <tt>Relation</tt>.
+     * The optional name of this <code>Relation</code>.
      */
     private String name = null;
     
     /**
-     * Whether <tt>Node</tt> A moves when <tt>Node</tt> B moves.
+     * Whether <code>Node</code> A moves when <code>Node</code> B moves.
      */
     private boolean rigid = false;
 
     /**
-     * The <tt>Placement</tt> of <tt>Node</tt> A relative to <tt>Node</tt> B.
+     * The <code>Placement</code> of <code>Node</code> A relative to <code>Node</code> B.
      */
     //@ private invariant placement != null;
     private Placement placement = Placement.NONE;
     
     /**
-     * The FX of <tt>Node</tt> A for the duration of this <tt>Relation</tt>. Optional.
+     * The FX of <code>Node</code> A for the duration of this <code>Relation</code>. Optional.
      */
     private FxWrapper temporaryFxOfNodeA = null;
 
@@ -46,7 +46,7 @@ public class Relation {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Create a <tt>Relation</tt> with a specific <tt>name</tt>.
+     * Create a <code>Relation</code> with a specific <code>name</code>.
      * @param name
      */
     //@ ensures name.equals(getName());
@@ -55,7 +55,7 @@ public class Relation {
     }
 
     /**
-     * Create a <tt>Relation</tt> without specifying anything.
+     * Create a <code>Relation</code> without specifying anything.
      */
     public Relation() {}
     
@@ -74,14 +74,14 @@ public class Relation {
     }
     
     /**
-     * @return <tt>Node</tt> A.
+     * @return <code>Node</code> A.
      */
     /*@ pure */ public Node getNodeA() {
         return nodeA;
     }
     
     /**
-     * @return <tt>Node</tt> B.
+     * @return <code>Node</code> B.
      */
     /*@ pure */ public Node getNodeB() {
         return nodeB;
@@ -89,8 +89,8 @@ public class Relation {
     
     /**
      * @param firstNode
-     * @return The node connected to <tt>firstNode</tt> due to this <tt>Relation</tt>; 
-     *         <tt>null</tt> if <tt>firstNode</tt> is not part of this <tt>Relation</tt>.
+     * @return The node connected to <code>firstNode</code> due to this <code>Relation</code>; 
+     *         <code>null</code> if <code>firstNode</code> is not part of this <code>Relation</code>.
      */
     //@ requires firstNode != null;
     /*@ pure */ public Node getOtherNode(Node firstNode) {
@@ -111,14 +111,14 @@ public class Relation {
     }
 
     /**
-     * @return <tt>true</tt> if <tt>Node</tt> A moves when <tt>Node</tt> B moves.
+     * @return <code>true</code> if <code>Node</code> A moves when <code>Node</code> B moves.
      */
     /*@ pure */ public boolean isRigid() {
         return rigid;
     }
     
     /**
-     * @return The <tt>Placement</tt> of <tt>Node</tt> A relative to <tt>Node</tt> B.
+     * @return The <code>Placement</code> of <code>Node</code> A relative to <code>Node</code> B.
      */
     //@ ensures \result != null;
     /*@ pure */ public Placement getPlacement() {
@@ -126,14 +126,14 @@ public class Relation {
     }
     
     /**
-     * @return The FX of Node A for the duration of this <tt>Relation</tt>.
+     * @return The FX of Node A for the duration of this <code>Relation</code>.
      */
     /*@ pure */ public FxWrapper getTemporaryFxOfNodeA() {
         return temporaryFxOfNodeA;
     }
     
     /**
-     * @return A textual description of this <tt>Relation</tt>.
+     * @return A textual description of this <code>Relation</code>.
      */
     @Override
     /*@ pure */ public String toString() {
@@ -153,8 +153,8 @@ public class Relation {
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param node The first <tt>Node</tt> will be set as <tt>Node</tt> A.
-     * @return <tt>this</tt>
+     * @param node The first <code>Node</code> will be set as <code>Node</code> A.
+     * @return <code>this</code>
      */
     //@ requires node != null && node.size() > 0;
     //@ ensures getNodeA() == node.getFirst();
@@ -166,8 +166,8 @@ public class Relation {
 
     /**
      * Set the starting node of this directional relation.
-     * @param node The <tt>Node</tt> that will be set as <tt>Node</tt> A.
-     * @return <tt>this</tt>
+     * @param node The <code>Node</code> that will be set as <code>Node</code> A.
+     * @return <code>this</code>
      * @throws IllegalStateException If node A is being set while a temporary FX is set, but 
      *                               Node A doesn't have its own FX.
      */
@@ -184,10 +184,10 @@ public class Relation {
     }
     
     /**
-     * Set Node A to the next node in <tt>nodes</tt>. If the end of the list is reached, the 
+     * Set Node A to the next node in <code>nodes</code>. If the end of the list is reached, the 
      * first is selected.
      * @param nodes The nodes to choose from.
-     * @return      <tt>this</tt>
+     * @return      <code>this</code>
      */
     //@ requires nodes != null;
     //@ ensures getNodeA() == nodes.getCircularNext(getNodeA());
@@ -198,7 +198,7 @@ public class Relation {
     }
     
     /**
-     * Remove the reference to <tt>Node</tt> A.
+     * Remove the reference to <code>Node</code> A.
      */
     //@ ensures getNodeA() == null;
     private void removeNodeA() {
@@ -206,8 +206,8 @@ public class Relation {
     }
 
     /**
-     * @param node The first <tt>Node</tt> will be set as <tt>Node</tt> B.
-     * @return <tt>this</tt>
+     * @param node The first <code>Node</code> will be set as <code>Node</code> B.
+     * @return <code>this</code>
      */
     //@ requires node != null && node.size() > 0;
     //@ ensures getNodeB() == node.getFirst();
@@ -218,8 +218,8 @@ public class Relation {
     }
 
     /**
-     * @param node The <tt>Node</tt> that will be set as <tt>Node</tt> B.
-     * @return <tt>this</tt>
+     * @param node The <code>Node</code> that will be set as <code>Node</code> B.
+     * @return <code>this</code>
      */
     //@ requires node != null;
     //@ ensures getNodeB() == node;
@@ -230,10 +230,10 @@ public class Relation {
     }
     
     /**
-     * Set Node B to the next node in <tt>nodes</tt>. If the end of the list is reached, the 
+     * Set Node B to the next node in <code>nodes</code>. If the end of the list is reached, the 
      * first is selected.
      * @param nodes The nodes to choose from.
-     * @return      <tt>this</tt>
+     * @return      <code>this</code>
      */
     //@ requires nodes != null;
     //@ ensures getNodeB() == nodes.getCircularNext(getNodeB());
@@ -244,7 +244,7 @@ public class Relation {
     }
     
     /**
-     * Remove the reference to <tt>Node</tt> B.
+     * Remove the reference to <code>Node</code> B.
      */
     //@ ensures getNodeB() == null;
     private void removeNodeB() {
@@ -253,7 +253,7 @@ public class Relation {
 
     /**
      * @param name The name to set.
-     * @return <tt>this</tt>
+     * @return <code>this</code>
      */
     //@ ensures getName() == name;
     //@ ensures \result == this;
@@ -263,7 +263,7 @@ public class Relation {
     }
 
     /**
-     * @param rigid Whether <tt>Node</tt> A moves when <tt>Node</tt> B moves.
+     * @param rigid Whether <code>Node</code> A moves when <code>Node</code> B moves.
      * @throws IllegalStateException If this Relation is set to be rigid before a placement is set.
      */
     //@ requires !getPlacement().equals(Placement.NONE);
@@ -280,7 +280,7 @@ public class Relation {
 
     /**
      * Set the placement of node A on node B. It assumes node A has a placement.
-     * @param placement The <tt>Placement</tt> of <tt>Node</tt> A relative to <tt>Node</tt> B.
+     * @param placement The <code>Placement</code> of <code>Node</code> A relative to <code>Node</code> B.
      */
     //@ requires placement != null;
     //@ ensures getPlacement() == placement;
@@ -291,11 +291,11 @@ public class Relation {
     }
     
     /**
-     * Set the placement to the next in the list of <tt>placements</tt>. If the end of the list 
+     * Set the placement to the next in the list of <code>placements</code>. If the end of the list 
      * is reached, the next one is chosen. If the current placement doesn't appear in 
-     * <tt>placements</tt>, nothing happens.
+     * <code>placements</code>, nothing happens.
      * @param placements The list of available placements.
-     * @return           <tt>this</tt>
+     * @return           <code>this</code>
      */
     //@ requires placements.length > 0;
     //@ ensures \result == this;
@@ -314,7 +314,7 @@ public class Relation {
     
     /**
      * Set the temporary FX of Node A. Node A should already have an FX set.
-     * @param fx The FX of <tt>Node</tt> A for the duration of this <tt>Relation</tt>.
+     * @param fx The FX of <code>Node</code> A for the duration of this <code>Relation</code>.
      * @throws IllegalStateException If Node A doesn't have an FX set.
      */
     //@ requires fx != null;
@@ -329,9 +329,9 @@ public class Relation {
     }
     
     /**
-     * Apply all properties of <tt>originalRelation</tt>. This works as a reverse clone().
-     * @param originalRelation The original <tt>Relation</tt>.
-     * @return                  <tt>this</tt>
+     * Apply all properties of <code>originalRelation</code>. This works as a reverse clone().
+     * @param originalRelation The original <code>Relation</code>.
+     * @return                  <code>this</code>
      */
     //@ requires originalRelation != null;
     //@ ensures \result == this;
@@ -365,7 +365,7 @@ public class Relation {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Add this <tt>Relation</tt> to Node A and B's list of <tt>Relation</tt>s. Nodes A and B
+     * Add this <code>Relation</code> to Node A and B's list of <code>Relation</code>s. Nodes A and B
      * have to be set.
      */
     //@ requires getNodeA() != null && getNodeB() != null;
@@ -378,8 +378,8 @@ public class Relation {
 
 
     /**
-     * Remove this <tt>Relation</tt>. It removes itself from the connected <tt>Node</tt>'s
-     * <tt>RelationList</tt>s.
+     * Remove this <code>Relation</code>. It removes itself from the connected <code>Node</code>'s
+     * <code>RelationList</code>s.
      */
     //@ ensures !getNodeA().getRelations().contains(this);
     //@ ensures !getNodeB().getRelations().contains(this);
@@ -393,11 +393,11 @@ public class Relation {
     }
     
     /**
-     * Pass the <tt>Node</tt> A connection of this <tt>Relation</tt> to the next <tt>Node</tt> 
-     * given in <tt>nodes</tt>. If <tt>nodes</tt> doesn't contain the current <tt>Node</tt> A
+     * Pass the <code>Node</code> A connection of this <code>Relation</code> to the next <code>Node</code> 
+     * given in <code>nodes</code>. If <code>nodes</code> doesn't contain the current <code>Node</code> A
      * and/or has a size smaller than two, nothing happens.
-     * @param nodes The list containing the current <tt>Node</tt> A and the next.
-     * @return <tt>this</tt>
+     * @param nodes The list containing the current <code>Node</code> A and the next.
+     * @return <code>this</code>
      */
     //@ requires nodes != null && nodes.size() > 1 && nodes.contains(getNodeA());
     //@ ensures \result == this;
@@ -416,11 +416,11 @@ public class Relation {
     }
 
     /**
-     * Pass the <tt>Node</tt> B connection of this <tt>Relation</tt> to the next <tt>Node</tt> 
-     * given in <tt>nodes</tt>. If <tt>nodes</tt> doesn't contain the current <tt>Node</tt> B
+     * Pass the <code>Node</code> B connection of this <code>Relation</code> to the next <code>Node</code> 
+     * given in <code>nodes</code>. If <code>nodes</code> doesn't contain the current <code>Node</code> B
      * and/or has a size smaller than two, nothing happens.
-     * @param nodes The list containing the current <tt>Node</tt> B and the next.
-     * @return <tt>this</tt>
+     * @param nodes The list containing the current <code>Node</code> B and the next.
+     * @return <code>this</code>
      */
     //@ requires nodes != null && nodes.size() > 1 && nodes.contains(getNodeB());
     //@ ensures \result == this;

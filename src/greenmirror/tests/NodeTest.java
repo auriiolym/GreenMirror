@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Test case for the <tt>Node</tt> class.
+ * Test case for the <code>Node</code> class.
  * @author Karim El Assal
  */
 public class NodeTest {

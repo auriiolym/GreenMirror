@@ -45,7 +45,7 @@ public class Log {
      * The selected log outputs.
      */
     //@ private invariant outputs != null;
-    private static Set<PrintStream> outputs = new HashSet<>();
+    private static Set<PrintStream> outputs = new HashSet<PrintStream>();
     
     /**
      * Whether to log verbose data.
@@ -62,8 +62,7 @@ public class Log {
     /**
      * @return The log entries.
      */
-    //@ private ensures \result != null && \result == entries;
-    /*@ pure */ private static List<String> getEntries() {
+    /*@ pure non_null */ private static List<String> getEntries() {
         return entries;
     }
     
@@ -94,7 +93,7 @@ public class Log {
     }
     
     /**
-     * Add <tt>output</tt> to the list of outputs.
+     * Add <code>output</code> to the list of outputs.
      * @param output The type of output.
      */
     //@ requires output != null;
@@ -143,12 +142,11 @@ public class Log {
     }
     
     /**
-     * Add data to the log with the information of an <tt>Exception</tt> appended.
+     * Add data to the log with the information of an <code>Exception</code> appended.
      * @param obj       Any (stringifiable) data.
      * @param throwable The thrown exception.
      */
-    //@ requires obj != null && exception != null;
-    public static void add(Object obj, Throwable throwable) {
+    public static void add(/*@ non_null */ Object obj, /*@ non_null */ Throwable throwable) {
         String data = String.valueOf(obj) + String.valueOf(throwable) + "\nWith stacktrace:";
         for (StackTraceElement stElement : throwable.getStackTrace()) {
             data += "\n    " + stElement.toString();

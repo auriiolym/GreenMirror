@@ -1,7 +1,7 @@
 package greenmirror;
 
 /**
- * The possible communication formats between the client and the server.
+ * The available communication formats between the client and the server.
  * 
  * @author Karim El Assal
  */

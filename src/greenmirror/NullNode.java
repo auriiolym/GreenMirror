@@ -3,7 +3,7 @@ package greenmirror;
 import java.util.Observable;
 
 /**
- * A class to handle removed <tt>Node</tt>s better.
+ * A class to handle removed <code>Node</code>s better.
  * 
  * @author Karim El Assal
  */
@@ -20,7 +20,7 @@ public class NullNode extends Node {
     }
 
     /**
-     * The old type and name. These are allowed to be <tt>null</tt>.
+     * The old type and name. These are allowed to be <code>null</code>.
      */
     private String oldType = null;
     private String oldName = null;
@@ -43,14 +43,14 @@ public class NullNode extends Node {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @return The old type of this <tt>Node</tt>.
+     * @return The old type of this <code>Node</code>.
      */
     /*@ pure */ public String getOldType() {
         return oldType;
     }
 
     /**
-     * @return The old name of this <tt>Node</tt>.
+     * @return The old name of this <code>Node</code>.
      */
     /*@ pure */ public String getOldName() {
         return oldName;

@@ -3,7 +3,6 @@ package greenmirror;
 import greenmirror.commands.AddRelationCommand;
 import greenmirror.commands.ChangeNodeFxCommand;
 import greenmirror.commands.SetNodeFxCommand;
-import greenmirror.fxpropertytypes.FxPropertyWrapper;
 
 import java.util.HashSet;
 import java.util.Observable;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * The <tt>Node</tt> class. This models any visual node on the visualizer.
+ * The <code>Node</code> class. This models any visual node on the visualizer.
  * 
  * Extends java.util.Observable.
  * 
@@ -22,7 +21,7 @@ import java.util.stream.Stream;
 public class Node extends Observable implements Observer {
     
     /**
-     * A class to generalize the use of the <tt>Node</tt> identifiers. Possible values
+     * A class to generalize the use of the <code>Node</code> identifiers. Possible values
      * are (without quotes): "type:name", "type:", "name", "".
      * 
      * @author Karim El Assal
@@ -36,14 +35,14 @@ public class Node extends Observable implements Observer {
         private String type = null;
         
         /**
-         * Create a new <tt>Node.Identifier</tt> instance without directly setting the name 
+         * Create a new <code>Node.Identifier</code> instance without directly setting the name 
          * and/or type.
          */
         public Identifier() {}
         
         /**
-         * Create a new <tt>Node.Identifier</tt> instance.
-         * @param identifier The identifying <tt>String</tt>.
+         * Create a new <code>Node.Identifier</code> instance.
+         * @param identifier The identifying <code>String</code>.
          */
         public Identifier(String identifier) {
             if (identifier == null || identifier.length() == 0) {
@@ -62,14 +61,14 @@ public class Node extends Observable implements Observer {
         }
         
         /**
-         * @return The name component of this <tt>Node.Identifier</tt>.
+         * @return The name component of this <code>Node.Identifier</code>.
          */
         /*@ pure */ public String getName() {
             return name;
         }
         
         /**
-         * @return Whether this <tt>Node.Identifier</tt> has a name component.
+         * @return Whether this <code>Node.Identifier</code> has a name component.
          */
         //@ ensures \result == (getName() != null);
         /*@ pure */ public boolean hasName() {
@@ -77,14 +76,14 @@ public class Node extends Observable implements Observer {
         }
         
         /**
-         * @return The type component of this <tt>Node.Identifier</tt>.
+         * @return The type component of this <code>Node.Identifier</code>.
          */
         /*@ pure */ public String getType() {
             return type;
         }
         
         /**
-         * @return Whether this <tt>Node.Identifier</tt> has a type component.
+         * @return Whether this <code>Node.Identifier</code> has a type component.
          */
         //@ ensures \result == (getType() != null);
         /*@ pure */ public boolean hasType() {
@@ -96,8 +95,7 @@ public class Node extends Observable implements Observer {
          * set), "name" (no type set) or "" (no type and no name set).
          */
         @Override
-        //@ ensures \result != null;
-        /*@ pure */ public String toString() {
+        /*@ pure non_null */ public String toString() {
             return (hasType() ? getType() + ":" : "")
                  + (hasName() ? getName() : "");
         }
@@ -120,14 +118,14 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * The id, type and name. These are allowed to be <tt>null</tt>.
+     * The id, type and name. These are allowed to be <code>null</code>.
      */
     private Integer id = null;
     private String type = null;
     private String name = null;
     
     /**
-     * Labels the <tt>Node</tt> has.
+     * Labels the <code>Node</code> has.
      */
     //@ private invariant labels != null;
     private Set<String> labels = new HashSet<String>();
@@ -138,7 +136,7 @@ public class Node extends Observable implements Observer {
     private FxWrapper fxWrapper;
     
     /**
-     * All <tt>Relation</tt>s.
+     * All <code>Relation</code>s.
      */
     //@ private invariant relations != null;
     private RelationList relations = new RelationList();
@@ -147,8 +145,8 @@ public class Node extends Observable implements Observer {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create a new <tt>Node</tt> instance with the given <tt>identifier</tt>.
-     * @param identifier The name and/or type of this <tt>Node</tt>.
+     * Create a new <code>Node</code> instance with the given <code>identifier</code>.
+     * @param identifier The name and/or type of this <code>Node</code>.
      */
     public Node(String identifier) {
         Identifier ir = new Identifier(identifier);
@@ -157,7 +155,7 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * Create a new <tt>Node</tt> instance without any identifier (yet).
+     * Create a new <code>Node</code> instance without any identifier (yet).
      */
     public Node() {
         
@@ -167,7 +165,7 @@ public class Node extends Observable implements Observer {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @return This <tt>Node</tt>'s id; <tt>null</tt> if it isn't set (yet).
+     * @return This <code>Node</code>'s id; <code>null</code> if it isn't set (yet).
      */
     /*@ pure */ public Integer getId() {
         return id;
@@ -184,14 +182,14 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * @return This <tt>Node</tt>'s type; <tt>null</tt> if it isn't set (yet).
+     * @return This <code>Node</code>'s type; <code>null</code> if it isn't set (yet).
      */
     /*@ pure */ public String getType() {
         return type;
     }
 
     /**
-     * @return This <tt>Node</tt>'s name; <tt>null</tt> if it isn't set (yet).
+     * @return This <code>Node</code>'s name; <code>null</code> if it isn't set (yet).
      */
     /*@ pure */ public String getName() {
         return name;
@@ -199,7 +197,7 @@ public class Node extends Observable implements Observer {
 
     /**
      * @param label The label to check for.
-     * @return <tt>true</tt> if this <tt>Node</tt> has <tt>label</tt>.
+     * @return <code>true</code> if this <code>Node</code> has <code>label</code>.
      */
     /*@ pure */ public boolean hasLabel(String label) {
         return getLabels().contains(label);
@@ -214,7 +212,7 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * @return All current <tt>Relation</tt>s.
+     * @return All current <code>Relation</code>s.
      */
     //@ ensures \result != null;
     /*@ pure */ public RelationList getRelations() {
@@ -222,14 +220,14 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * @param direction The direction of the requested <tt>Relation</tt>s: 
-     *       1 for <tt>Relation</tt>s from <tt>this</tt> to any other <tt>Node</tt>; 
-     *      -1 for <tt>Relation</tt>s from any other <tt>Node</tt> to <tt>this</tt>; 
-     *       0 if the direction doesn't matter (just give all <tt>Relation</tt>s).
-     * @return The <tt>Relation</tt>s with the given <tt>direction</tt>.
+     * @param direction The direction of the requested <code>Relation</code>s: 
+     *       1 for <code>Relation</code>s from <code>this</code> to any other <code>Node</code>; 
+     *      -1 for <code>Relation</code>s from any other <code>Node</code> to <code>this</code>; 
+     *       0 if the direction doesn't matter (just give all <code>Relation</code>s).
+     * @return The <code>Relation</code>s with the given <code>direction</code>.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
-    //@ ensures \result.size() <= getRelations();
+    //@ ensures \result.size() <= getRelations().size();
     /*@ pure */ public RelationList getRelations(int direction) {
         Stream<Relation> res;
         switch (direction) {
@@ -251,12 +249,12 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * Returns a specific <tt>Relation</tt>.
-     * @param direction    The direction of the <tt>Relation</tt>. 
+     * Returns a specific <code>Relation</code>.
+     * @param direction    The direction of the <code>Relation</code>. 
      *                     {@link greenmirror.Node#getRelations(int)}
-     * @param relationName The name of the <tt>Relation</tt>.
-     * @return             The <tt>Relation</tt>; <tt>null</tt> if the specified 
-     *                     <tt>Relation</tt> does not exist.
+     * @param relationName The name of the <code>Relation</code>.
+     * @return             The <code>Relation</code>; <code>null</code> if the specified 
+     *                     <code>Relation</code> does not exist.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
     //@ requires relationName != null;
@@ -266,9 +264,9 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * Check if this node has a specific <tt>Relation</tt>.
-     * @param relation The <tt>Relation</tt> to check for.
-     * @return         <tt>true</tt> if this node has <tt>relation</tt>.
+     * Check if this node has a specific <code>Relation</code>.
+     * @param relation The <code>Relation</code> to check for.
+     * @return         <code>true</code> if this node has <code>relation</code>.
      */
     //@ ensures \result == getRelations().contains(relation);
     /*@ pure */ public boolean hasRelation(Relation relation) {
@@ -276,16 +274,16 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * @return Whether this <tt>Node</tt> has a <tt>Relation</tt> that determines its 
-     *         <tt>Placement</tt>.
+     * @return Whether this <code>Node</code> has a <code>Relation</code> that determines its 
+     *         <code>Placement</code>.
      */
     /*@ pure */ public boolean hasPlacementRelation() {
         return getRelations().size() == 0 ? false : (getPlacementRelation() != null);
     }
     
     /**
-     * @return The <tt>Relation</tt> which specifies the <tt>Placement</tt> of this <tt>Node</tt>;
-     *         <tt>null</tt> if no placement <tt>Relation</tt> exists.
+     * @return The <code>Relation</code> which specifies the <code>Placement</code> of this <code>Node</code>;
+     *         <code>null</code> if no placement <code>Relation</code> exists.
      */
     /*@ pure */ public Relation getPlacementRelation() {
         RelationList placementRelations = getRelations(1).withPlacement();
@@ -293,40 +291,43 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * Returns all <tt>Node</tt>s that have a <tt>Relation</tt> with <tt>this</tt> with a 
+     * Returns all <code>Node</code>s that have a <code>Relation</code> with <code>this</code> with a 
      * specific name.
-     * @param direction    The direction of the <tt>Relation</tt>. 
+     * @param direction    The direction of the <code>Relation</code>. 
      *                     {@link greenmirror.Node.getRelations(int)}
      * @param relationName The name of the relation. 
-     * @return All related <tt>Node</tt>s.
+     * @return All related <code>Node</code>s.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
     //@ requires relationName != null;
     //@ ensures \result != null;
     /*@ pure */ public NodeList getRelatedNodes(int direction, String relationName) {
         NodeList list = new NodeList();
-        getRelations(direction).withName(relationName)
-                               .forEach(relation -> list.add(relation.getOtherNode(this)));
+        for (Relation relation : getRelations(direction).withName(relationName)) {
+            list.add(relation.getOtherNode(this));
+        }
         return list;
     }
 
     /**
-     * Returns all <tt>Node</tt>s that have a <tt>Relation</tt> with <tt>this</tt>.
-     * @param direction The direction of the <tt>Relation</tt>. 
+     * Returns all <code>Node</code>s that have a <code>Relation</code> with <code>this</code>.
+     * @param direction The direction of the <code>Relation</code>. 
      *                  {@link greenmirror.Node.getRelations(int)}
-     * @return All related <tt>Node</tt>s.
+     * @return All related <code>Node</code>s.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
     //@ ensures \result != null;
     /*@ pure */ public NodeList getRelatedNodes(int direction) {
         NodeList list = new NodeList();
-        getRelations(direction).forEach(relation -> list.add(relation.getOtherNode(this)));
+        for (Relation relation : getRelations(direction)) {
+            list.add(relation.getOtherNode(this));
+        }
         return list;
     }
 
     /**
-     * Returns all <tt>Node</tt>s that have a <tt>Relation</tt> with <tt>this</tt>.
-     * @return All related <tt>Node</tt>s.
+     * Returns all <code>Node</code>s that have a <code>Relation</code> with <code>this</code>.
+     * @return All related <code>Node</code>s.
      */
     //@ ensures \result != null;
     /*@ pure */ public NodeList getRelatedNodes() {
@@ -334,12 +335,12 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * Returns the <tt>Node</tt> that has a specific <tt>Relation</tt> with <tt>this</tt>.
-     * @param direction    The direction of the <tt>Relation</tt>. 
+     * Returns the <code>Node</code> that has a specific <code>Relation</code> with <code>this</code>.
+     * @param direction    The direction of the <code>Relation</code>. 
      *                     {@link greenmirror.Node.getRelations(int)}
-     * @param relationName The name of the <tt>Relation</tt>.
-     * @return             The related <tt>Node</tt>; <tt>null</tt> if the specified 
-     *                     <tt>Relation</tt> does not exist.
+     * @param relationName The name of the <code>Relation</code>.
+     * @return             The related <code>Node</code>; <code>null</code> if the specified 
+     *                     <code>Relation</code> does not exist.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
     //@ requires relationName != null;
@@ -350,16 +351,16 @@ public class Node extends Observable implements Observer {
     
     /**
      * This method should be used in the application. {@see #fx()}
-     * @return The <tt>FxWrapper</tt>.
+     * @return The <code>FxWrapper</code>.
      */
     /*@ pure */ public FxWrapper getFxWrapper() {
         return fxWrapper;
     }
 
     /**
-     * Checks if there exists a <tt>Relation</tt> with <tt>node</tt>.
-     * @param node The other <tt>Node</tt>.
-     * @return <tt>true</tt> if a <tt>Relation</tt> exists.
+     * Checks if there exists a <code>Relation</code> with <code>node</code>.
+     * @param node The other <code>Node</code>.
+     * @return <code>true</code> if a <code>Relation</code> exists.
      */
     /*@ pure */ public boolean hasRelationWith(Node node) {
         return getRelations().stream()
@@ -370,10 +371,10 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * Checks if there exists a <tt>Relation</tt> with one of the <tt>Node</tt>s given in
-     * <tt>nodes</tt>.
+     * Checks if there exists a <code>Relation</code> with one of the <code>Node</code>s given in
+     * <code>nodes</code>.
      * @param nodes The list to check for.
-     * @return <tt>true</tt> if a <tt>Relation</tt> exists with one of the <tt>Node</tt>s.
+     * @return <code>true</code> if a <code>Relation</code> exists with one of the <code>Node</code>s.
      */
     //@ requires nodes != null;
     /*@ pure */ public boolean hasRelationWith(NodeList nodes) {
@@ -383,7 +384,7 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * @return A clear description of the <tt>Node</tt>.
+     * @return A clear description of the <code>Node</code>.
      */
     @Override
     /*@ pure */ public String toString() {
@@ -401,7 +402,7 @@ public class Node extends Observable implements Observer {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * @param id This <tt>Node</tt>'s id to set.
+     * @param id This <code>Node</code>'s id to set.
      */
     //@ ensures getId() == id;
     public void setId(Integer id) {
@@ -409,8 +410,8 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * @param type This <tt>Node</tt>'s type to set.
-     * @return <tt>this</tt>.
+     * @param type This <code>Node</code>'s type to set.
+     * @return <code>this</code>.
      */
     //@ ensures getType() == type;
     //@ ensures \result == this;
@@ -420,8 +421,8 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * @param name This <tt>Node</tt>'s name to set.
-     * @return <tt>this</tt>
+     * @param name This <code>Node</code>'s name to set.
+     * @return <code>this</code>
      */
     //@ ensures getName() == name;
     //@ ensures \result == this;
@@ -431,8 +432,8 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * @param label Label to add to this <tt>Node</tt>'s labels.
-     * @return <tt>this</tt>
+     * @param label Label to add to this <code>Node</code>'s labels.
+     * @return <code>this</code>
      */
     //@ ensures hasLabel(label);
     //@ ensures \result == this;
@@ -445,8 +446,8 @@ public class Node extends Observable implements Observer {
     
     /**
      * Remove a label. Optional operation.
-     * @param label Label to remove from this <tt>Node</tt>'s labels.
-     * @return <tt>this</tt>
+     * @param label Label to remove from this <code>Node</code>'s labels.
+     * @return <code>this</code>
      */
     //@ ensures !hasLabel(label);
     //@ ensures \result == this;
@@ -456,17 +457,17 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * Add a <tt>Relation</tt> to this <tt>Node</tt> and the <tt>Node</tt> on the other end.
-     * The <tt>Relation</tt> should already have either node A or node B set to the other 
-     * <tt>Node</tt>, so the current <tt>Node</tt> will be set to respectively node B or node A.
-     * If this <tt>Node</tt> already has <tt>relation</tt>, nothing happens.
-     * @param relation The <tt>Relation</tt> to add.
-     * @return         <tt>this</tt>
+     * Add a <code>Relation</code> to this <code>Node</code> and the <code>Node</code> on the other end.
+     * The <code>Relation</code> should already have either node A or node B set to the other 
+     * <code>Node</code>, so the current <code>Node</code> will be set to respectively node B or node A.
+     * If this <code>Node</code> already has <code>relation</code>, nothing happens.
+     * @param relation The <code>Relation</code> to add.
+     * @return         <code>this</code>
      */
-    //@ requires relation != null;
-    /*@ requires (relation.getNodeA() == null && relation.getNodeB() != null) ||
-     *@          (relation.getNodeB() == null && relation.getNodeA() != null); */
-    //@ ensures \result == this;
+    /*@ requires relation != null;
+      @ requires (relation.getNodeA() == null && relation.getNodeB() != null) ||
+      @          (relation.getNodeB() == null && relation.getNodeA() != null); 
+      @ ensures \result == this; */
     public Node addRelation(Relation relation) {
         if (!getRelations().contains(relation)) {
             if ((relation.getNodeA() == null && relation.getNodeB() == null)
@@ -490,8 +491,8 @@ public class Node extends Observable implements Observer {
     }
 
     /**
-     * Remove <tt>relation</tt> from this <tt>Node</tt>. Optional operation.
-     * @param relation The <tt>Relation</tt> to remove.
+     * Remove <code>relation</code> from this <code>Node</code>. Optional operation.
+     * @param relation The <code>Relation</code> to remove.
      */
     //@ ensures !getRelations().contains(relation);
     public void removeRelation(Relation relation) {
@@ -502,19 +503,19 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * Set the new <tt>FxWrapper</tt>. This can only be done once. Observers get notified 
-     * of the new <tt>FxWrapper</tt> and this <tt>Node</tt> starts observing the 
-     * <tt>FxWrapper</tt>.
+     * Set the new <code>FxWrapper</code>. This can only be done once. Observers get notified 
+     * of the new <code>FxWrapper</code> and this <code>Node</code> starts observing the 
+     * <code>FxWrapper</code>.
      * @param fxWrapper
-     * @return                          <tt>this</tt>
-     * @throws IllegalArgumentException If the <tt>FxWrapper</tt> was already set.
+     * @return                          <code>this</code>
+     * @throws IllegalArgumentException If the <code>FxWrapper</code> was already set.
      */
     //@ requires fxWrapper != null;
     public Node set(FxWrapper fxWrapper) {
         
         if (getFxWrapper() != null
                 && !getFxWrapper().getType().equals(
-                        FxPropertyWrapper.capitalizeFirstChar(fxWrapper.getType()))) {
+                        GreenMirrorUtils.capitalizeFirstChar(fxWrapper.getType()))) {
             throw new IllegalArgumentException("You have already set the FX type");
         }
         setFxWrapper(fxWrapper);
@@ -526,7 +527,7 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * @param fxWrapper The <tt>FxWrapper</tt> to set.
+     * @param fxWrapper The <code>FxWrapper</code> to set.
      */
     //@ ensures getFxWrapper() == fxWrapper;
     private void setFxWrapper(FxWrapper fxWrapper) {
@@ -540,7 +541,7 @@ public class Node extends Observable implements Observer {
     public FxWrapper fx(String type) {
         if (getFxWrapper() != null) {
             // If the FxWrapper was already set.
-            if (!getFxWrapper().getType().equals(FxPropertyWrapper.capitalizeFirstChar(type))) {
+            if (!getFxWrapper().getType().equals(GreenMirrorUtils.capitalizeFirstChar(type))) {
                 // Throw exception if it's a different type.
                 throw new IllegalArgumentException("You have already set the FX type.");
             } else {
@@ -560,7 +561,7 @@ public class Node extends Observable implements Observer {
     
     /**
      * This method should be used in a Groovy user script. {@see #getFxWrapper()}
-     * @return The <tt>FxWrapper</tt>.
+     * @return The <code>FxWrapper</code>.
      */
     /*@ pure */ public FxWrapper fx() {
         if (getFxWrapper() == null) {
@@ -584,7 +585,7 @@ public class Node extends Observable implements Observer {
     }
     
     /**
-     * Clone this <tt>Node</tt>, except for the relations.
+     * Clone this <code>Node</code>, except for the relations.
      */
     @Override
     public Node clone() {

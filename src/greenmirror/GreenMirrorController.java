@@ -1,5 +1,9 @@
 package greenmirror;
 
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -10,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 
 /**
  * The base controller. It contains shared functionality for the client and server 
@@ -26,7 +26,7 @@ public abstract class GreenMirrorController {
     // -- Instance variables -----------------------------------------------------------------
     
     /**
-     * All <tt>Node</tt>s.
+     * All <code>Node</code>s.
      */
     //@ private invariant nodes != null && nodes == getNodes();
     private NodeList nodes = new NodeList();
@@ -42,17 +42,17 @@ public abstract class GreenMirrorController {
     private Socket socket;
 
     /**
-     * All registered <tt>CommandHandler</tt>s.
+     * All registered <code>CommandHandler</code>s.
      */
     //@ private invariant commandHandlers != null;
     private List<CommandHandler> commandHandlers = new LinkedList<CommandHandler>();
     
     /**
-     * All registered <tt>CommandLineOptionHandler</tt>s.
+     * All registered <code>CommandLineOptionHandler</code>s.
      */
-    //@ private invariant registeredCommandLineArguments != null;
+    //@ private invariant registeredCommandLineOptionHandlers != null;
     private List<CommandLineOptionHandler> registeredCommandLineOptionHandlers 
-                                                                = new LinkedList<>();
+                                                    = new LinkedList<CommandLineOptionHandler>();
     
     /**
      * The communication format used for network communication.
@@ -60,10 +60,6 @@ public abstract class GreenMirrorController {
     //@ private invariant communicationFormat != null;
     private CommunicationFormat communicationFormat = CommunicationFormat.JSON;
     
-    /**
-     * The instance that listens to data from the peer.
-     */
-    private PeerListener peerListener;
     
     // -- Constructors -----------------------------------------------------------------------
     
@@ -78,7 +74,7 @@ public abstract class GreenMirrorController {
     /*@ pure */ public abstract String getHelpMessage();
     
     /**
-     * @return The reference to the list of <tt>Node</tt>s.
+     * @return The reference to the list of <code>Node</code>s.
      */
     //@ ensures \result != null;
     /*@ pure */ public NodeList getNodes() {
@@ -86,21 +82,21 @@ public abstract class GreenMirrorController {
     }
     
     /**
-     * Get a <tt>NodeList</tt> which only contains the name and/or type specified in 
-     * <tt>identifierArg</tt>.
+     * Get a <code>NodeList</code> which only contains the name and/or type specified in 
+     * <code>identifierArg</code>.
      * @param identifier The name/type identifier. {@link greenmirror.Node.Identifier}
      * @return           The list.
      */
-    //@ requires identifierArg != null;
+    //@ requires identifier != null;
     //@ ensures \result != null;
     /*@ pure */ public NodeList getNodes(String identifier) {
         return getNodes().withIdentifier(identifier);
     }
 
     /**
-     * Get a <tt>Node</tt> by its id.
-     * @param id The <tt>Node</tt>'s id.
-     * @return   The <tt>Node</tt> with id <tt>id</tt>.
+     * Get a <code>Node</code> by its id.
+     * @param id The <code>Node</code>'s id.
+     * @return   The <code>Node</code> with id <code>id</code>.
      */
     //@ requires id != null;
     //TODO: do something with invalid ids.
@@ -135,7 +131,7 @@ public abstract class GreenMirrorController {
     }
 
     /**
-     * @return All registered <tt>CommandHandler</tt>s.
+     * @return All registered <code>CommandHandler</code>s.
      */
     //@ ensures \result != null;
     /*@ pure */ public List<CommandHandler> getCommandHandlers() {
@@ -143,7 +139,7 @@ public abstract class GreenMirrorController {
     }
     
     /**
-     * @return All registered <tt>CommandLineOptionHandler</tt>s.
+     * @return All registered <code>CommandLineOptionHandler</code>s.
      */
     //@ ensures \result != null;
     /*@ pure */ public List<CommandLineOptionHandler> getCommandLineOptionHandlers() {
@@ -224,13 +220,13 @@ public abstract class GreenMirrorController {
             return;
         }
         
-        final String dataFormatted = data.replaceAll("(?s)\"image\":\"(.+?)\"", 
+        final String dataFormatted = data.replaceAll("(?s)\"image\":\"([\\d\\w\\+\\/-=]{40,}?)\"", 
                 "\"image\":--removed for convenience--");
         Log.addVerbose("Data sent to peer: " + dataFormatted);
     }
     
     /**
-     * @param cmd <tt>Command</tt> to send to the peer.
+     * @param cmd <code>Command</code> to send to the peer.
      */
     //@ requires cmd != null;
     public void send(Command cmd) {
@@ -242,7 +238,7 @@ public abstract class GreenMirrorController {
     }
 
     /**
-     * @param listener The <tt>PeerListener</tt> we're starting to listen.
+     * @param listener The <code>PeerListener</code> we're starting to listen.
      */
     //@ requires listener != null && this.equals(listener.getController());
     public void startPeerListener(PeerListener listener) {
@@ -283,20 +279,21 @@ public abstract class GreenMirrorController {
     /**
      * Process the command line startup.
      * @param args The options passed via the command line.
-     * @return     <tt>true</tt> if the startup was successful.
+     * @return     <code>true</code> if the startup was successful.
      */
     //@ requires args != null;
     public boolean processCommandLine(String[] args) {
         
-        final List<CommandLineOptionHandler> usedHandlers = new LinkedList<>();
+        final List<CommandLineOptionHandler> usedHandlers =
+                                        new LinkedList<CommandLineOptionHandler>();
         
         // Set up the parser.
         final OptionParser parser = new OptionParser();
-        getCommandLineOptionHandlers().forEach(handler -> {
+        for (CommandLineOptionHandler handler : getCommandLineOptionHandlers()) {
             handler.setParserSettings(parser);
-        });
+        };
         // Hardcoded: add verbose option.
-        CommandLineOptionHandler.addVerboseOption(parser);
+        GreenMirrorUtils.addCommandLineVerboseOption(parser);
         
         
         // Parse options.
@@ -370,9 +367,11 @@ public abstract class GreenMirrorController {
         
         
         // Restructure the argument handlers so we can process them according to their priority.
-        final Map<Integer, List<CommandLineOptionHandler>> map = new TreeMap<>();
+        final Map<Integer, List<CommandLineOptionHandler>> map = 
+                new TreeMap<Integer, List<CommandLineOptionHandler>>();
         for (CommandLineOptionHandler argumentHandler : usedHandlers) {
-            final List<CommandLineOptionHandler> handlerToAdd = new LinkedList<>();
+            final List<CommandLineOptionHandler> handlerToAdd = 
+                    new LinkedList<CommandLineOptionHandler>();
             handlerToAdd.add(argumentHandler);
             if (map.containsKey(argumentHandler.getProcessPriority())) {
                 map.get(argumentHandler.getProcessPriority()).addAll(handlerToAdd);

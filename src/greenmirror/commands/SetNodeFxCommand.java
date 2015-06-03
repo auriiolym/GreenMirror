@@ -26,8 +26,8 @@ public class SetNodeFxCommand extends Command {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initialize the <tt>Command</tt>.
-     * @param node The <tt>Node</tt> of which its appearance has been set.
+     * Initialize the <code>Command</code>.
+     * @param node The <code>Node</code> of which its appearance has been set.
      */
     //@ requires node != null;
     //@ ensures getNode() == node;
@@ -39,7 +39,7 @@ public class SetNodeFxCommand extends Command {
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return The <tt>Node</tt> of which its appearance has been set.
+     * @return The <code>Node</code> of which its appearance has been set.
      */
     //@ ensures \result != null;
     /*@ pure */ public Node getNode() {
@@ -50,7 +50,7 @@ public class SetNodeFxCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare the <tt>Command</tt>.
+     * Prepare the <code>Command</code>.
      */
     public void prepare() {
         // Nothing to prepare.

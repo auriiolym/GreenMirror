@@ -1,15 +1,14 @@
 package greenmirror.fxwrappers;
 
+import greenmirror.FxPropertyWrapper;
 import greenmirror.FxShapeWrapper;
 import greenmirror.FxWrapper;
 import greenmirror.Placement;
-import greenmirror.fxpropertytypes.DoubleFxProperty;
-import greenmirror.fxpropertytypes.FxPropertyWrapper;
+import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.server.DoublePropertyTransition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
@@ -281,7 +280,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
      * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
      */
     @Override
-    protected Point3D calculateCoordinates(Point3D middlePoint) {
+    protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
         return new Point3D(middlePoint.getX() - getWidth() / 2, 
                            middlePoint.getY() - getHeight() / 2, 0);
     }
@@ -291,7 +290,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
      */
     @Override
     public void setToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         setX(coord.getX());
         setY(coord.getY());
     }
@@ -301,14 +300,14 @@ public class RectangleFxWrapper extends FxShapeWrapper {
      */
     @Override
     public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateCoordinates(middlePoint);
+        Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setX(coord.getX());
         getFxNode().setY(coord.getY());
     }
 
 
     /**
-     * A <tt>Transition</tt> class that animates the x value of a <tt>Rectangle</tt>.
+     * A <code>Transition</code> class that animates the x value of a <code>Rectangle</code>.
      * 
      * @author Karim El Assal
      */
@@ -316,7 +315,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected XTransition(Duration duration, Rectangle node, Double toValue) {
             super(duration, node, toValue);
@@ -340,7 +339,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the y value of a <tt>Rectangle</tt>.
+     * A <code>Transition</code> class that animates the y value of a <code>Rectangle</code>.
      * 
      * @author Karim El Assal
      */
@@ -348,7 +347,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected YTransition(Duration duration, Rectangle node, Double toValue) {
             super(duration, node, toValue);
@@ -372,7 +371,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the width.
+     * A <code>Transition</code> class that animates the change of the width.
      * 
      * @author Karim El Assal
      */
@@ -380,7 +379,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected WidthTransition(Duration duration, Rectangle node, Double toValue) {
             super(duration, node, toValue);
@@ -404,7 +403,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the height.
+     * A <code>Transition</code> class that animates the change of the height.
      * 
      * @author Karim El Assal
      */
@@ -412,7 +411,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected HeightTransition(Duration duration, Rectangle node, Double toValue) {
             super(duration, node, toValue);
@@ -436,7 +435,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the arc width.
+     * A <code>Transition</code> class that animates the change of the arc width.
      * 
      * @author Karim El Assal
      */
@@ -444,7 +443,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected ArcWidthTransition(Duration duration, Rectangle node, Double toValue) {
             super(duration, node, toValue);
@@ -468,7 +467,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the arc height.
+     * A <code>Transition</code> class that animates the change of the arc height.
      * 
      * @author Karim El Assal
      */
@@ -476,7 +475,7 @@ public class RectangleFxWrapper extends FxShapeWrapper {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
          */
         protected ArcHeightTransition(Duration duration, Rectangle node, Double toValue) {
             super(duration, node, toValue);

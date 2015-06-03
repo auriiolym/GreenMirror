@@ -5,19 +5,19 @@ import greenmirror.CommunicationFormat;
 import greenmirror.FxWrapper;
 import greenmirror.Log;
 import greenmirror.Node;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import greenmirror.server.Visualizer;
 import groovy.json.internal.LazyValueMap;
 
 import java.util.Map;
 
-import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 /**
  * The handler that sets the FX of a node. This command is received from the client.
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class SetNodeFxCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

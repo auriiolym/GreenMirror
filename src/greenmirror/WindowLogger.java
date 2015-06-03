@@ -41,7 +41,7 @@ public class WindowLogger extends PrintStream {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create a new <tt>WindowLogger</tt>.
+     * Create a new <code>WindowLogger</code>.
      */
     public WindowLogger() {
         super(new WindowOutputStream());
@@ -51,7 +51,7 @@ public class WindowLogger extends PrintStream {
     // -- Inner (auxilary) classes -----------------------------------------------------------
     
     /**
-     * The <tt>OutputStream</tt> implementation that writes to the log window.
+     * The <code>OutputStream</code> implementation that writes to the log window.
      * 
      * @author Karim El Assal
      */

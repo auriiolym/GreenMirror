@@ -1,5 +1,6 @@
 package greenmirror.commandlineoptionhandlers;
 
+import greenmirror.ClientSide;
 import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.client.Client;
@@ -15,11 +16,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The model <tt>CommandLineOptionHandler</tt> (client side).
+ * The model <code>CommandLineOptionHandler</code> (client side).
  * 
  * @author Karim El Assal
  */
-@CommandLineOptionHandler.ClientSide
+@ClientSide
 public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Instance variables -----------------------------------------------------------------

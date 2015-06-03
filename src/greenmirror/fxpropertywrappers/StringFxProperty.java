@@ -1,8 +1,10 @@
-package greenmirror.fxpropertytypes;
+package greenmirror.fxpropertywrappers;
+
+import greenmirror.FxPropertyWrapper;
 
 
 /**
- * A wrapper for the <tt>String</tt> type of FX properties.
+ * A wrapper for the <code>String</code> type of FX properties.
  * 
  * @author Karim El Assal
  */
@@ -12,7 +14,7 @@ public class StringFxProperty extends FxPropertyWrapper {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#FxPropertyTypeWrapper(String)
+     * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
     public StringFxProperty(String propertyName) {

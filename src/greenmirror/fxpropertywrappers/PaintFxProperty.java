@@ -1,9 +1,10 @@
-package greenmirror.fxpropertytypes;
+package greenmirror.fxpropertywrappers;
 
+import greenmirror.FxPropertyWrapper;
 import javafx.scene.paint.Paint;
 
 /**
- * A wrapper for the <tt>Paint</tt> type of FX properties.
+ * A wrapper for the <code>Paint</code> type of FX properties.
  * 
  * @author Karim El Assal
  */
@@ -13,7 +14,7 @@ public class PaintFxProperty extends FxPropertyWrapper {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#FxPropertyTypeWrapper(String)
+     * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
     public PaintFxProperty(String propertyName) {

@@ -3,30 +3,27 @@ initialize(1000, 600, 2000);
 
 // Background
 addNode("bank:left").fx("Rectangle")
-                    .setWidth(300)
-                    .setHeight(600)
-                    .setX(0)
-                    .setY(0)
+                    .setSize(300, 600)
+                    .setPosition(0, 0)
                     .setFill(Color.GREEN);
 addNode("bank:right").fx("rectangle")
-                     .setWidth(300)
-                     .setHeight(600)
+                     .setSize(300, 600)
                      .setPosition(700, 0)
                      .setFill(Color.GREEN);
 
                      
 // Boat
 addNodes(
-    new Node("boat").set(fx("Rectangle")
-                    .setSize(150, 50)
-                    .setFill(Color.WHITE)
+    new Node("boat").set(fx("image")
+                    .setImageFromFile("testcases/boat.png")
+                    .setFitWidth(100)
+                    .setFitHeight(100)
+                    .setPreserveRatio(true)
                     .setRotate(90)),
-    /*new Node("ferryman").set(fx("Circle")
+    //new Node("boat").set(fx("rectangle").setSize(100, 200)),
+    new Node("ferryman").set(fx("circle")
                     .setRadius(20)
-                    .setFill(Color.BLACK))*/
-    new Node("ferryman").set(fx("rectangle")
-                    .setSize(20, 20)
-                    .setFill(Color.BLACK)),
+                    .setFill(Color.BLUE))
 );
 addRelations(
     new Relation("moored_to")
@@ -43,35 +40,23 @@ addRelations(
 // Movable objects
 addNodes(
     new Node("cargo:goat").set(
-                    fx("rectangle")
-                    .setSize(30, 20)
-                    .setFill(Color.RED)),
+                    fx("image")
+                    .setImageFromFile("testcases/goat2.png")
+                    .setFitWidth(50)
+                    .setPreserveRatio(true)),
     new Node("cargo:wolf").set(
-                    fx("rectangle")
-                    .setSize(30, 25)
-                    .setFill(Color.YELLOW)),
+                    fx("image")
+                    .setImageFromFile("testcases/wolf.png")
+                    .setFitWidth(50)
+                    .setPreserveRatio(true)),
     new Node("cargo:cabb").set(
-                    fx("rectangle")
-                    .setSize(20, 20)
-                    .setFill(Color.DARKBLUE)),
+                    fx("image")
+                    .setImageFromFile("testcases/cabbage.png")
+                    .setFitWidth(50)
+                    .setPreserveRatio(true)),
 );
-    // option one for adding the Relations.
-    /*
-addRelations(
-    new Relation("on").setPlacement(Placement.RANDOM))
-                      .setNodeA(node("bank:left"))
-                      .setNodeB(node("cargo:goat")),
-    new Relation("on").setPlacement(Placement.RANDOM))
-                      .setNodeA(node("bank:left"))
-                      .setNodeB(node("cargo:wolf")),
-    new Relation("on").setPlacement(Placement.RANDOM))
-                      .setNodeA(node("bank:left"))
-                      .setNodeB(node("cargo:cabb")),
-    new Relation("likes").setNodeA(node("cargo:wolf")).setNodeB(node("cargo:goat")),
-    new Relation("likes").setNodeA(node("cargo:goat")).setNodeB(node("cargo:cabb")),
-);
-*/
-    // option two for adding the Relations.
+
+// Relations.
 Relation onRelation = new Relation("on")
                                 .setNodeB(node("bank:left"))
                                 .setPlacement(Placement.RANDOM);

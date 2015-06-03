@@ -1,7 +1,9 @@
-package greenmirror.fxpropertytypes;
+package greenmirror.fxpropertywrappers;
+
+import greenmirror.FxPropertyWrapper;
 
 /**
- * A wrapper for the <tt>Double</tt> type of FX properties.
+ * A wrapper for the <code>Double</code> type of FX properties.
  * 
  * @author Karim El Assal
  */
@@ -11,7 +13,7 @@ public class DoubleFxProperty extends FxPropertyWrapper {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#FxPropertyTypeWrapper(String)
+     * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
     public DoubleFxProperty(String propertyName) {
@@ -22,7 +24,7 @@ public class DoubleFxProperty extends FxPropertyWrapper {
     // -- Queries ----------------------------------------------------------------------------
 
     /* (non-Javadoc)
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#getPropertyType()
+     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#getPropertyType()
      */
     @Override
     public Class<?> getPropertyType() {
@@ -33,7 +35,7 @@ public class DoubleFxProperty extends FxPropertyWrapper {
     // -- Commands ---------------------------------------------------------------------------
 
     /* (non-Javadoc)
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#cast(java.lang.Object)
+     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#cast(java.lang.Object)
      */
     @Override
     public Double cast(Object instance) {
@@ -44,7 +46,7 @@ public class DoubleFxProperty extends FxPropertyWrapper {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#castToMapValue(java.lang.Object)
+     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#castToMapValue(java.lang.Object)
      */
     @Override
     public Double castToMapValue(Object instance) {

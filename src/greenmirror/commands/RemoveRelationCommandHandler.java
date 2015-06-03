@@ -4,6 +4,7 @@ import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Node;
 import greenmirror.Relation;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * The handler that removes a relation. This command is received from the client.
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class RemoveRelationCommandHandler extends CommandHandler {
 
 
@@ -75,7 +76,7 @@ public class RemoveRelationCommandHandler extends CommandHandler {
         // Revert the temporary FX of node A.
         if (relation.getTemporaryFxOfNodeA() != null) {
             getController().getVisualizer().changeFx(nodeA, 
-                    nodeA.getFxWrapper().getOriginalFx().toMapWithoutPositionData());
+                    nodeA.getFxWrapper().getOriginalFxWrapper().toMapWithoutPositionData());
             nodeA.getFxWrapper().saveAsOriginal();
         }
         

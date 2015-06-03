@@ -7,6 +7,8 @@ import greenmirror.Relation;
 import greenmirror.commands.FlushCommand;
 import greenmirror.commands.SetAnimationDurationCommand;
 import greenmirror.commands.SwitchPlacementRelationCommand;
+import greenmirror.placements.CustomPlacement;
+import greenmirror.placements.RandomPlacement;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.Script;
@@ -35,8 +37,8 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     /**
      * Groovy creates the new instance of this base class and passes the controller through a
-     * <tt>Binding</tt>.
-     * @param binding The <tt>Binding</tt> containing the controller.
+     * <code>Binding</code>.
+     * @param binding The <code>Binding</code> containing the controller.
      */
     //@ requires binding != null && binding.hasVariable("GreenMirrorController");
     //@ ensures getController() != null;
@@ -135,7 +137,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     // -- Groovy script: queries --------------------------
 
     /**
-     * @return (A copy of) the list of <tt>Node</tt>s on the visualizer.
+     * @return (A copy of) the list of <code>Node</code>s on the visualizer.
      */
     //@ ensures \result != null;
     /*@ pure */ public NodeList nodes() {
@@ -143,9 +145,9 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Get a list of <tt>Node</tt>s on the visualizer with a specific identifier.
+     * Get a list of <code>Node</code>s on the visualizer with a specific identifier.
      * @param identifier {@link greenmirror.Node.Identifier#Identifier(String)}
-     * @return           A list in which every <tt>Node</tt> corresponds to <tt>identifier</tt>.
+     * @return           A list in which every <code>Node</code> corresponds to <code>identifier</code>.
      */
     //@ requires identifier != null;
     //@ ensures \result != null;
@@ -154,9 +156,9 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
 
     /**
-     * Get the first node on the visualizer that corresponds to <tt>identifier</tt>.
+     * Get the first node on the visualizer that corresponds to <code>identifier</code>.
      * @param identifier {@link greenmirror.Node.Identifier#Identifier(String)}
-     * @return           The <tt>Node</tt>.
+     * @return           The <code>Node</code>.
      * @throws IllegalArgumentException If the Node was not found.
      */
     //@ requires identifier != null;
@@ -173,10 +175,10 @@ public class GreenMirrorGroovyBaseScript extends Script {
     // -- Groovy script: commands -------------------------
 
     /**
-     * Add a node with identifier <tt>name</tt> to the visualizer.
+     * Add a node with identifier <code>name</code> to the visualizer.
      * @param identifier The identifier of the node. See 
      *             {@link greenmirror.Node.Identifier#Identifier(String)}.
-     * @return     The newly made (and added) <tt>Node</tt>.
+     * @return     The newly made (and added) <code>Node</code>.
      */
     //@ requires identifier != null;
     //@ ensures nodes(identifier).size() > 0;
@@ -186,8 +188,8 @@ public class GreenMirrorGroovyBaseScript extends Script {
 
     /**
      * Add a node to the visualizer.
-     * @param node The new <tt>Node</tt>.
-     * @return     The newly added <tt>Node</tt>.
+     * @param node The new <code>Node</code>.
+     * @return     The newly added <code>Node</code>.
      */
     //@ requires node != null;
     //@ ensures \result == node;
@@ -207,7 +209,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Add a <tt>Relation</tt>.
+     * Add a <code>Relation</code>.
      * @param relation
      */
     //@ requires relation != null;
@@ -218,7 +220,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Add multiple <tt>Relation</tt>s.
+     * Add multiple <code>Relation</code>s.
      * @param relations
      */
     public void addRelations(Relation... relations) {
@@ -236,6 +238,12 @@ public class GreenMirrorGroovyBaseScript extends Script {
         }
         Relation currentPlacementRelation = nodeA.getPlacementRelation();
         
+        // If placement was random, it has been changed to a custom placement, so we need to
+        // address it as such (coordinate details are irrelevant at this point).
+        if (currentPlacementRelation.getPlacement() instanceof RandomPlacement) {
+            currentPlacementRelation.setPlacement(new CustomPlacement());
+        }
+        
         getController().send(
                 new SwitchPlacementRelationCommand(currentPlacementRelation, newRelation));
         currentPlacementRelation.removeFromNodes();
@@ -244,7 +252,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     /**
      * Add a transition to the list of possible transitions.
-     * @param transitionPattern The <tt>Pattern</tt> that indicates the transition name.
+     * @param transitionPattern The <code>Pattern</code> that indicates the transition name.
      * @param code              The code that will be executed when the transition executes.
      */
     //@ requires transitionPattern != null && code != null;
@@ -266,7 +274,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     /**
      * Add a transition to the list of possible transitions.
-     * @param transitionPattern The <tt>Pattern</tt> that indicates the transition name.
+     * @param transitionPattern The <code>Pattern</code> that indicates the transition name.
      * @param duration          {@link greenmirror.client.ModelTransition#duration}
      * @param code              The code that will be executed when the transition executes.
      */
@@ -291,10 +299,10 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Set the duration of all single (upcoming) animations. This means that when <tt>flush()</tt>
-     * is used, the total duration is doubled. If <tt>-1</tt> is passed, the duration is set to the
+     * Set the duration of all single (upcoming) animations. This means that when <code>flush()</code>
+     * is used, the total duration is doubled. If <code>-1</code> is passed, the duration is set to the
      * default (as determined by the default duration per transition or for the whole visualizer).
-     * @param duration The duration in milliseconds; <tt>-1</tt> to set it to default.
+     * @param duration The duration in milliseconds; <code>-1</code> to set it to default.
      */
     //@ requires duration >= -1.0;
     public void setAnimationDuration(double duration) {
@@ -302,9 +310,9 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Create a new <tt>FxWrapper</tt>.
-     * @param type The type of the <tt>FxWrapper</tt>.
-     * @return     The <tt>FxWrapper</tt> instance.
+     * Create a new <code>FxWrapper</code>.
+     * @param type The type of the <code>FxWrapper</code>.
+     * @return     The <code>FxWrapper</code> instance.
      * @throws IllegalArgumentException If the type was invalid.
      */
     //@ requires type != null;
@@ -330,7 +338,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Remove a <tt>Node</tt> from the visualizer.
+     * Remove a <code>Node</code> from the visualizer.
      * @param node
      */
     //@ requires node != null;
@@ -340,8 +348,8 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
 
     /**
-     * Remove all <tt>Node</tt>s from <tt>nodeList</tt> from the visualizer.
-     * @param nodeList The <tt>Node</tt>s that will be removed.
+     * Remove all <code>Node</code>s from <code>nodeList</code> from the visualizer.
+     * @param nodeList The <code>Node</code>s that will be removed.
      */
     //@ requires nodes != null;
     //@ ensures nodes().size() == \old(nodes().size()) - nodes.size();
@@ -350,15 +358,15 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
 
     /**
-     * Remove all passed <tt>Node</tt>s from the visualizer.
-     * @param nodes The <tt>Node</tt>s that will be removed.
+     * Remove all passed <code>Node</code>s from the visualizer.
+     * @param nodes The <code>Node</code>s that will be removed.
      */
     public void removeNodes(Node... nodes) {
         removeNodes(new NodeList(nodes));
     }
     
     /**
-     * Remove a <tt>Relation</tt> from the visualizer.
+     * Remove a <code>Relation</code> from the visualizer.
      * @param relation
      */
     //@ requires relation != null;
@@ -369,7 +377,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Remove all passed <tt>Relation</tt>s from the visualizer.
+     * Remove all passed <code>Relation</code>s from the visualizer.
      * @param relations
      */
     public void removeRelations(Relation... relations) {

@@ -133,7 +133,7 @@ public class InitializationCommand extends Command {
 
     /**
      * @param format
-     * @return The formatted <tt>String</tt>.
+     * @return The formatted <code>String</code>.
      */
     //@ requires format != null;
     //@ ensures \result != null;

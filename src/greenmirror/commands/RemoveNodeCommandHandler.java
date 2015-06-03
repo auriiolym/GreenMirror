@@ -4,6 +4,7 @@ import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Node;
 import greenmirror.Relation;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import greenmirror.server.Visualizer;
 
@@ -14,7 +15,7 @@ import javafx.util.Duration;
 /**
  * The handler that removes a node. This command is received from the client.
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class RemoveNodeCommandHandler extends CommandHandler {
 
 
@@ -78,7 +79,7 @@ public class RemoveNodeCommandHandler extends CommandHandler {
             if (relation.getTemporaryFxOfNodeA() != null) {
                 final Node nodeA = relation.getNodeA();
                 getController().getVisualizer().changeFx(nodeA, 
-                        nodeA.getFxWrapper().getOriginalFx().toMapWithoutPositionData());
+                        nodeA.getFxWrapper().getOriginalFxWrapper().toMapWithoutPositionData());
                 nodeA.getFxWrapper().saveAsOriginal();
             }
         }

@@ -1,11 +1,9 @@
 package greenmirror;
 
-import greenmirror.fxwrappers.RectangleFxWrapper;
-import greenmirror.fxpropertytypes.DoubleFxProperty;
-import greenmirror.fxpropertytypes.FxPropertyWrapper;
-import greenmirror.fxpropertytypes.StringFxProperty;
+import greenmirror.fxpropertywrappers.DoubleFxProperty;
+import greenmirror.fxpropertywrappers.StringFxProperty;
+import greenmirror.placements.EdgePlacement;
 import greenmirror.server.DoublePropertyTransition;
-import groovy.json.JsonOutput;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -21,93 +19,161 @@ import java.util.Set;
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
 import javafx.geometry.Point3D;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 /**
+ * A wrapper class for handling JavaFX nodes.
  * 
+ * It registers virtual values of the properties of the FX node it holds. This is done so
+ * animations can be created (server side) without directly reading from or writing to the
+ * relevant FX node.
+ * Furthermore, it contains auxiliary methods for usage by its subclasses.
+ * <p>
+ * <b>Adding a new <code>FxWrapper</code></b>
+ * <ol>
+ *  <li>Create a new subclass of <code>FxWrapper</code> or {@link greenmirror.FxShapeWrapper}.</li>
+ *  <li>Implement and override all relevant methods.</li>
+ *  <li>Add the properties you want (see below).</li>
+ *  <li>Add the new binary class name on a new line to 
+ *      <code>META-INF/services/greenmirror.FxWrapper</code>.</li>
+ *  <li>Recompile.</li>
+ * </ol>
+ * <p>
+ * <b>Adding properties to an <code>FxWrapper</code></b>
+ * <ol>
+ *  <li>Create a new {@link greenmirror.FxPropertyWrapper} if it doesn't exist yet.</li>
+ *  <li>Add the property to {@link #getAnimatableProperties()} or 
+ *      {@link #getChangableProperties()}.</li>
+ *  <li>Add getter(s).</li>
+ *  <li>Add setter(s).</li>
+ *  <li>If your property can be animated (and thus you added it to 
+ *      {@link #getAnimatableProperties()}) and it hasn't got an <code>Animation</code>
+ *      for it yet, create it. For examples, see {@link RotateTransition} and
+ *      {@link greenmirror.fxwrappers.ImageFxWrapper.ImageTransition}.</li>
+ *  <li>If your property can be animated, add animate method(s) (like 
+ *      <code>animatePROPERTY(double, Duration)</code>) that create the animations that
+ *      change the property value on the FX node.</li>
+ *  <li>If the user needs to create instances of new types in his Groovy script to make use
+ *      of the property, add an import to
+ *      {@link greenmirror.client.GroovyScriptModelInitializer#IMPORTS}.</li>
+ *  <li>Recompile.</li>
+ * </ol>
+ * A property can thus be one of two types:
+ * <ul>
+ *  <li>a property that can be set only once (e.g.: the style property of any JavaFX node). This
+ *      is because the property then can not be animated. Follow steps 1-4 and 7 and 8 of the
+ *      above list. In a Groovy script it can only be set by first creating the node and its
+ *      FX appearance and then adding it to GreenMirror (by using <code>addNode(Node)</code>
+ *      or <code>addNodes(Node...)</code>).</li>
+ *  <li>a property that can be set and changed (e.g.: the rotate property of any JavaFX node).
+ *      This means the property can be animated. Follow all steps of the above list.</li>
+ * </ul>
  * 
  * @author Karim El Assal
  */
 public abstract class FxWrapper extends Observable implements Cloneable {
     
-    // -- Enumerations -----------------------------------------------------------------------
-
-    // -- Exceptions -------------------------------------------------------------------------
-
-    // -- Constants --------------------------------------------------------------------------
-    
     // -- Class variables --------------------------------------------------------------------
     
-    /** All different prototypes. */
+    /** The different prototypes. */
     private static Set<FxWrapper> prototypes;
+    
 
     // -- Instance variables -----------------------------------------------------------------
     
-    private FxWrapper originalFx;
+    /**
+     * The original FxWrapper, set when this FxWrapper will change due to a relation with a 
+     * temporary FX.
+     */
+    private FxWrapper originalFxWrapper;
     
+    /** The JavaFX node this FxWrapper created for. */
     private javafx.scene.Node fxNode;
     
+    /** The virtual rotation of the FX node. */
     private double rotate;
+    
+    /** The virtual opacity of the FX node. */
+    //@ private invariant opacity >= 0.0 && opacity <= 1.0;
     private double opacity = 1.0;
+    
+    /** The virtual CSS style of the FX node. */
     private String style;
+    
 
     // -- Constructors -----------------------------------------------------------------------
 
     // -- Queries ----------------------------------------------------------------------------
  
     /**
-     * @return The type of the <tt>FxWrapper</tt>.
+     * Returns the type of this <code>FxWrapper</code>. It defaults to the class name with the
+     * "FxWrapper" part removed.
+     * 
+     * @return the type of this <code>FxWrapper</code>
      */
-    /*@ pure */ public String getType() {
+    /*@ pure non_null */ public String getType() {
         return getClass().getSimpleName().replace("FxWrapper", "");
     }
  
     /**
-     * Get the previously saved, original <tt>FxWrapper</tt>.
-     * @return The original saved <tt>FxWrapper</tt>; <tt>null</tt> if none was saved.
+     * @return the previously saved, original <code>FxWrapper</code>;
+     *         <code>null</code> if none was saved
      */
-    /*@ pure */ public FxWrapper getOriginalFx() {
-        return this.originalFx;
+    /*@ pure */ public FxWrapper getOriginalFxWrapper() {
+        return this.originalFxWrapper;
     }
     
+    /** @return the JavaFX node that this <code>FxWrapper</code> was created for */
     /*@ pure */ public javafx.scene.Node getFxNode() {
         return this.fxNode;
     }
     
+    /** @return the virtual rotation property value of the FX node */
     /*@ pure */ public double getRotate() {
         return this.rotate;
     }
     
+    /** @return the virtual opacity property value of the FX node */
+    //@ ensures \result >= 0.0 && \result <= 1.0;
     /*@ pure */ public double getOpacity() {
         return this.opacity;
     }
     
+    /** @return the virtual CSS style property value of the FX node */
     /*@ pure */ public String getStyle() {
         return this.style;
     }
 
     /**
-     * @return A mapping of the properties of this <tt>VisualComponent</tt>.
+     * Returns a mapping of the properties of this <code>FxWrapper</code> that are defined
+     * in {@link #getChangableProperties()}. This should contain all relevant information to 
+     * construct the FX node.
+     * 
+     * Every property's <code>FxPropertyWrapper</code> determines how the values will be mapped.
+     * 
+     * @return a map of this <code>FxWrapper</code>'s properties
      */
-    //@ ensures \result != null;
-    /*@ pure */ public Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>();
+    //@ ensures \result.containsKey("type") && \result.containsKey("opacity");
+    //@ ensures \result.containsKey("rotate") && \result.containsKey("style");
+    /*@ pure non_null */ public Map<String, Object>  toMap() {
+        final Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("type", getType());
         
+        // Loop through relevant properties.
         for (FxPropertyWrapper fxProperty : getChangableProperties()) {
-            String var = fxProperty.getPropertyName();
+            final String var = fxProperty.getPropertyName();
             
             try {
                 // Execute getter.
-                Object result = fxProperty.getGetMethod(this.getClass()).invoke(this);
+                final Object result = fxProperty.getGetMethod(this.getClass()).invoke(this);
                 
                 // Put result into map.
                 map.put(var, fxProperty.castToMapValue(result));
                 
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                //TODO: make this throw a RuntimeException.
-                e.printStackTrace();
+                throw new RuntimeException("Something went horribly wrong while creating the map "
+                        + "of " + getType() + "FxWrapper. It's about the " + var + " property. "
+                        + "You should check if the get method exists.", e);
             }
         }
         return map;
@@ -115,13 +181,17 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     
     /**
      * Returns the result of {@link #toMap()} without any positioning data. It removes x, y, z, 
-     * centerX, centerY and centerZ. If an extending class has other positioning data, it should 
-     * override this method.
-     * @return The property map of this <tt>FxWrapper</tt> without positioning data.
+     * centerX, centerY and centerZ. If a subclass has other positioning data, it should 
+     * override this method and remove the relevant data.
+     * 
+     * @return the property map of this <code>FxWrapper</code> without positioning data
+     * @see    #toMap()
      */
-    //@ ensures \result != null;
-    /*@ pure */ public Map<String, Object> toMapWithoutPositionData() {
-        Map<String, Object> map = toMap();
+    //@ ensures !\result.containsKey("x") && !\result.containsKey("y") && !\result.containsKey("z");
+    //@ ensures !\result.containsKey("centerX") && !\result.containsKey("centerY");
+    //@ ensures !\result.containsKey("centerZ");
+    /*@ pure non_null */ public Map<String, Object> toMapWithoutPositionData() {
+        final Map<String, Object> map = toMap();
         map.remove("x");
         map.remove("y");
         map.remove("z");
@@ -131,27 +201,18 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         return map;
     }
     
-    // test DoubleFxProperty
-    public static void main1(String[] args) {
-        RectangleFxWrapper rect = new RectangleFxWrapper();
-        rect.setX(4);
-        rect.setY(1);
-        rect.setWidth(2);
-        rect.setHeight(3);
-        rect.setFill(Color.RED);
-        Map<String, Object> map = rect.toMap();
-        System.out.println(JsonOutput.prettyPrint(JsonOutput.toJson(map)));
-        
-        RectangleFxWrapper rect2 = new RectangleFxWrapper();
-        rect2.setFromMap(map);
-        Map<String, Object> map2 = rect2.toMap();
-        System.out.println(JsonOutput.prettyPrint(JsonOutput.toJson(map2)));
-    }
-    
     /**
-     * @return The properties that can be changed and animated by a user of GreenMirror.
+     * Returns the JavaFX node's properties that can be animated (and thus: can be changed
+     * during a transition). All animatable properties also are changable properties. These
+     * differ per subclass, but always contain the ones defined by <code>FxWrapper</code>.
+     * Overriding subclasses should also execute this method.
+     * 
+     * @return the properties that can be animated
+     * @see    #getChangableProperties()
+     * @see    FxPropertyWrapper
      */
-    /*@ pure */ protected List<FxPropertyWrapper> getAnimatableProperties() {
+    //@ ensures \result.size() >= 2;
+    /*@ pure non_null */ protected List<FxPropertyWrapper> getAnimatableProperties() {
         return new ArrayList<FxPropertyWrapper>() {
             {
                 add(new DoubleFxProperty("rotate"));
@@ -161,11 +222,17 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     }
     
     /**
-     * @return The properties that can be changed by a user of GreenMirror (but cannot be 
-     *         animated, meaning that they can only be set once).
+     * Returns the properties of the JavaFX node that can be changed using this
+     * <code>FxWrapper</code>. That they can be changed does <b>not</b> mean they
+     * can be animated. If a property is only changable, but not animatable, it can
+     * only be set once.
+     * 
+     * @return the properties that can be changed by using this <code>FxWrapper</code>
      */
-    //TODO: check if the above description holds.
-    /*@ pure */ protected List<FxPropertyWrapper> getChangableProperties() {
+    /*@ ensures \result.size() >= 3;
+      @ ensures (\forall int i; i >= 0 && i < \result.size(); 
+      @         getAnimatableProperties().contains(\result.get(i))); */
+    /*@ pure non_null */ protected List<FxPropertyWrapper> getChangableProperties() {
         return new ArrayList<FxPropertyWrapper>() {
             {
                 addAll(getAnimatableProperties());
@@ -175,36 +242,45 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     }
     
     /**
-     * @return A String representation of this FxWrapper.
+     * Returns a string description of this <code>FxWrapper</code>. It retrieves the map
+     * of all properties, removes any image values (because that would mean a long base64
+     * encoded string) and returns a string representation.
+     * 
+     * @return a string representation of this <code>FxWrapper</code>
      */
     @Override
-    /*@ pure */ public String toString() {
-        Map<String, Object> map = toMap();
+    /*@ pure non_null */ public String toString() {
+        final Map<String, Object> map = toMap();
         if (map.containsKey("image") && map.get("image") != null 
                 && ((String) map.get("image")).length() > 40) {
-            map.put("image", "--removed for convenience (it was set)--");
+            map.put("image", "--removed for convenience (because it was set)--");
         }
-        String str = getClass().getSimpleName() + map.toString();
-        return str;
+        return getType() + map.toString();
     }
     
     /**
-     * Check if the position of the FX node was set. Usually it just checks if the x and y values 
-     * are set.
-     * @return <tt>true</tt> if the position was set.
+     * Checks if the position of the FX node was set. Usually it checks if the x and y values 
+     * are set. This method is abstract because not all JavaFX nodes work with the
+     * <code>getX</code> and <code>getY</code> methods.
+     * 
+     * @return <code>true</code> if the position was set
      */
     /*@ pure */ public abstract boolean isPositionSet();
     
     /**
      * Calculate the adjustment for a point relative to the middle point of the current node.
-     * @param obj The point relative to the middle point of the current node. Only the x and y
+     * 
+     * @param obj the point relative to the middle point of the current node. Only the x and y
      *            coordinates are taken into account.
-     * @return    The new point.
+     * @return    the new point
+     * @throws    NullPointerException if <code>obj</code> is <code>null</code>
      */
-    //@ requires obj != null;
-    //@ ensures \result != null;
-    /*@ pure */ public Point3D getPointAdjustedForRotation(Point3D obj) {
-        final Point3D pivotPoint = calculatePoint(new Placement.Middle());
+    /*@ pure non_null */ public Point3D getPointAdjustedForRotation(/*@ non_null */ Point3D obj) {
+        if (obj == null) {
+            throw new NullPointerException("relative point" 
+                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
+        final Point3D pivotPoint = calculatePoint(Placement.MIDDLE);
         final double angle = Math.toRadians(getRotate());
         final Point3D relativePoint = obj.subtract(pivotPoint);
   
@@ -217,22 +293,40 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     }
     
     /**
-     * Calculate the absolute position of the specified <tt>Placement</tt> on the 
-     * <tt>VisualComponent</tt>.
-     * @param placement The position of placement which should be calculated.
-     * @return          The absolute <tt>Position</tt>.
+     * Calculates the absolute point with of a specified <code>Placement</code> on the 
+     * JavaFX node. E.g.: if <code>this</code> is a <code>RectangleFxWrapper</code> 
+     * representing a 100x100 rectangle at position (10,10) of the canvas,
+     * <code>calculatePoint(Placement.MIDDLE)</code> would result in point (60,60). 
+     * 
+     * @param placement the position of placement which should be calculated.
+     * @return          the absolute point
      */
-    //@ requires placement != null;
-    //@ ensures \result != null;
-    public abstract Point3D calculatePoint(Placement placement);
+    /*@ pure non_null */ public abstract Point3D calculatePoint(/*@ non_null */Placement placement);
     
     
     // -- Setters ----------------------------------------------------------------------------
     
-    protected void setFxNode(javafx.scene.Node node) {
+    /**
+     * Sets the JavaFX node. This should only be done once: when the JavaFX node is created
+     * and added to the visualizer.
+     *  
+     * @param node
+     */
+    //@ ensures getFxNode() == node;
+    protected void setFxNode(/*@ non_null */ javafx.scene.Node node) {
         this.fxNode = node;
     }
     
+    /**
+     * Sets the virtual rotation of the JavaFX node and notifies the observer (the 
+     * GreenMirror node, if this <code>FxWrapper</code> is part of a GreenMirror node). 
+     * 
+     * @param value the new rotation in degrees
+     * @return      <code>this</code>
+     * @see         javafx.scene.Node#setRotate(double)
+     */
+    //@ ensures getRotate() == value;
+    //@ ensures \result == this;
     public FxWrapper setRotate(double value) {
         this.rotate = value;
         setChanged();
@@ -240,39 +334,86 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         return this;
     }
     
+    /**
+     * Adds <code>value</code> to the virtual rotation of the JavaFX node and notifies the 
+     * observer (the GreenMirror node, if this <code>FxWrapper</code> is part of a GreenMirror 
+     * node) about it. 
+     * 
+     * @param value the rotation to add to the current rotation (in degrees)
+     * @return      <code>this</code>
+     * @see         #setRotate(double)
+     * @see         javafx.scene.Node#setRotate(double)
+     */
+    //@ ensures getRotate() == \old(getRotate()) + value;
+    //@ ensures \result == this;
     public FxWrapper setRotateBy(double value) {
-        this.rotate += value;
-        setChanged();
-        notifyObservers();
-        return this;
+        return setRotate(getRotate() + value);
     }
     
+    /**
+     * Sets the virtual opacity of the JavaFX node and notifies the observer (the 
+     * GreenMirror node, if this <code>FxWrapper</code> is part of a GreenMirror node).
+     * The opacity should be a value between (and including) 0 and 1.0. 
+     * 
+     * @param value the new opacity
+     * @return      <code>this</code>
+     * @see         javafx.scene.Node#setOpacity(double)
+     * @throws IllegalArgumentException if the received value was invalid.
+     */
+    //@ requires value >= 0.0 && value <= 1.0;
+    //@ ensures getOpacity() == value;
+    //@ ensures \result == this;
     public FxWrapper setOpacity(double value) {
+        if (value < 0 || value > 1.0) {
+            throw new IllegalArgumentException("invalid value for the opacity: " + value);
+        }
         this.opacity = value;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public FxWrapper setStyle(String value) {
+    /**
+     * Sets the virtual CSS style of the JavaFX node and notifies the observer (the 
+     * GreenMirror node, if this <code>FxWrapper</code> is part of a GreenMirror node).
+     * 
+     * @param value the new css style
+     * @return      <code>this</code>
+     * @throws NullPointerException if <code>value</code> is <code>null</code>
+     */
+    //@ ensures getStyle() == value;
+    //@ ensures \result == this;
+    public FxWrapper setStyle(/*@ non_null */ String value) {
+        if (value == null) {
+            throw new NullPointerException("style value" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
         this.style = value;
         setChanged();
         notifyObservers();
         return this;
     }
 
-    //@ requires newValues != null;
-    public void setFromMap(Map<String, Object> newValues) {
+    /**
+     * Sets the virtual JavaFX node properties in this <code>FxWrapper</code> from a map.
+     * 
+     * @param newValues a property-value map with the new values
+     * @throws NullPointerException if <code>newValues</code> is <code>null</code>
+     */
+    //@ ensures newValues.equals(toMap());
+    public void setFromMap(/*@ non_null */ Map<String, Object> newValues) {
+        if (newValues == null) {
+            throw new NullPointerException("new value map" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
+        
         String property = null;
-        Object value = null;
         try {
             // Loop through all to-be-set entries in newValues.
             for (Map.Entry<String, Object> entry : newValues.entrySet()) {
                 
                 // Get property name and value.
                 property = entry.getKey();
-                value = entry.getValue();
-                FxPropertyWrapper fxPropertyWrapper = FxPropertyWrapper.getFromList(
+                final Object value = entry.getValue();
+                final FxPropertyWrapper fxPropertyWrapper = FxPropertyWrapper.getFromList(
                         getChangableProperties(), property);
                 
                 // Continue to the next if there is no FxPropertyWrapper or if the value is null.
@@ -291,11 +432,21 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     }
     
     /**
-     * Set the properties of the JavaFX node from a <tt>Map</tt>.
-     * @param newValues The variable-value-map with new values.
+     * Sets the properties of the JavaFX node from a map.
+     * 
+     * @param newValues a property-value map with the new values
+     * @throws IllegalStateException if this wrapper does not have a JavaFX node
+     * @throws NullPointerException  if <code>newValues</code> is <code>null</code>
      */
-    //@ requires newValues != null;
-    public void setFxNodeValuesFromMap(Map<String, Object> newValues) {
+    //@ requires getFxNode() != null;
+    public void setFxNodeValuesFromMap(/*@ non_null */ Map<String, Object> newValues) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
+        if (newValues == null) {
+            throw new NullPointerException("new value map" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
+        
         String property = null;
         Object value = null;
         try {
@@ -306,7 +457,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
                 // Get property name and value.
                 property = entry.getKey();
                 value = entry.getValue();
-                FxPropertyWrapper fxPropertyWrapper = FxPropertyWrapper.getFromList(
+                final FxPropertyWrapper fxPropertyWrapper = FxPropertyWrapper.getFromList(
                         getChangableProperties(), property);
                 
                 // Continue to the next if there is no FxPropertyWrapper or if the value is null.
@@ -328,17 +479,98 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         }
     }
     
-    public RotateTransition animateRotate(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the rotate property of the JavaFX node to 
+     * <code>value</code>.
+     * 
+     * @param value    the angle (in degrees) to rotate to
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException if <code>getFxNode()</code> is <code>null</code>
+     * @throws         NullPointerException  if <code>duration</code> is <code>null</code>
+     * @see            RotateTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure non_null*/ public RotateTransition animateRotate(double value, 
+            /*@ non_null */ Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
+        if (duration == null) {
+            throw new NullPointerException("duration" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
         return new RotateTransition(duration, getFxNode(), value);
     }
     
-    public FadeTransition animateOpacity(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the opacity property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the opacity to change to. This has to be a value between (and including)
+     *                 0 and 1.0.
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @throws         IllegalArgumentException if <code>value</code> is invalid
+     * @throws         NullPointerException     if <code>duration</code> is <code>null</code>
+     * @see            FadeTransition
+     */
+    //@ requires getFxNode() != null && value >= 0 && value <= 1.0;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure non_null*/ public FadeTransition animateOpacity(double value, 
+            /*@ non_null */ Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
+        if (value < 0 || value > 1.0) {
+            throw new IllegalArgumentException("invalid opacity value: " + value);
+        }
+        if (duration == null) {
+            throw new NullPointerException("duration" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
         return new FadeTransition(duration, getFxNode(), value);
     }
     
-    public FadeTransition animateOpacity(double from, double to, Duration duration) {
-        FadeTransition transition = new FadeTransition(duration, getFxNode(), to);
-        transition.setFromValue(from);
+    /**
+     * Creates the animation that changes the opacity property of the JavaFX node from 
+     * <code>fromValue</code> to <code>toValue</code>.
+     * 
+     * @param fromValue the opacity to change to. This has to be a value between (and including)
+     *                  0 and 1.0.
+     * @param toValue   the opacity to change to. This has to be a value between (and including)
+     *                  0 and 1.0.
+     * @param duration  the duration of the animation
+     * @return          the JavaFX <code>Animation</code> that animates the change
+     * @throws          IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @throws          IllegalArgumentException if <code>fromValue</code> or <code>toValue</code>
+     *                                           is invalid
+     * @throws          NullPointerException     if <code>duration</code> is <code>null</code>
+     * @see             #animateOpacity(double, Duration)
+     * @see             FadeTransition
+     */
+    //@ requires getFxNode() != null && fromValue >= 0 && fromValue <= 1.0;
+    //@ requires toValue >= 0 && toValue <= 1.0;
+    //@ ensures \result.getToValue() == toValue && \result.getFromValue() == fromValue;
+    //@ ensures \result.getDuration() == duration && \result.getNode() == getFxNode();
+    /*@ pure non_null*/ public FadeTransition animateOpacity(double fromValue, double toValue, 
+            /*@ non_null */Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
+        if (fromValue < 0 || fromValue > 1.0) {
+            throw new IllegalArgumentException("invalid opacity fromValue: " + fromValue);
+        }
+        if (toValue < 0 || toValue > 1.0) {
+            throw new IllegalArgumentException("invalid opacity toValue: " + toValue);
+        }
+        if (duration == null) {
+            throw new NullPointerException("duration" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
+        final FadeTransition transition = new FadeTransition(duration, getFxNode(), toValue);
+        transition.setFromValue(fromValue);
         return transition;
     }
     
@@ -347,15 +579,25 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     // -- Class usage ------------------------------------------------------------------------
     
     /**
-     * http://stackoverflow.com/questions/4061576/finding-points-on-a-rectangle-at-a-given-angle
-     * @param width
-     * @param height
-     * @param placement
-     * @return
+     * Calculates the coordinates of a placement on a rectangle given the width and height of the
+     * rectangle. The origin of the coordinate system of the returned point lies in the upper left
+     * corner of the rectangle.
+     * 
+     * @param width     the width of the rectangle
+     * @param height    the height of the rectangle
+     * @param placement the placement on the rectangle
+     * @return          the coordinates of the placement relative to the origin of the rectangle
+     * @throws IllegalArgumentException if the width or height is negative
+     * @see             greenmirror.Placement
      */
-    public static Point3D calculatePointOnRectangle(double width, double height, 
-            Placement placement) {
+    //@ requires width >= 0 && height >= 0;
+    /*@ pure non_null */ public static Point3D calculatePointOnRectangle(double width, 
+            double height, /*@ non_null */ Placement placement) {
+        if (width < 0 || height < 0) {
+            throw new IllegalArgumentException("width and height can't be negative.");
+        }
         
+        // Default vaules.
         double calcX = 0;
         double calcY = 0;
         
@@ -363,31 +605,31 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         case "None": default:
             return Point3D.ZERO;
         case "Random":
-            Random random = new Random();
-            double minX = 0;
-            double maxX = width;
-            double minY = 0;
-            double maxY = height;
-
-            calcX = minX + random.nextDouble() * (maxX - minX);
-            calcY = minY + random.nextDouble() * (maxY - minY);
+            calcX = GreenMirrorUtils.getRandomBetween(0, width);
+            calcY = GreenMirrorUtils.getRandomBetween(0, height);
             break;
         case "Custom": case "Middle":
             calcX = width / 2;
             calcY = height / 2;
             break;
         case "Edge":
+            /**
+             * Source of the equations:
+             * http://
+             * stackoverflow.com/questions/4061576/finding-points-on-a-rectangle-at-a-given-angle
+             */
+            // Avert division by zero errors.
             if (height == 0) {
-                height = 0.0000001; // Avert division by zero errors.
+                height = 0.0000001; 
             }
-            final double degrees = ((Placement.Edge) placement).getAngle();
+            final double degrees = ((EdgePlacement) placement).getAngle();
             // Boundary angles, starting from the top right corner, going clockwise.
             final double b1 = Math.toDegrees(Math.atan(width / height));
             final double b2 = 180 - b1;
             final double b3  = b1 + 180;
             final double b4  = b2 + 180;
             boolean verticalQuadrant = true;
-            boolean primaryQuadrant = true;
+            boolean primaryQuadrant = true; // Top and right quadrants are primary.
             // First quadrant: right
             if (degrees > b1 && degrees <= b2) {
                 verticalQuadrant = false;
@@ -407,7 +649,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             // Get the angle in radians, shift the origin and normalize it.
             // TODO: check if normalization is necessary.
             final double radians = Math.toRadians(
-                    new Placement.Edge(360 + 90 - degrees).getAngle());
+                    new EdgePlacement(360 + 90 - degrees).getAngle());
             if (verticalQuadrant) {
                 calcY = primaryQuadrant ? 0 : height;
                 calcX = width / 2 + width / (2 * Math.tan(radians)); 
@@ -446,49 +688,35 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         return new Point3D(calcX, calcY, 0).add(placement.getRelativePosition());
     }
     
-    public static void main3(String[] args) {
-        double[] tests = {0, 45, 90, 180, 270, 359};
-        int[][] results = {{50,0},{100,0},{100,50},{50,100},{0,50},{49,0}};
-        for (int i = 0; i < tests.length; i++) {
-            Point3D p = calculatePointOnRectangle(100, 100, new Placement.Edge(tests[i]));
-            if (Math.round(p.getX()) == results[i][0] 
-                    && Math.round(p.getY()) == results[i][1]) {
-                System.out.println("success (" + tests[i] + ")");
-            } else {
-                System.out.println("fail (" + tests[i] + "): " + p.toString());
-                System.out.println("needed: [x = " + results[i][0] + ", y = " + results[i][1] + "]");
-            }
-            System.out.println();
-            System.out.println();
-        }
-        
-        for (int i = 0; i < tests.length; i++) {
-            double result = 360 - tests[i] + 90;
-            System.out.println(tests[i] + " becomes " + new Placement.Edge(result).getAngle());
-        }
-        
-    }
-    
-    public static double getRandomBetween(double min, double max) {
-        return min + new Random().nextDouble() * (max - min);
-    }
-    
-    private static Set<FxWrapper> getPrototypes() {
+    /**
+     * @return the prototype <code>FxWrapper</code> subclasses
+     */
+    /*@ pure */ private static Set<FxWrapper> getPrototypes() {
         return prototypes;
     }
     
     /**
-     * Instantiate a new <tt>FxWrapper</tt>. It does this by using <tt>ServiceLoader</tt>
-     * (lazily).
-     * @param type The type, which should be the same as the class name in the 
-     *             <tt>greenmirror.fxwrappers</tt> package, appended with <tt>FxWrapper</tt>.
-     *             The first letter will be capitalized.
-     * @return     The new instance.
-     * @throws IllegalArgumentException If the passed type is invalid.
+     * Returns a new <code>FxWrapper</code> instance. On the first call, a set of prototypes of
+     * all available <code>FxWrapper</code>s is created by using 
+     * {@link java.util.ServiceLoader ServiceLoader}. This method returns a clone of the
+     * prototype of the type passed via <code>type</code>.
+     * 
+     * @param type the type, which should be the same as the class name in the 
+     *             <code>greenmirror.fxwrappers</code> package, appended with 
+     *             <code>FxWrapper</code>. The first letter will be capitalized.
+     * @return     he new instance
+     * @throws IllegalArgumentException if the passed type is invalid
+     * @throws NullPointerException     if <code>type</code> is <code>null</code>
+     * @see        FxWrapper
+     * @see        java.util.ServiceLoader
      */
-    //@ requires type != null;
-    public static FxWrapper getNewInstance(String type) {
+    /*@ non_null */ public static FxWrapper getNewInstance(/*@ non_null */ String type) {
+        if (type == null) {
+            throw new NullPointerException("FxWrapper type" 
+                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
         
+        // Get prototypes if we haven't yet.
         if (getPrototypes() == null) {
             prototypes = new HashSet<FxWrapper>();
             for (FxWrapper fxWrapper : ServiceLoader.load(FxWrapper.class)) {
@@ -496,8 +724,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             }
         }
         
-        String simpleClassName = Character.toUpperCase(type.charAt(0)) + type.substring(1)
-                + "FxWrapper";
+        final String simpleClassName = GreenMirrorUtils.capitalizeFirstChar(type) + "FxWrapper";
         
         for (FxWrapper fxWrapperPrototype : getPrototypes()) {
             if (simpleClassName.equals(fxWrapperPrototype.getClass().getSimpleName())) {
@@ -505,91 +732,128 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             }
         }
 
-        throw new IllegalArgumentException("The passed FX type (" + type + ") is invalid.");
+        throw new IllegalArgumentException("the passed FX type (" + type + ") is invalid.");
     }
     
     
-    // -- View requests ----------------------------------------------------------------------
     
     // -- Commands ---------------------------------------------------------------------------
     
+    /**
+     * Creates the JavaFX node and makes it available via {@link #getFxNode()}.
+     */
+    //@ ensures getFxNode() != null;
     public abstract void createFxNode();
     
+    /**
+     * Saves a (shallow) copy of this <code>FxWrapper</code> as the original and makes it
+     * available via {@link #getOriginalFxWrapper()}.
+     */
+    //@ ensures getOriginalFxWrapper() != null && getOriginalFxWrapper().toMap().equals(toMap());
     public void saveAsOriginal() {
-        this.originalFx = this.clone();
+        this.originalFxWrapper = this.clone();
     }
     
-    @Override
-    public abstract FxWrapper clone();
-    
     /**
-     * Calculate the coordinates of the FX node with middle point <tt>middlePoint</tt>. These
-     * coordinates can differ per type of node. For example: rectangles have their coordinates
-     * in their upper left corner, whereas circles have their coordinates in their center.
-     * @param middlePoint The middle point of the FX node.
-     * @return            The coordinates of the FX node.
+     * Creates a shallow copy of this <code>FxWrapper</code>: only the property values are copied.
      */
-    //@ requires middlePoint != null;
-    //@ ensures \result != null;
-    protected abstract Point3D calculateCoordinates(Point3D middlePoint);
-    //TODO: check if this is used at all.
+    //@ ensures \result.toMap().equals(toMap());
+    /*@ pure non_null */ @Override public abstract FxWrapper clone();
     
     /**
-     * Animate the JavaFX node to the point where its middle point is equal to 
-     * <tt>middlePoint</tt>.
-     * @param middlePoint The middle point of the FX node.
-     * @param duration    The duration of the animation.
-     * @return            The <tt>Transition</tt> that executes the movement.
+     * Calculates the coordinates of the FX node's origin when its middle point is equal to
+     * <code>nodeMiddlePoint</code>. These coordinates can differ per type of node. 
+     * <p>
+     * For example: rectangles have their origin coordinates in their upper left corner. 
+     * This method would use the following calculation to calculate the x coordinate:
+     * <code>double coordinateX = nodeMiddlePoint.getX() - getWidth() / 2;</code>
+     * Similarly, an <code>FxWrapper</code> wrapping a circle node would return the same
+     * values as <code>nodeMiddlePoint</code>.
+     * 
+     * @param nodeMiddlePoint the middle point of the FX node
+     * @return                the origin coordinates of the FX node
+     */
+    /*@ pure non_null */ protected abstract Point3D calculateOriginCoordinates(
+            /*@ non_null */ Point3D nodeMiddlePoint);
+    
+    /**
+     * Creates the animation that changes the position of the JavaFX node to the point where its
+     * middle point is equal to <code>middlePoint</code>.
+     * 
+     * @param middlePoint the middle point of the FX node
+     * @param duration    the duration of the animation
+     * @return            the JavaFX <code>Animation</code> that animates the change
      */
     //@ requires middlePoint != null && duration != null;
     //@ requires getFxNode() != null;
     //@ ensures \result != null;
-    public abstract Transition animateToMiddlePoint(Point3D middlePoint, Duration duration);
+    /*@ pure non_null */ public abstract Transition animateToMiddlePoint(
+            /*@ non_null */ Point3D middlePoint, /*@ non_null */ Duration duration);
     
     /**
-     * Set the GreenMirror node to the point where its middle point is equal to 
-     * <tt>middlePoint</tt>.
-     * @param middlePoint The middle point of the FX node.
+     * Sets the virtual positioning property values to the point where its middle point is equal 
+     * to <code>nodesNewMiddlePoint</code>.
+     * 
+     * @param nodesNewMiddlePoint the new middle point indicating the positioning values of 
+     *                            this wrapper
      */
-    //@ requires middlePoint != null;
-    public abstract void setToPositionWithMiddlePoint(Point3D middlePoint);
+    //@ ensures nodesNewMiddlePoint.equals(calculatePoint(Placement.MIDDLE));
+    public abstract void setToPositionWithMiddlePoint(
+            /*@ non_null */ Point3D nodesNewMiddlePoint);
     
     /**
-     * Set the JavaFX node to the point where its middle point is equal to <tt>middlePoint</tt>.
-     * @param middlePoint The middle point of the FX node.
+     * Sets the JavaFX node positioning property values to the point where its middle point is
+     * equal to <code>nodesNewMiddlePoint</code>.
+     * 
+     * @param nodesNewMiddlePoint the new middle point of the FX node
      */
-    //@ requires middlePoint != null;
     //@ requires getFxNode() != null;
-    public abstract void setFxToPositionWithMiddlePoint(Point3D middlePoint);
+    public abstract void setFxToPositionWithMiddlePoint(
+            /*@ non_null */ Point3D nodesNewMiddlePoint);
     
     /**
-     * Create animations from a <tt>Map</tt> of values (from a JSON object, for example).
-     * @param newMap      The <tt>Map</tt> with key-value pairs.
-     * @param duration The duration for the animation of the changes.
-     * @return         The <tt>Transition</tt> object that applies the changes.
+     * Creates animations from a property-value map (from a JSON object, for example). The 
+     * animations are stored in a <code>ParallelTransition</code>, so they're all applied
+     * concurrently.
+     * <p>
+     * Only properties from {@link #getAnimatableProperties()} can be animated. If others
+     * are present in <code>newValuesMap</code> they're ignored.
+     * 
+     * @param newValuesMap   the map with property-value pairs
+     * @param duration the total duration for the animations
+     * @return         the JavaFX <code>Animation</code> that animates the changes
+     * @throws IllegalStateException if <code>getFxNode()</code> returns <code>null</code>
+     * @throws NullPointerException  if <code>newValuesMap</code> or <code>duration</code>
+     *                               is <code>null</code>
      */
-    //@ requires newMap != null && animationDuration != null;
-    //@ ensures \result != null;
-    public Transition animateFromMap(Map<String, Object> newMap, Duration duration) {
-        ParallelTransition transitions = new ParallelTransition();
+    /*@ pure non_null */ public ParallelTransition animateFromMap(
+            /*@ non_null */ Map<String, Object> newValuesMap, /*@ non_null */ Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
+        if (newValuesMap == null || duration == null) {
+            throw new NullPointerException("duration and new values map" 
+                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        }
+        
+        final ParallelTransition transitions = new ParallelTransition();
         String property = null;
         Object value = null;
-        Object result = null;
         
         // Check per property if we received a change.
         // The newValues variable is used so the properties are already parsed.
-        FxWrapper newValues = this.clone();
-        newValues.setFromMap(newMap);
-        Map<String, Object> currentMap = this.toMap();
+        final FxWrapper newValues = this.clone();
+        newValues.setFromMap(newValuesMap);
+        final Map<String, Object> currentValuesMap = this.toMap();
         
         try {
-            // Loop through all entries in map.
-            for (Map.Entry<String, Object> newEntry : newMap.entrySet()) {
+            // Loop through all entries in newValuesMap.
+            for (Map.Entry<String, Object> newEntry : newValuesMap.entrySet()) {
 
                 // Get property name and value.
                 property = newEntry.getKey();
                 value = newEntry.getValue();
-                FxPropertyWrapper fxPropertyWrapper = FxPropertyWrapper.getFromList(
+                final FxPropertyWrapper fxPropertyWrapper = FxPropertyWrapper.getFromList(
                         getAnimatableProperties(), property);
                 
                 // Continue to the next if there is no FxPropertyWrapper or if the value is null.
@@ -597,17 +861,12 @@ public abstract class FxWrapper extends Observable implements Cloneable {
                     continue;
                 }
                 // Also continue if the (map) value didn't change.
-                //TODO: implement a more elegant solution for this comparison.
-                /*TODO: fix the line below. This is not how it should work. Problem: newEntry.getValue() returns a (map) Object, so its 
-                 * equals() method doens't work on other subclasses of Object.
-                 * Possible solution: implement FxPropertyWrapper.equals(Object) and let its subclasses override.
-                 */
-                if (String.valueOf(value).equals(String.valueOf(currentMap.get(property)))) {
+                if (String.valueOf(value).equals(String.valueOf(currentValuesMap.get(property)))) {
                     continue;
                 }
                 
                 // Get animate method and execute with the cast value.
-                result = fxPropertyWrapper.getAnimateMethod(this.getClass())
+                final Object result = fxPropertyWrapper.getAnimateMethod(this.getClass())
                                           .invoke(this, fxPropertyWrapper.cast(value), duration);
                 
                 // Notify the user if the animation method couldn't produce an animation.
@@ -621,15 +880,16 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             }
         } catch (IllegalAccessException | InvocationTargetException | IllegalStateException 
                | NoSuchMethodException e) {
-            Log.add("Animating of JavaFX node property (" + property + ") failed: ", e);
+            Log.add("Animating of JavaFX node property (" + property + " with value:" 
+                    + String.valueOf(value) + ") failed: ", e);
         }
         
         return transitions;
     }
     
     /**
-     * A <tt>Transition</tt> class that animates the change of the rotation. The default 
-     * <tt>RotateTransition</tt> class isn't used because it's buggy when playing back 
+     * A <code>Transition</code> class that animates the change of the rotation. The default 
+     * <code>RotateTransition</code> class isn't used because it's buggy when playing back 
      * transitions.
      * 
      * @author Karim El Assal
@@ -638,7 +898,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
          */
         protected RotateTransition(Duration duration, javafx.scene.Node node, Double toValue) {
             super(duration, node, toValue);
@@ -663,8 +923,8 @@ public abstract class FxWrapper extends Observable implements Cloneable {
 
     
     /**
-     * A <tt>Transition</tt> class that animates the change in opacity. The default 
-     * <tt>FadeTransition</tt> class isn't used because it's buggy when playing back 
+     * A <code>Transition</code> class that animates the change in opacity. The default 
+     * <code>FadeTransition</code> class isn't used because it's buggy when playing back 
      * transitions.
      * 
      * @author Karim El Assal
@@ -673,7 +933,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         
         /* (non-Javadoc)
          * @see greenmirror.server.DoublePropertyTransition#
-         *     DoubleePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
+         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
          */
         protected FadeTransition(Duration duration, javafx.scene.Node node, Double toValue) {
             super(duration, node, toValue);

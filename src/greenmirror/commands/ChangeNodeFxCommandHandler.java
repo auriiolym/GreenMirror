@@ -3,6 +3,7 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Node;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import groovy.json.internal.LazyValueMap;
 
@@ -16,7 +17,7 @@ import java.util.Map;
  * 
  * @author Karim El Assal
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class ChangeNodeFxCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

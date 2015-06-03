@@ -11,7 +11,7 @@ public interface ModelInitializer {
     // -- Exceptions -------------------------------------------------------------------------
     
     /**
-     * A custom exception for use by the <tt>ModelInitializer</tt> implementations.
+     * A custom exception for use by the <code>ModelInitializer</code> implementations.
      * 
      * @author Karim El Assal
      */
@@ -24,7 +24,7 @@ public interface ModelInitializer {
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return A unique identifier for this <tt>ModelInitializer</tt>.
+     * @return A unique identifier for this <code>ModelInitializer</code>.
      */
     //@ ensures \result != null;
     public String getIdentifier();

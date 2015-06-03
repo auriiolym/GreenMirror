@@ -4,16 +4,16 @@
 # The only requirements on any service providers below are the existence of a 
 # zero-argument constructor and the fact that it should implement Placement.
 #
-greenmirror.Placement$None
-greenmirror.Placement$Middle
-greenmirror.Placement$Random
-greenmirror.Placement$Edge
-greenmirror.Placement$Custom
-greenmirror.Placement$EdgeTop
-greenmirror.Placement$EdgeRight
-greenmirror.Placement$EdgeBottom
-greenmirror.Placement$EdgeLeft
-greenmirror.Placement$CornerTopLeft
-greenmirror.Placement$CornerTopRight
-greenmirror.Placement$CornerBottomRight
-greenmirror.Placement$CornerBottomLeft
+greenmirror.placements.NoPlacement
+greenmirror.placements.MiddlePlacement
+greenmirror.placements.RandomPlacement
+greenmirror.placements.EdgePlacement
+greenmirror.placements.CustomPlacement
+greenmirror.placements.EdgeTopPlacement
+greenmirror.placements.EdgeRightPlacement
+greenmirror.placements.EdgeBottomPlacement
+greenmirror.placements.EdgeLeftPlacement
+greenmirror.placements.CornerTopLeftPlacement
+greenmirror.placements.CornerTopRightPlacement
+greenmirror.placements.CornerBottomRightPlacement
+greenmirror.placements.CornerBottomLeftPlacement

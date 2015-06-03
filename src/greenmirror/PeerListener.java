@@ -24,7 +24,7 @@ public class PeerListener extends Thread {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Prepare the new listening <tt>Thread</tt>.
+     * Prepare the new listening <code>Thread</code>.
      * @param controller The controller used for the connections and handling of incoming data.
      */
     //@ requires controller != null;
@@ -57,7 +57,7 @@ public class PeerListener extends Thread {
     
     /**
      * @param rawData Raw data with the format (without quotes): "command:data"
-     * @return        The data part of the raw data; <tt>null</tt> if no data was found.
+     * @return        The data part of the raw data; <code>null</code> if no data was found.
      */
     //@ requires rawData != null;
     /*@ pure */ private String extractData(String rawData) {
@@ -68,8 +68,8 @@ public class PeerListener extends Thread {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Start listening for incoming data. If a <tt>CommandHandler</tt> is found that can handle
-     * specific incoming data, the data and the <tt>CommandHandler</tt> are sent to the 
+     * Start listening for incoming data. If a <code>CommandHandler</code> is found that can handle
+     * specific incoming data, the data and the <code>CommandHandler</code> are sent to the 
      * controller's handlePeerData(String, CommandHandler) method.
      */
     public void run() {

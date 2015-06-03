@@ -25,8 +25,8 @@ public class AddNodeCommand extends Command {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initialize the <tt>Command</tt>.
-     * @param node The <tt>Node</tt> that has been added.
+     * Initialize the <code>Command</code>.
+     * @param node The <code>Node</code> that has been added.
      */
     //@ requires node != null;
     //@ ensures getNode() == node;
@@ -38,7 +38,7 @@ public class AddNodeCommand extends Command {
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return The <tt>Node</tt> that has been added.
+     * @return The <code>Node</code> that has been added.
      */
     //@ ensures \result != null;
     /*@ pure */ public Node getNode() {
@@ -49,7 +49,7 @@ public class AddNodeCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare the <tt>Command</tt>.
+     * Prepare the <code>Command</code>.
      */
     public void prepare() {
         // Nothing to prepare.

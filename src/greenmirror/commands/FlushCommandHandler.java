@@ -3,6 +3,7 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 
 import java.util.Map;
@@ -18,7 +19,7 @@ import javafx.util.Duration;
  * 
  * @author Karim El Assal
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class FlushCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

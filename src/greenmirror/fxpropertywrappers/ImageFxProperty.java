@@ -1,5 +1,6 @@
-package greenmirror.fxpropertytypes;
+package greenmirror.fxpropertywrappers;
 
+import greenmirror.FxPropertyWrapper;
 import greenmirror.Log;
 import greenmirror.fxwrappers.MyImage;
 
@@ -10,7 +11,7 @@ import java.util.Base64;
 import javafx.scene.image.Image;
 
 /**
- * A wrapper for the <tt>Paint</tt> type of FX properties.
+ * A wrapper for the <code>Paint</code> type of FX properties.
  * 
  * @author Karim El Assal
  */
@@ -20,7 +21,7 @@ public class ImageFxProperty extends FxPropertyWrapper {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#FxPropertyTypeWrapper(String)
+     * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
     public ImageFxProperty(String propertyName) {
@@ -42,11 +43,11 @@ public class ImageFxProperty extends FxPropertyWrapper {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Cast <tt>instance</tt> to the type represented by this <tt>FxPropertyWrapper</tt>. This
-     * method only casts <tt>Image</tt>s, byte arrays and base64 encoded byte arrays 
-     * (<tt>String</tt>s). If anything else is received, it returns <tt>null</tt>.
+     * Cast <code>instance</code> to the type represented by this <code>FxPropertyWrapper</code>. This
+     * method only casts <code>Image</code>s, byte arrays and base64 encoded byte arrays 
+     * (<code>String</code>s). If anything else is received, it returns <code>null</code>.
      * @param instance The instance of the object. Usually this is received from a (JSON) map.
-     * @return         The cast instance; <tt>null</tt> if <tt>instance</tt> is null.
+     * @return         The cast instance; <code>null</code> if <code>instance</code> is null.
      */
     @Override
     public MyImage cast(Object instance) {

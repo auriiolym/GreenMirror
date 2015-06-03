@@ -1,24 +1,27 @@
 package greenmirror.commandlineoptionhandlers;
 
+import greenmirror.ClientSide;
 import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
+import greenmirror.GreenMirrorUtils;
 import greenmirror.Log;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSpec;
+import greenmirror.ServerSide;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSpec;
+
 /**
- * The help <tt>CommandLineOptionHandler</tt> (client and server side).
+ * The help <code>CommandLineOptionHandler</code> (client and server side).
  * 
  * @author Karim El Assal
  */
-@CommandLineOptionHandler.ClientSide
-@CommandLineOptionHandler.ServerSide
+@ClientSide
+@ServerSide
 public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Instance variables -----------------------------------------------------------------
@@ -98,7 +101,7 @@ public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
         controller.getCommandLineOptionHandlers().forEach(handler -> {
             handler.setParserSettings(parser);
         });
-        CommandLineOptionHandler.addVerboseOption(parser);
+        GreenMirrorUtils.addCommandLineVerboseOption(parser);
         
         // Build help string.
         StringWriter stringWriter = new StringWriter();

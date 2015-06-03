@@ -170,7 +170,7 @@ public class GridBuilder {
     }
 
     /**
-     * @return The nodes built by this <tt>GridBuilder</tt>.
+     * @return The nodes built by this <code>GridBuilder</code>.
      * @throws IllegalStateException If the grid hasn't been built yet.
      */
     public Node[] getNodes() {
@@ -200,7 +200,7 @@ public class GridBuilder {
     /**
      * @param horizontal The cellCountHorizontal to set.
      * @param vertical   The cellCountVertical to set.
-     * @return           <tt>this</tt>
+     * @return           <code>this</code>
      */
     public GridBuilder setCellCount(int horizontal, int vertical) {
         setCellCountHorizontal(horizontal);
@@ -210,7 +210,7 @@ public class GridBuilder {
     
     /**
      * @param cellCountHorizontal The cellCountHorizontal to set.
-     * @return                    <tt>this</tt>
+     * @return                    <code>this</code>
      */
     public GridBuilder setCellCountHorizontal(int cellCountHorizontal) {
         this.cellCountHorizontal = cellCountHorizontal;
@@ -219,7 +219,7 @@ public class GridBuilder {
 
     /**
      * @param cellCountVertical The cellCountVertical to set.
-     * @return                  <tt>this</tt>
+     * @return                  <code>this</code>
      */
     public GridBuilder setCellCountVertical(int cellCountVertical) {
         this.cellCountVertical = cellCountVertical;
@@ -229,7 +229,7 @@ public class GridBuilder {
     /**
      * @param width  The cellWidth to set.
      * @param height The cellHeight to set.
-     * @return       <tt>this</tt>
+     * @return       <code>this</code>
      */
     public GridBuilder setCellSize(double width, double height) {
         setCellWidth(width);
@@ -239,7 +239,7 @@ public class GridBuilder {
 
     /**
      * @param cellWidth The cellWidth to set.
-     * @return          <tt>this</tt>
+     * @return          <code>this</code>
      */
     public GridBuilder setCellWidth(double cellWidth) {
         this.cellWidth = cellWidth;
@@ -248,7 +248,7 @@ public class GridBuilder {
 
     /**
      * @param cellHeight The cellHeight to set.
-     * @return           <tt>this</tt>
+     * @return           <code>this</code>
      */
     public GridBuilder setCellHeight(double cellHeight) {
         this.cellHeight = cellHeight;
@@ -257,7 +257,7 @@ public class GridBuilder {
 
     /**
      * @param cellFill The cellFill to set.
-     * @return         <tt>this</tt>
+     * @return         <code>this</code>
      */
     public GridBuilder setCellFill(String cellFill) {
         return setCellFill(Paint.valueOf(cellFill));
@@ -265,7 +265,7 @@ public class GridBuilder {
 
     /**
      * @param cellFill The cellFill to set.
-     * @return         <tt>this</tt>
+     * @return         <code>this</code>
      */
     public GridBuilder setCellFill(Paint cellFill) {
         this.cellFill = cellFill;
@@ -274,7 +274,7 @@ public class GridBuilder {
 
     /**
      * @param cellArc The cellArcWidth and cellArcHeight to set.
-     * @return        <tt>this</tt>
+     * @return        <code>this</code>
      */
     public GridBuilder setCellArcs(double cellArc) {
         return setCellArcs(cellArc, cellArc);
@@ -283,7 +283,7 @@ public class GridBuilder {
     /**
      * @param cellArcWidth  The cellArcWidth to set.
      * @param cellArcHeight The cellArcHeight to set.
-     * @return              <tt>this</tt>
+     * @return              <code>this</code>
      */
     public GridBuilder setCellArcs(double cellArcWidth, double cellArcHeight) {
         this.cellArcWidth = cellArcWidth;
@@ -293,7 +293,7 @@ public class GridBuilder {
     
     /**
      * @param cellSpacing The cellSpacing to set.
-     * @return            <tt>this</tt>
+     * @return            <code>this</code>
      */
     public GridBuilder setCellSpacing(double cellSpacing) {
         this.cellSpacing = cellSpacing;
@@ -302,7 +302,7 @@ public class GridBuilder {
     
     /**
      * @param size The borderSize to set for all sides.
-     * @return     <tt>this</tt>
+     * @return     <code>this</code>
      */
     public GridBuilder setBorderSize(double size) {
         setBorderSizeTop(size);
@@ -315,7 +315,7 @@ public class GridBuilder {
     /**
      * @param topBottomSize The borderSize to set for the top and the bottom sides.
      * @param rightLeftSize The borderSize to set for the right and left sides.
-     * @return              <tt>this</tt>
+     * @return              <code>this</code>
      */
     public GridBuilder setBorderSize(double topBottomSize, double rightLeftSize) {
         setBorderSizeTop(topBottomSize);
@@ -327,7 +327,7 @@ public class GridBuilder {
 
     /**
      * @param borderSizeTop The borderSizeTop to set.
-     * @return              <tt>this</tt>
+     * @return              <code>this</code>
      */
     public GridBuilder setBorderSizeTop(double borderSizeTop) {
         this.borderSizeTop = borderSizeTop;
@@ -336,7 +336,7 @@ public class GridBuilder {
 
     /**
      * @param borderSizeRight The borderSizeRight to set.
-     * @return                <tt>this</tt>
+     * @return                <code>this</code>
      */
     public GridBuilder setBorderSizeRight(double borderSizeRight) {
         this.borderSizeRight = borderSizeRight;
@@ -345,7 +345,7 @@ public class GridBuilder {
 
     /**
      * @param borderSizeBottom The borderSizeBottom to set.
-     * @return                 <tt>this</tt>
+     * @return                 <code>this</code>
      */
     public GridBuilder setBorderSizeBottom(double borderSizeBottom) {
         this.borderSizeBottom = borderSizeBottom;
@@ -354,7 +354,7 @@ public class GridBuilder {
 
     /**
      * @param borderSizeLeft The borderSizeLeft to set.
-     * @return               <tt>this</tt>
+     * @return               <code>this</code>
      */
     public GridBuilder setBorderSizeLeft(double borderSizeLeft) {
         this.borderSizeLeft = borderSizeLeft;
@@ -363,7 +363,7 @@ public class GridBuilder {
 
     /**
      * @param backgroundFill The backgroundFill to set.
-     * @return               <tt>this</tt>
+     * @return               <code>this</code>
      */
     public GridBuilder setBackgroundFill(Paint backgroundFill) {
         this.backgroundFill = backgroundFill;
@@ -372,7 +372,7 @@ public class GridBuilder {
 
     /**
      * @param backgroundFill The backgroundFill to set.
-     * @return               <tt>this</tt>
+     * @return               <code>this</code>
      */
     public GridBuilder setBackgroundFill(String backgroundFill) {
         return setBackgroundFill(Paint.valueOf(backgroundFill));
@@ -380,7 +380,7 @@ public class GridBuilder {
 
     /**
      * @param backgroundArc The backgroundArcWidth and backgroundArcHeight to set.
-     * @return              <tt>this</tt>
+     * @return              <code>this</code>
      */
     public GridBuilder setBackgroundArcs(double backgroundArc) {
         return setBackgroundArcs(backgroundArc, backgroundArc);
@@ -389,7 +389,7 @@ public class GridBuilder {
     /**
      * @param backgroundArcWidth  The backgroundArcWidth to set.
      * @param backgroundArcHeight The backgroundArcHeight to set.
-     * @return                    <tt>this</tt>
+     * @return                    <code>this</code>
      */
     public GridBuilder setBackgroundArcs(double backgroundArcWidth, double backgroundArcHeight) {
         this.backgroundArcWidth = backgroundArcWidth;

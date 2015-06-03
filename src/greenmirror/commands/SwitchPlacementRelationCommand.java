@@ -32,9 +32,9 @@ public class SwitchPlacementRelationCommand extends Command {
     // --- Constructors ----------------------------------------------------------------------
     
     /**
-     * Create a new <tt>AddRelationCommand</tt>.
-     * @param oldRelation The old <tt>Relation</tt>.
-     * @param newRelation The new <tt>Relation</tt>.
+     * Create a new <code>AddRelationCommand</code>.
+     * @param oldRelation The old <code>Relation</code>.
+     * @param newRelation The new <code>Relation</code>.
      */
     //@ requires oldRelation != null && newRelation != null;
     public SwitchPlacementRelationCommand(Relation oldRelation, Relation newRelation) {

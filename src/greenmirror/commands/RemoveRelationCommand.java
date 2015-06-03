@@ -25,8 +25,8 @@ public class RemoveRelationCommand extends Command {
     // --- Constructors ----------------------------------------------------------------------
 
     /**
-     * Create a new <tt>RemoveRelationCommand</tt>.
-     * @param relation The <tt>Relation</tt> to be removed.
+     * Create a new <code>RemoveRelationCommand</code>.
+     * @param relation The <code>Relation</code> to be removed.
      */
     //@ requires relation != null;
     public RemoveRelationCommand(Relation relation) {

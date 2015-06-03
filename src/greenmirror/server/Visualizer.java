@@ -8,6 +8,8 @@ import greenmirror.Node;
 import greenmirror.Placement;
 import greenmirror.Relation;
 import greenmirror.WindowLogger;
+import greenmirror.placements.CustomPlacement;
+import greenmirror.placements.RandomPlacement;
 import greenmirror.server.VisualizerMemento.Caretaker;
 import greenmirror.server.VisualizerMemento.Originator;
 import greenmirror.server.playbackstates.PausedState;
@@ -55,7 +57,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
         
         /**
          * The method that determines the toolbar button operation in accordance with 
-         * <tt>hasPreviousState</tt> and <tt>hasNextState</tt>.
+         * <code>hasPreviousState</code> and <code>hasNextState</code>.
          * @param hasPreviousMemento
          * @param hasNextMemento
          */
@@ -63,7 +65,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
                 boolean hasNextMemento);
         
         /**
-         * @return Whether this <tt>PlaybackState</tt> is a continuous one.
+         * @return Whether this <code>PlaybackState</code> is a continuous one.
          */
         public abstract boolean isContinuous();
         
@@ -98,7 +100,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     private PlaybackState currentPlaybackState = new PausedState();
     
     /**
-     * The <tt>Stage</tt> of the visualizer.
+     * The <code>Stage</code> of the visualizer.
      */
     private Stage stage;
     
@@ -153,7 +155,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     }
 
     /**
-     * @return The <tt>Stage</tt> of the visualizer.
+     * @return The <code>Stage</code> of the visualizer.
      */
     /*@ pure */ public Stage getStage() {
         return stage;
@@ -262,7 +264,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     }
     
     /**
-     * @return The <tt>Transition</tt> that transitions to the next state.
+     * @return The <code>Transition</code> that transitions to the next state.
      */
     //@ requires hasNextMemento();
     /*@ pure */ public VisualizerMemento getNextMemento() {
@@ -270,7 +272,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     }
     
     /**
-     * @return The <tt>Transition</tt> that transitions to the previous state.
+     * @return The <code>Transition</code> that transitions to the previous state.
      */
     //@ requires hasPreviousMemento();
     /*@ pure */ public VisualizerMemento getPreviousMemento() {
@@ -292,7 +294,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     }
 
     /**
-     * @param stage The <tt>Stage</tt> of the visualizer to set.
+     * @param stage The <code>Stage</code> of the visualizer to set.
      */
     //@ ensures getStage() == stage;
     public void setStage(Stage stage) {
@@ -351,7 +353,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     }
     
     /**
-     * Save the current state with the passed <tt>transition</tt> that holds the animations
+     * Save the current state with the passed <code>transition</code> that holds the animations
      * to go to the next state.
      * @param transitions
      * @return TODO
@@ -388,8 +390,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
      * Execute when a transition has finished. It also enables or disables the toolbar buttons 
      * based on the current playback state and transitions to the next state if the playback state
      * is continuous (and a next state exists).
-     * @param transition   The <tt>Transition</tt> that just finished.
-     * @param goingForward <tt>true</tt> if we are/were going forward; <tt>false</tt> if backward.
+     * @param transition   The <code>Transition</code> that just finished.
+     * @param goingForward <code>true</code> if we are/were going forward; <code>false</code> if backward.
      */
     public void transitionFinished(Transition transition, boolean goingForward) {
         
@@ -462,11 +464,11 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
     /**
      * Set the JavaFX nodes that will appear or disappear to (respectively) visible or invisible. 
-     * It recursively searches for any <tt>FadeTransition</tt>s. If <tt>isStarting</tt> 
+     * It recursively searches for any <code>FadeTransition</code>s. If <code>isStarting</code> 
      * is set to true, we assume this method is executed right before the start of an animation. 
      * If set to false, we assume this method is executed right after the and of an amination.
-     * @param transition Any kind of <tt>Transition</tt>.
-     * @param isStarting <tt>true</tt> if we're starting an animation; <tt>false</tt> 
+     * @param transition Any kind of <code>Transition</code>.
+     * @param isStarting <code>true</code> if we're starting an animation; <code>false</code> 
      *                   if an animation has just ended. 
      */
     //@ requires transition != null;
@@ -477,10 +479,10 @@ public class Visualizer extends Application implements Caretaker, Originator {
     /**
      * The actual recursive method of {@link #setFxNodeVisibility(Transition, boolean)}. This
      * method takes an extra parameter: the rate of the animation which is only set at the root
-     * animation. This is done because when the <tt>FadeTransition</tt> is found, the direction
+     * animation. This is done because when the <code>FadeTransition</code> is found, the direction
      * of the animation is determined via the rate of the root animation.
-     * @param transition Any kind of <tt>Transition</tt>.
-     * @param isStarting <tt>true</tt> if we're starting an animation; <tt>false</tt> 
+     * @param transition Any kind of <code>Transition</code>.
+     * @param isStarting <code>true</code> if we're starting an animation; <code>false</code> 
      *                   if an animation has just ended.
      * @param rate       The rate with which the animation will progress.
      */
@@ -543,15 +545,17 @@ public class Visualizer extends Application implements Caretaker, Originator {
         final FxWrapper nodeAFxWrapper = relation.getNodeA().getFxWrapper();
         final FxWrapper nodeBFxWrapper = relation.getNodeB().getFxWrapper();
         
+        
         // Get the duration of the animation.
         final Duration duration = Duration.millis(getCurrentAnimationDuration());
     
         // Calculate the middle point (the new location) and adjust for rotation.
         Point3D tempNewMiddlePoint = nodeBFxWrapper.calculatePoint(relation.getPlacement());
-        if (relation.getPlacement() instanceof Placement.Random) {
-            final Point3D relativeToNodeB = tempNewMiddlePoint.subtract(
-                    nodeBFxWrapper.calculatePoint(Placement.MIDDLE));
-            relation.setPlacement(new Placement.Custom().withRelativePosition(relativeToNodeB));
+        if (relation.getPlacement() instanceof RandomPlacement) {
+            final Point3D relativeToNodeB = tempNewMiddlePoint
+                    .subtract(nodeBFxWrapper.calculatePoint(Placement.MIDDLE))
+                    .add(relation.getPlacement().getRelativePosition());
+            relation.setPlacement(new CustomPlacement().withRelativePosition(relativeToNodeB));
         }
         if (nodeBFxWrapper.getRotate() != 0 && !relation.getPlacement().equals(Placement.MIDDLE)) {
             tempNewMiddlePoint = nodeBFxWrapper.getPointAdjustedForRotation(tempNewMiddlePoint);
@@ -657,7 +661,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
     /**
      * Execute code for the visualizer on the correct thread.
-     * @param code The <tt>Runnable</tt> code to be executed.
+     * @param code The <code>Runnable</code> code to be executed.
      */
     //@ requires code != null;
     public void executeOnCorrectThread(Runnable code) {
@@ -755,8 +759,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
     /**
      * A (recursive) debug method for checking which transitions are inside transitions.
      * @param transitions The main transition. Probably a sequential or parallel one.
-     * @return            A <tt>Map</tt> if it's a <tt>SequentialTransition</tt> of 
-     *                    <tt>ParallelTransition</tt>; a <tt>String</tt> if it's any other
+     * @return            A <code>Map</code> if it's a <code>SequentialTransition</code> of 
+     *                    <code>ParallelTransition</code>; a <code>String</code> if it's any other
      *                    (standalone) transition.
      */
     public static Object listTransitions(Transition transitions) {

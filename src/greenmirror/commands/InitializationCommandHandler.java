@@ -3,6 +3,7 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
+import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import greenmirror.server.ToolbarButton;
 
@@ -31,7 +32,7 @@ import javafx.stage.WindowEvent;
  * 
  * @author Karim El Assal
  */
-@CommandHandler.ServerSide
+@ServerSide
 public class InitializationCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------

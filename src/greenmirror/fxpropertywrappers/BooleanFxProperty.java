@@ -1,10 +1,12 @@
-package greenmirror.fxpropertytypes;
+package greenmirror.fxpropertywrappers;
+
+import greenmirror.FxPropertyWrapper;
 
 import java.lang.reflect.Method;
 
 
 /**
- * A wrapper for the <tt>Paint</tt> type of FX properties.
+ * A wrapper for the <code>Paint</code> type of FX properties.
  * 
  * @author Karim El Assal
  */
@@ -14,7 +16,7 @@ public class BooleanFxProperty extends FxPropertyWrapper {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#FxPropertyTypeWrapper(String)
+     * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
     public BooleanFxProperty(String propertyName) {
@@ -33,7 +35,7 @@ public class BooleanFxProperty extends FxPropertyWrapper {
     }
 
     /* (non-Javadoc)
-     * @see greenmirror.fxpropertytypes.FxPropertyWrapper#getGetMethod(java.lang.Class)
+     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#getGetMethod(java.lang.Class)
      */
     @Override
     public Method getGetMethod(Class<?> originClass) throws NoSuchMethodException {

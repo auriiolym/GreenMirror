@@ -20,7 +20,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     // -- Constants --------------------------------------------------------------------------
 
     /**
-     * The unique identifier of this <tt>ModelInitializer</tt>.
+     * The unique identifier of this <code>ModelInitializer</code>.
      */
     private static final String UID = "groovyscript";
     
@@ -37,8 +37,9 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     /**
      * The imports performed in the Groovy user script.
      */
-    private static final Object[] IMPORTS = new Object[]{
+    public static final Object[] IMPORTS = new Object[]{
         "greenmirror.*",
+        "greenmirror.placements.*",
         greenmirror.client.GridBuilder.class,
         "javafx.scene.paint.*",
         "javafx.geometry.*",
@@ -59,7 +60,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     private Script script;
     
     /**
-     * The <tt>FileReader</tt> for the source file.
+     * The <code>FileReader</code> for the source file.
      */
     private FileReader filereader;
     
@@ -125,7 +126,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare this <tt>ModelInitializer</tt> for executing. This includes reading the
+     * Prepare this <code>ModelInitializer</code> for executing. This includes reading the
      * Groovy script source file, checking if the initialize() command is the first, and
      * parsing it.
      * @throws ModelInitializer.PreparationException If anything goes wrong.

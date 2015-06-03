@@ -30,8 +30,8 @@ public class AddRelationCommand extends Command {
     // --- Constructors ----------------------------------------------------------------------
     
     /**
-     * Create a new <tt>AddRelationCommand</tt>.
-     * @param relation The newly created <tt>Relation</tt>.
+     * Create a new <code>AddRelationCommand</code>.
+     * @param relation The newly created <code>Relation</code>.
      */
     public AddRelationCommand(Relation relation) {
         this.relation = relation;

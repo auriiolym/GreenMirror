@@ -23,7 +23,7 @@ public class FlushCommand extends Command {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initialize the <tt>Command</tt>.
+     * Initialize the <code>Command</code>.
      * @param delay The delay that is added after the previous animations.
      */
     //@ requires delay >= 0.0;
@@ -47,7 +47,7 @@ public class FlushCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare the <tt>Command</tt>.
+     * Prepare the <code>Command</code>.
      */
     public void prepare() {
         // Nothing to prepare.
