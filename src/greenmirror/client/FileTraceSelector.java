@@ -17,55 +17,36 @@ public class FileTraceSelector implements TraceSelector {
 
     // -- Constants --------------------------------------------------------------------------
 
-    /**
-     * The unique identifier of this <code>TraceSelector</code>.
-     */
+    /** the unique identifier of this <code>TraceSelector</code> */
     private static final String UID = "file";
     
-    /**
-     * The parameter description.
-     */
+    /** the parameter description */
     private static final String PARAMS = "<filename>";
+    
     
     // -- Instance variables -----------------------------------------------------------------
     
-    /**
-     * The retrieved trace.
-     */
+    /** the retrieved trace */
     //@ private invariant trace != null;
     private List<String> trace = new LinkedList<String>();
     
-    /**
-     * The reader that reads from the file.
-     */
+    /** the reader that reads from the file */
     private FileReader filereader;
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.TraceSelector#getIdentifier()
-     */
     @Override
-    //@ ensures \result != null;
     /*@ pure */ public String getIdentifier() {
         return UID;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.TraceSelector#getParameterSpecification()
-     */
     @Override
-    //@ ensures \result != null;
     /*@ pure */ public String getParameterSpecification() {
         return PARAMS;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.TraceSelector#getTrace()
-     */
     @Override
-    //@ ensures \result != null;
     /*@ pure */ public List<String> getTrace() {
         return trace;
     }
@@ -73,9 +54,6 @@ public class FileTraceSelector implements TraceSelector {
     
     // -- Setters ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.TraceSelector#setParameter(java.lang.String)
-     */
     @Override
     public void setParameter(String parameter) throws IllegalArgumentException {
         
@@ -91,9 +69,6 @@ public class FileTraceSelector implements TraceSelector {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.TraceSelector#prepare()
-     */
     @Override
     public void prepare() throws TraceSelector.PreparationException {
         try (BufferedReader reader = new BufferedReader(filereader)) {

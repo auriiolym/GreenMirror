@@ -25,20 +25,20 @@ public interface TraceSelector {
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return A unique identifier for this <code>ModelInitializer</code>.
+     * @return a unique identifier for this <code>TraceSelector</code>
      */
     //@ ensures \result != null;
     public String getIdentifier();
     
     /**
-     * @return A specification of the parameters. For example, in command line usage: 
-     *         "<param1>:<param2>".
+     * @return a specification of the parameters. For example, in command line usage: 
+     *         "&lt;param1&gt;". Only one parameter is allowed.
      */
     //@ ensures \result != null;
     public String getParameterSpecification();
     
     /**
-     * @return The trace this selector has selected.
+     * @return the trace this selector has selected
      */
     //@ ensures \result != null;
     public List<String> getTrace();
@@ -47,7 +47,7 @@ public interface TraceSelector {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * @param parameter Parameter to store .
+     * @param parameter parameter to store (like an input source)
      */
     public void setParameter(String parameter);
     
@@ -57,7 +57,8 @@ public interface TraceSelector {
     /**
      * Do some preparing, like retrieving the trace from a file or other class. This method 
      * should only be called once.
-     * @throws PreparationException If something goes wrong during the preparation.
+     * 
+     * @throws PreparationException if something goes wrong during the preparation
      */
     public void prepare() throws PreparationException;
     
