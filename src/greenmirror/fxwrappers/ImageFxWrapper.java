@@ -20,6 +20,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
 import javafx.geometry.Point3D;
@@ -243,7 +245,7 @@ public class ImageFxWrapper extends FxWrapper {
         return setImage(img);
     }
     
-    public ImageFxWrapper setImageFromUrl(String url) {
+    public ImageFxWrapper setImageFromUrl(@NonNull String url) {
         try {
             final URLConnection connection = new URL(url).openConnection();
             connection.connect();
@@ -310,6 +312,48 @@ public class ImageFxWrapper extends FxWrapper {
         return rect;
     }
     
+    /**
+     * Determines the size of the node for use with the calculations of placements.
+     * If the fitWidth is set, that value will be returned as the width. The height is determined
+     * on the basis of the value of {@link #isPreserveRatio()}. If fitWidth is not set, it tries
+     * the same with fitHeight. If both aren't set, the width and height of the set image are
+     * returned.
+     * 
+     * @return an array with the width on the first index and the height on the second
+     */
+    //@ requires getImage() != null;
+    //@ ensures \result.length == 2;
+    @NonNull
+    private double[] determineSize() {
+        final double[] size = new double[2];
+        final Double fitWidth = getFitWidth();
+        final Double fitHeight = getFitHeight();
+        final double imageWidth = getImage().getWidth();
+        final double imageHeight = getImage().getHeight();
+        final double ratio = imageWidth / imageHeight;
+        
+        if (fitWidth != null) {
+            size[0] = fitWidth;
+            if (isPreserveRatio()) {
+                size[1] = fitWidth / ratio;
+            } else {
+                size[1] = imageHeight;
+            }
+        } else if (fitHeight != null) {
+            size[1] = fitHeight;
+            if (isPreserveRatio()) {
+                size[0] = fitHeight * ratio;
+            } else {
+                size[0] = imageWidth;
+            }
+        } else {
+            size[0] = imageWidth;
+            size[1] = imageHeight;
+        }
+        
+        return size;
+    }
+    
     
     // -- Commands ---------------------------------------------------------------------------
 
@@ -318,13 +362,19 @@ public class ImageFxWrapper extends FxWrapper {
      */
     @Override
     /*@ pure */ public Point3D calculatePoint(Placement placement) {
-        final double width = getFitWidth() == null ? getImage().getWidth() : getFitWidth();
-        final double height = getFitHeight() == null ? getImage().getHeight() : getFitHeight();
+        final double[] size = determineSize();
+        
+        System.err.println("fitWidth:      " + (getFitWidth() == null ? "null" : getFitWidth()));
+        System.err.println("fitHeight:     " + (getFitHeight() == null ? "null" : getFitHeight()));
+        System.err.println("image width:   " + getImage().getWidth());
+        System.err.println("image height:  " + getImage().getHeight());
+        System.err.println("chosen width:  " + size[0]);
+        System.err.println("chosen height: " + size[1]);
         
         //System.err.println("Image: width=" + width + ", height=" + height + ", placement=" + placement.toString());
         
         return new Point3D(getX(), getY(), 0)
-            .add(FxWrapper.calculatePointOnRectangle(width, height, placement));
+            .add(FxWrapper.calculatePointOnRectangle(size[0], size[1], placement));
     }
 
     /* (non-Javadoc)
@@ -352,11 +402,10 @@ public class ImageFxWrapper extends FxWrapper {
      */
     @Override
     protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
-        final double width = getFitWidth() == null ? getImage().getWidth() : getFitWidth();
-        final double height = getFitHeight() == null ? getImage().getHeight() : getFitHeight();
+        final double[] size = determineSize();
         
-        return new Point3D(middlePoint.getX() - width / 2, 
-                           middlePoint.getY() - height / 2, 0);
+        return new Point3D(middlePoint.getX() - size[0] / 2, 
+                           middlePoint.getY() - size[1] / 2, 0);
     }
 
     /* (non-Javadoc)

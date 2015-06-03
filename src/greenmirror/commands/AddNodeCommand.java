@@ -51,6 +51,7 @@ public class AddNodeCommand extends Command {
     /**
      * Prepare the <code>Command</code>.
      */
+    @Override
     public void prepare() {
         // Nothing to prepare.
     }
@@ -60,6 +61,7 @@ public class AddNodeCommand extends Command {
      * @param format The format in which the data will be.
      */
     //@ requires format != null;
+    @Override
     public String getFormattedString(CommunicationFormat format) {
         switch (format) {
         default: case JSON:

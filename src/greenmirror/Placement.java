@@ -91,6 +91,7 @@ public abstract class Placement implements Cloneable {
      * @return The name of this placement.
      */
     //@ ensures \result != null;
+    @Override
     /*@ pure */ public String toString() {
         return getClass().getSimpleName().replace("Placement", "");
     }
@@ -110,6 +111,7 @@ public abstract class Placement implements Cloneable {
      * @return A deep copy of this <code>Placement</code>.
      */
     //@ ensures \result != null;
+    @Override
     /*@ pure */ public abstract Placement clone();
     
     /**

@@ -72,6 +72,7 @@ public class PeerListener extends Thread {
      * specific incoming data, the data and the <code>CommandHandler</code> are sent to the 
      * controller's handlePeerData(String, CommandHandler) method.
      */
+    @Override
     public void run() {
         if (getController().getStreamIn() == null) {
             throw new IllegalStateException("No incoming connection could be found.");

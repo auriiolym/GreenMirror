@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="json"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/groovy-all-2.4.2.jar"/>
-	<classpathentry kind="lib" path="lib/json_simple-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jopt-simple-4.9-beta-1.jar" sourcepath="lib/jopt-simple-4.9-beta-1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/GreenMirror/lib/jopt-simple-4.9-beta-1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.jdt.annotation_2.0.0.v20140415-1436.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
