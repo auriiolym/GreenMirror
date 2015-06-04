@@ -364,15 +364,6 @@ public class ImageFxWrapper extends FxWrapper {
     /*@ pure */ public Point3D calculatePoint(Placement placement) {
         final double[] size = determineSize();
         
-        System.err.println("fitWidth:      " + (getFitWidth() == null ? "null" : getFitWidth()));
-        System.err.println("fitHeight:     " + (getFitHeight() == null ? "null" : getFitHeight()));
-        System.err.println("image width:   " + getImage().getWidth());
-        System.err.println("image height:  " + getImage().getHeight());
-        System.err.println("chosen width:  " + size[0]);
-        System.err.println("chosen height: " + size[1]);
-        
-        //System.err.println("Image: width=" + width + ", height=" + height + ", placement=" + placement.toString());
-        
         return new Point3D(getX(), getY(), 0)
             .add(FxWrapper.calculatePointOnRectangle(size[0], size[1], placement));
     }

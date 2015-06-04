@@ -23,11 +23,8 @@ public abstract class DoublePropertyTransition<E extends javafx.scene.Node>
     
     // --- Commands --------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see javafx.animation.Transition#interpolate(double)
-     */
-    @Override
     //@ requires getNode() != null;
+    @Override
     protected void interpolate(double frac) {
         if (getFromValue() == null) {
             setFromValue(getPropertyValue());

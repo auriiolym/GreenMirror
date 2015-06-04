@@ -33,11 +33,11 @@ public class EdgePlacement extends Placement {
     @Override
     public EdgePlacement withData(String data) {
         super.withData(data);
-        String[] dataParts = data.split(":");
+        final String[] dataParts = data.split(":");
         if (dataParts.length < 4) {
             throw new IllegalArgumentException("The passed placement data was invalid.");
         }
-        return withAngle(Double.valueOf(dataParts[3]));
+        return withAngle(dataParts.length >= 5 ? Double.valueOf(dataParts[4]) : 0);
     }
     
     @Override

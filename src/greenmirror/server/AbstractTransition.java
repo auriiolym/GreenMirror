@@ -104,11 +104,8 @@ public abstract class AbstractTransition<E extends javafx.scene.Node, T extends 
     
     // --- Commands --------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see javafx.animation.Transition#interpolate(double)
-     */
-    @Override
     //@ requires getNode() != null;
+    @Override
     protected abstract void interpolate(double frac);
     
 }

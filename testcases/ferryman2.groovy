@@ -17,12 +17,9 @@ addNodes(
     new Node("boat").set(fx("image")
                     .setImageFromFile("testcases/boat.png")
                     .setFitWidth(100)
-                    .setFitHeight(100)
-                    .setPreserveRatio(true)
-                    .setRotate(90)),
-    //new Node("boat").set(fx("rectangle").setSize(100, 200)),
+                    .setPreserveRatio(true)),
     new Node("ferryman").set(fx("circle")
-                    .setRadius(20)
+                    .setRadius(10)
                     .setFill(Color.BLUE))
 );
 addRelations(
