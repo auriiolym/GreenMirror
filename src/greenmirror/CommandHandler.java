@@ -4,9 +4,11 @@ import groovy.json.JsonException;
 import groovy.json.JsonParserType;
 import groovy.json.JsonSlurper;
 import groovy.json.internal.LazyValueMap;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 
 /**
  * A class that handles commands received over the network. Every subclass should have at 
@@ -67,9 +69,9 @@ public abstract class CommandHandler {
      * @return the textual, one word description of the <code>command</code> belonging to this
      *         command handler
      */
-    // @ ensures \result != null;
-    /* @ pure */public String getCommand() {
-        return getClass().getSimpleName().replace("CommandHandler", "");
+    /* @ pure */ @NonNull public String getCommand() {
+        final String str = getClass().getSimpleName().replace("CommandHandler", "");
+        return str == null ? "" : str;
     }
     
 
@@ -79,7 +81,7 @@ public abstract class CommandHandler {
      * @param controller the GreenMirror controller to store for later use
      */
     // @ ensures getController() == controller;
-    public void setController(GreenMirrorController controller) {
+    public void setController(@NonNull GreenMirrorController controller) {
         this.controller = controller;
     }
 
@@ -98,8 +100,8 @@ public abstract class CommandHandler {
      * @see    CommunicationFormat
      * @see    #setController(GreenMirrorController)
      */
-    // @ requires format != null && data != null && getController() != null;
-    public abstract void handle(CommunicationFormat format, String data)
+    // @ requires getController() != null;
+    public abstract void handle(@NonNull CommunicationFormat format, @NonNull String data)
             throws MissingDataException, DataParseException;
 
     
@@ -111,14 +113,9 @@ public abstract class CommandHandler {
      * @param data the JSON data
      * @return     a <code>Map</code> containing the parsed data
      * @throws DataParseException   if the JSON string was invalid
-     * @throws NullPointerException if <code>data</code> is <code>null</code>
      */
-    // @ requires data != null;
-    public static Map<String, Object> parseJson(String data)
+    @NonNull public static Map<String, Object> parseJson(@NonNull String data)
             throws DataParseException {
-        if (data == null) {
-            throw new NullPointerException("data can't be null.");
-        }
 
         try {
             final Map<String, Object> res = new LinkedHashMap<String, Object>();

@@ -20,11 +20,4 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>json</name>
-			<type>2</type>
-			<location>C:/Users/Karim/Dropbox/BO/workspace/GreenMirror/lib/json</location>
-		</link>
-	</linkedResources>
 </projectDescription>

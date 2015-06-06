@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 // Extends java.util.LinkedList<Node>.
 /**
  * A custom <code>List</code> implementation to apply specific filters.
@@ -39,7 +41,7 @@ public class NodeList extends LinkedList<Node> {
     //@ requires oldList != null;
     //@ ensures this.size() == oldList.size();
     //TODO: add forall condition.
-    public NodeList(NodeList oldList) {
+    public NodeList(@NonNull NodeList oldList) {
         super(oldList);
     }
     
@@ -63,10 +65,8 @@ public class NodeList extends LinkedList<Node> {
      * @param predicate The filter.
      * @return          A new <code>NodeList</code> with a filter applied.
      */
-    //@ requires predicate != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ private NodeList withFilter(Predicate<Node> predicate) {
+    /*@ pure */ private NodeList withFilter(@NonNull Predicate<Node> predicate) {
         return this.stream().filter(predicate)
                 .collect(Collectors.toCollection(NodeList::new));
     }
@@ -146,13 +146,13 @@ public class NodeList extends LinkedList<Node> {
     /**
      * Get <code>Node</code>s that have a <code>Relation</code> with any of <code>nodes</code> in the 
      * specified </code>direction</code>.
-     * @param direction The direction of the <code>Relation</code>s. See 
-     *                  {@link greenmirror.Node#getRelations(int)}.
-     * @param nodes     Possible <code>Node</code>s on the other end of the <code>Relation</code>.
-     * @return          The matching <code>Node</code>s.
+     * @param direction  The direction of the <code>Relation</code>s. See 
+     *                   {@link greenmirror.Node#getRelations(int)}.
+     * @param matchNodes Possible <code>Node</code>s on the other end of the <code>Relation</code>.
+     * @return           The matching <code>Node</code>s.
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
-    //@ requires nodes != null;
+    //@ requires matchNodes != null;
     //@ ensures \result != null;
     /*@ pure */ public NodeList withRelationTo(int direction, NodeList matchNodes) {
         return withFilter(node -> {
@@ -163,6 +163,10 @@ public class NodeList extends LinkedList<Node> {
             }
             return false;
         });
+    }
+    
+    public NodeList withRelationTo(int direction, @NonNull Node matchNode) {
+        return withRelationTo(direction, new NodeList(matchNode));
     }
     
     /**
@@ -178,15 +182,32 @@ public class NodeList extends LinkedList<Node> {
     /*@ pure */ public NodeList withRelation(int direction, String relationName) {
         return withFilter(node -> node.getRelation(direction, relationName) != null);
     }
+    
+    /*@ pure */ public NodeList without(@NonNull NodeList nodes) {
+        return withFilter(node -> !nodes.contains(node));
+    }
+    
+    /*@ pure */ public NodeList without(@NonNull Node... nodes) {
+        return without(new NodeList(nodes));
+    }
+    
+    /*@ pure */ public NodeList not(@NonNull NodeList nodes) {
+        return without(new NodeList(nodes));
+    }
+    
+    /*@ pure */ public NodeList not(@NonNull Node... nodes) {
+        return without(new NodeList(nodes));
+    }
+    
 
     /**
      * @return This <code>NodeList</code> truncated with only the first element left;
      *         or just an empty <code>NodeList</code> if <code>this</code> doesn't contain any 
      *         <code>Node</code>s.
      */
-    //@ ensures (this.size() == 0) ? (\result == null) : (\result.size() == 1);
-    /*@ pure */ public NodeList one() {
-        return this.isEmpty() ? null : new NodeList(this.get(0));
+    //@ ensures (this.size() == 0) ? true : (\result.size() == 1);
+    /*@ pure */ @NonNull public NodeList one() {
+        return this.isEmpty() ? this : new NodeList(this.get(0));
     }
     
     

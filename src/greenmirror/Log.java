@@ -39,13 +39,13 @@ public class Log {
      * Entries of the log.
      */
     //@ private invariant entries != null;
-    private static List<String> entries = new LinkedList<String>();
+    private static final List<String> entries = new LinkedList<String>();
     
     /**
      * The selected log outputs.
      */
     //@ private invariant outputs != null;
-    private static Set<PrintStream> outputs = new HashSet<PrintStream>();
+    private static final Set<PrintStream> outputs = new HashSet<PrintStream>();
     
     /**
      * Whether to log verbose data.
@@ -60,10 +60,10 @@ public class Log {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @return The log entries.
+     * @return a copy of the log entries
      */
-    /*@ pure non_null */ private static List<String> getEntries() {
-        return entries;
+    /*@ pure non_null */ public static List<String> getEntries() {
+        return new LinkedList<String>(entries);
     }
     
     /**
@@ -126,7 +126,7 @@ public class Log {
         String data = String.valueOf(obj);
         
         // Store in the list.
-        getEntries().add(data);
+        entries.add(data);
         
         // Output to every selected output type.
         for (PrintStream outputType : outputs) {

@@ -1,9 +1,5 @@
 package greenmirror;
 
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -14,6 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * The base controller. It contains shared functionality for the client and server 
@@ -28,8 +30,8 @@ public abstract class GreenMirrorController {
     /**
      * All <code>Node</code>s.
      */
-    //@ private invariant nodes != null && nodes == getNodes();
-    private NodeList nodes = new NodeList();
+    //@ private invariant nodes == getNodes();
+    @NonNull private NodeList nodes = new NodeList();
     
     /**
      * The socket and input and output streams from and to the peer.
@@ -77,7 +79,7 @@ public abstract class GreenMirrorController {
      * @return The reference to the list of <code>Node</code>s.
      */
     //@ ensures \result != null;
-    /*@ pure */ public NodeList getNodes() {
+    /*@ pure */ @NonNull public NodeList getNodes() {
         return nodes;
     }
     
@@ -303,7 +305,7 @@ public abstract class GreenMirrorController {
         } catch (OptionException e) {
             Log.add("Something went wrong with parsing these options: " 
                     + new TreeSet<String>(e.options()).toString() 
-                    + ". Are these valid options? Or did you forget to pass them? Type --help "
+                    + ". Are these valid options? Or did you forget to pass them? Use --help "
                     + "or -? to see all available options.");
             return false;
         }

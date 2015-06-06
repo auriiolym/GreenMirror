@@ -75,7 +75,7 @@ public class PortCommandLineOptionHandler implements CommandLineOptionHandler {
     @Override
     public OptionSpec<?> setParserSettings(OptionParser optionParser) {
 
-        return optionParser.acceptsAll(getOptions())
+        return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
                     .required()
                     .describedAs("portnumber");

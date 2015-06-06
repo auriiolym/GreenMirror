@@ -27,7 +27,7 @@ public abstract class FxShapeWrapper extends FxWrapper {
     // -- Instance variables -----------------------------------------------------------------
     
     /** the virtual fill property */
-    private Paint fill;
+    private Paint fill = Color.BLACK;
     
 
     // -- Constructors -----------------------------------------------------------------------

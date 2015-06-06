@@ -215,7 +215,7 @@ public class ImageFxWrapper extends FxWrapper {
     //@ ensures getImage() == value;
     //@ ensures \result == this;
     public ImageFxWrapper setImage(Image value) {
-        if (!(value instanceof MyImage)) {
+        if (!(value instanceof MyImage) && value != null) {
             throw new IllegalArgumentException("Image has to be of type MyImage.");
         }
         this.image = value;
@@ -305,7 +305,7 @@ public class ImageFxWrapper extends FxWrapper {
     /* (non-Javadoc)
      * @see greenmirror.FxWrapper#clone()
      */
-    @Override
+    @Override @NonNull
     public ImageFxWrapper clone() {
         ImageFxWrapper rect = new ImageFxWrapper();
         rect.setFromMap(this.toMap());
@@ -404,7 +404,7 @@ public class ImageFxWrapper extends FxWrapper {
      */
     @Override
     public void setToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         setX(coord.getX());
         setY(coord.getY());
     }

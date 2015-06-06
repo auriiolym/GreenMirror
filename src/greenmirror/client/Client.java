@@ -61,7 +61,7 @@ public class Client extends GreenMirrorController implements Observer {
     /**
      * The available transitions as defined by the model initializer.
      */
-    //@ privaten invariant availableTransitions != null;
+    //@ private invariant availableTransitions != null;
     private List<ModelTransition> availableTransitions = new LinkedList<ModelTransition>();
     
     /**
@@ -353,8 +353,10 @@ public class Client extends GreenMirrorController implements Observer {
             for (ModelTransition transition : getTransitions(traceTransition)) {
                 send(new SetAnimationDurationCommand(transition.getDuration()));
                 transition.execute(traceTransition);
-                send(new EndTransitionCommand());
-                Log.add("Transition " + traceTransition + " executed.");
+                if (!transition.isSupplemental()) {
+                    send(new EndTransitionCommand());
+                    Log.add("Transition " + traceTransition + " executed.");
+                }
             }
         }
         send(new StartVisualizationCommand());
@@ -426,40 +428,5 @@ public class Client extends GreenMirrorController implements Observer {
         
         
     }
-    
-    
-    
-    
-    // FileTraceSelector test
-    public static void main2(String[] args) {
-        try {
-            TraceSelector ts = new FileTraceSelector();
-            ts.setParameter("trace");
-            ts.prepare();
-            System.out.println(ts.getTrace());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    // GroovyScriptModelInitializer test
-    public static void main1(String[] args) {
-        GroovyScriptModelInitializer gsmi = new GroovyScriptModelInitializer();
-        try {
-            gsmi.setController(new Client());
-            gsmi.setParameter("initialize_script.groovy");
-            gsmi.prepare();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        
-        try {
-            gsmi.executeInitializer();
-        } catch (GroovyRuntimeException e) {
-            // Script1.run(Script1.groovy:1)
-            System.out.println(Arrays.toString(e.getStackTrace()));
-            //e.printStackTrace();
-        }
-    }
-    
+
 }

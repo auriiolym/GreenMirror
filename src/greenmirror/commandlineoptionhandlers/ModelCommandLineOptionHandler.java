@@ -35,7 +35,7 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
      */
     @Override
     public String getDescription() {
-        return "";
+        return "select a initializer that initializes your model. Multiple are possible.";
     }
 
     /* (non-Javadoc)
@@ -79,7 +79,7 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
     @Override
     public OptionSpec<?> setParserSettings(OptionParser optionParser) {
 
-        return optionParser.acceptsAll(getOptions())
+        return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
                     .required()
                     .describedAs("initializer:parameter")

@@ -33,7 +33,7 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
      */
     @Override
     public String getDescription() {
-        return "";
+        return "the selector that will select the trace of the model";
     }
 
     /* (non-Javadoc)
@@ -77,7 +77,7 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
     @Override
     public OptionSpec<?> setParserSettings(OptionParser optionParser) {
 
-        return optionParser.acceptsAll(getOptions())
+        return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
                     .required()
                     .describedAs("selector:parameter")

@@ -31,28 +31,15 @@ public class ModelTransition {
     
     /**
      * The base duration of the transition animations. (in milliseconds); 
-     * -1.0 for unspecified duration.
+     * -1.0 for unspecified duration; 0 if you don't want animations to play.
      */
     //@ private invariant duration >= -1.0;
     private double duration = -1.0;
     
+    private boolean supplemental = false;
+    
     
     // -- Constructors -----------------------------------------------------------------------
-    
-    /**
-     * @param pattern  {@link greenmirror.client.ModelTransition#pattern}
-     * @param closure  {@link greenmirror.client.ModelTransition#closure}
-     * @param duration {@link greenmirror.client.ModelTransition#duration}
-     */
-    //@ requires pattern != null && closure != null && duration >= -1.0;
-    //@ ensures getPattern() == pattern && getClosure() == closure;
-    //@ ensures getDuration() == duration;
-    public ModelTransition(Pattern pattern, Closure<Object> closure,
-                            double duration) {
-        setPattern(pattern);
-        setClosure(closure);
-        setDuration(duration);
-    }
 
     /**
      * @param regex    A valid regex which compiles into a <code>Pattern</code>.
@@ -63,11 +50,18 @@ public class ModelTransition {
     //@ ensures getPattern().equals(Pattern.compile(regex)) && getClosure() == closure;
     //@ ensures getDuration() == duration;
     public ModelTransition(String regex, Closure<Object> closure, 
-                            double duration) {
+                            double duration, boolean supplemental) {
         setPattern(regex);
         setClosure(closure);
         setDuration(duration);
+        setSupplemental(supplemental);
     }
+    
+    public ModelTransition(String regex, Closure<Object> closure, 
+            double duration) {
+        this(regex, closure, duration, false);
+    }
+    
 
     
     // -- Queries ----------------------------------------------------------------------------
@@ -96,17 +90,12 @@ public class ModelTransition {
         return duration;
     }
     
+    /*@ pure */ public boolean isSupplemental() {
+        return supplemental;
+    }
+    
     
     // -- Setters ----------------------------------------------------------------------------
-
-    /**
-     * @param pattern The pattern to set.
-     */
-    //@ requires pattern != null;
-    //@ ensures getPattern() == pattern;
-    public void setPattern(Pattern pattern) {
-        this.pattern = pattern;
-    }
 
     /**
      * @param regex The regex which compiles to a valid <code>Pattern</code> to set.
@@ -133,6 +122,11 @@ public class ModelTransition {
     //@ ensures getDuration() == duration;
     public void setDuration(double duration) {
         this.duration = duration;
+    }
+    
+    //@ ensures isSupplemental() == supplemental;
+    public void setSupplemental(boolean supplemental) {
+        this.supplemental = supplemental;
     }
     
 

@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * 
  * @author Karim El Assal
  */
-public class Node extends Observable implements Observer {
+public class Node extends Observable implements Observer, Cloneable {
     
     /**
      * A class to generalize the use of the <code>Node</code> identifiers. Possible values
@@ -516,7 +516,7 @@ public class Node extends Observable implements Observer {
         if (getFxWrapper() != null
                 && !getFxWrapper().getType().equals(
                         GreenMirrorUtils.capitalizeFirstChar(fxWrapper.getType()))) {
-            throw new IllegalArgumentException("You have already set the FX type");
+            throw new IllegalArgumentException("you have already set the FX type");
         }
         setFxWrapper(fxWrapper);
         getFxWrapper().addObserver(this);

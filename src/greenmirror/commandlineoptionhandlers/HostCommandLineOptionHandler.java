@@ -5,15 +5,15 @@ import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.client.Client;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSpec;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSpec;
 
 /**
  * The host <code>CommandLineOptionHandler</code> (client side).
@@ -36,7 +36,7 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
      */
     @Override
     public String getDescription() {
-        return "";
+        return "connect to a server";
     }
 
     /* (non-Javadoc)
@@ -80,7 +80,7 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
     @Override
     public OptionSpec<?> setParserSettings(OptionParser optionParser) {
 
-        return optionParser.acceptsAll(getOptions())
+        return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
                     .required()
                     .describedAs("address:port")
@@ -101,7 +101,7 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
         try {
             host = InetAddress.getByName(parameters[0]);
             port = Integer.valueOf(parameters[1]);
-            if (port < 0) { 
+            if (port < -1) { // -1 is for debug purposes. 
                 throw new NumberFormatException();
             }
         } catch (UnknownHostException e) {
@@ -116,6 +116,10 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
      */
     @Override
     public void process(GreenMirrorController controller) throws FatalException {
+        
+        if (port == -1) {
+            return;
+        }
         
         // Connect.
         try {

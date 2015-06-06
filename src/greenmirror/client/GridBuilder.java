@@ -324,6 +324,22 @@ public class GridBuilder {
         setBorderSizeLeft(rightLeftSize);
         return this;
     }
+    
+    /**
+     * @param topSize    The borderSize to set for the top side.
+     * @param rightSize  The borderSize to set for the right side.
+     * @param bottomSize The borderSize to set for the bottom side.
+     * @param leftSize   The borderSize to set for the left side.
+     * @return              <code>this</code>
+     */
+    public GridBuilder setBorderSize(double topSize, double rightSize, double bottomSize, 
+            double leftSize) {
+        setBorderSizeTop(topSize);
+        setBorderSizeBottom(bottomSize);
+        setBorderSizeRight(rightSize);
+        setBorderSizeLeft(leftSize);
+        return this;
+    }
 
     /**
      * @param borderSizeTop The borderSizeTop to set.

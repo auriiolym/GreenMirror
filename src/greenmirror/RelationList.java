@@ -12,6 +12,23 @@ import java.util.stream.Collectors;
 public class RelationList extends LinkedList<Relation> {
     
     
+    // -- Constructors -----------------------------------------------------------------------
+    
+    public RelationList() {
+        
+    }
+    
+    public RelationList(Relation... relations) {
+        for (Relation relation : relations) {
+            add(relation);
+        }
+    }
+    
+    public RelationList(RelationList relations) {
+        super(relations);
+    }
+    
+    
     // -- Queries ----------------------------------------------------------------------------
     
     /**
@@ -20,7 +37,11 @@ public class RelationList extends LinkedList<Relation> {
     //@ ensures \result != null;
     /*@ pure */ public NodeList getNodesA() {
         NodeList nodes = new NodeList();
-        this.forEach(relation -> nodes.add(relation.getNodeA()));
+        this.forEach(relation -> { 
+            if (!nodes.contains(relation.getNodeA())) {
+                nodes.add(relation.getNodeA());
+            }
+        });
         return nodes;
     }
     

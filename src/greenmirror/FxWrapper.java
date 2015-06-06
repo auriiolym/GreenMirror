@@ -12,7 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.Random;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -20,6 +19,8 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
 import javafx.geometry.Point3D;
 import javafx.util.Duration;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A wrapper class for handling JavaFX nodes.
@@ -592,7 +593,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     //@ requires width >= 0 && height >= 0;
     /*@ pure non_null */ public static Point3D calculatePointOnRectangle(double width, 
-            double height, /*@ non_null */ Placement placement) {
+            double height, @NonNull Placement placement) {
         if (width < 0 || height < 0) {
             throw new IllegalArgumentException("width and height can't be negative.");
         }
@@ -630,18 +631,39 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             final double b4  = b2 + 180;
             boolean verticalQuadrant = true;
             boolean primaryQuadrant = true; // Top and right quadrants are primary.
+            // Boundary 1: top right
+            if (degrees == b1) {
+                calcX = width;
+                break;
+            } else
             // First quadrant: right
-            if (degrees > b1 && degrees <= b2) {
+            if (degrees > b1 && degrees < b2) {
                 verticalQuadrant = false;
+            } else
+            // Boundary 2: bottom right
+            if (degrees == b2) {
+                calcX = width;
+                calcY = height;
+                break;
             } else
             // Second quadrant: bottom
             if (degrees > b2 && degrees < b3) {
                 primaryQuadrant = false;
             } else
+            // Boundary 3: bottom left
+            if (degrees == b3) {
+                calcY = height;
+                break;
+            } else
             // Third quadrant: left
-            if (degrees >= b3 && degrees <= b4) {
+            if (degrees > b3 && degrees < b4) {
                 verticalQuadrant = false;
                 primaryQuadrant = false;
+            } else
+            // Boundary 4: top left
+            if (degrees == b4) {
+                // Keep calcX=0 and calcY=0 
+                break;
             }
             // Fourth quadrant: top
             //  degrees > b4 || degrees < b1
@@ -704,31 +726,29 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @param type the type, which should be the same as the class name in the 
      *             <code>greenmirror.fxwrappers</code> package, appended with 
      *             <code>FxWrapper</code>. The first letter will be capitalized.
-     * @return     he new instance
+     * @return     the new instance
      * @throws IllegalArgumentException if the passed type is invalid
-     * @throws NullPointerException     if <code>type</code> is <code>null</code>
      * @see        FxWrapper
      * @see        java.util.ServiceLoader
      */
-    /*@ non_null */ public static FxWrapper getNewInstance(/*@ non_null */ String type) {
-        if (type == null) {
-            throw new NullPointerException("FxWrapper type" 
-                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
-        }
+    @NonNull public static FxWrapper getNewInstance(@NonNull String type) {
         
-        // Get prototypes if we haven't yet.
-        if (getPrototypes() == null) {
-            prototypes = new HashSet<FxWrapper>();
-            for (FxWrapper fxWrapper : ServiceLoader.load(FxWrapper.class)) {
-                getPrototypes().add(fxWrapper);
+        if (type.length() > 0) {
+            
+            // Get prototypes if we haven't yet.
+            if (getPrototypes() == null) {
+                prototypes = new HashSet<FxWrapper>();
+                for (FxWrapper fxWrapper : ServiceLoader.load(FxWrapper.class)) {
+                    getPrototypes().add(fxWrapper);
+                }
             }
-        }
-        
-        final String simpleClassName = GreenMirrorUtils.capitalizeFirstChar(type) + "FxWrapper";
-        
-        for (FxWrapper fxWrapperPrototype : getPrototypes()) {
-            if (simpleClassName.equals(fxWrapperPrototype.getClass().getSimpleName())) {
-                return fxWrapperPrototype.clone();
+            
+            final String simpleClassName = GreenMirrorUtils.capitalizeFirstChar(type) + "FxWrapper";
+            
+            for (FxWrapper fxWrapperPrototype : getPrototypes()) {
+                if (simpleClassName.equals(fxWrapperPrototype.getClass().getSimpleName())) {
+                    return fxWrapperPrototype.clone();
+                }
             }
         }
 
@@ -758,7 +778,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * Creates a shallow copy of this <code>FxWrapper</code>: only the property values are copied.
      */
     //@ ensures \result.toMap().equals(toMap());
-    /*@ pure non_null */ @Override public abstract FxWrapper clone();
+    /*@ pure */ @Override @NonNull public abstract FxWrapper clone();
     
     /**
      * Calculates the coordinates of the FX node's origin when its middle point is equal to
@@ -809,7 +829,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     //@ requires getFxNode() != null;
     public abstract void setFxToPositionWithMiddlePoint(
-            /*@ non_null */ Point3D nodesNewMiddlePoint);
+            @NonNull Point3D nodesNewMiddlePoint);
     
     /**
      * Creates animations from a property-value map (from a JSON object, for example). The 

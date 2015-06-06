@@ -60,6 +60,7 @@ public abstract class GreenMirrorUtils {
      * @return    the <code>String</code> with its first character capitalized
      * @throws NullPointerException if <code>str</code> is <code>null</code>
      */
+    //@ requires str.length() > 0;
     //@ ensures \result.equals(Character.toUpperCase(str.charAt(0)) + str.substring(1));
     /*@ pure non_null */ public static String capitalizeFirstChar(/*@ non_null */ String str) {
         if (str == null) {
@@ -78,5 +79,6 @@ public abstract class GreenMirrorUtils {
     /*@ pure */ public static double getRandomBetween(double min, double max) {
         return min + RAND.nextDouble() * (max - min);
     }
+    
     private final static Random RAND = new Random();
 }

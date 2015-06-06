@@ -9,7 +9,7 @@ import java.util.List;
  * 
  * @author Karim El Assal
  */
-public class Relation {
+public class Relation implements Cloneable {
 
 
     // -- Instance variables -----------------------------------------------------------------
@@ -139,9 +139,9 @@ public class Relation {
     /*@ pure */ public String toString() {
         return
               "Relation name=" + (getName() == null ? "" : getName())
-            + "|fromNodeId=" + (getNodeA() == null ? "" : 
+            + "|fromNode=" + (getNodeA() == null ? "" : 
                         (getNodeA().getId() == null ? "" : Log.n(getNodeA())))
-            + "|toNodeId=" + (getNodeB() == null ? "" : 
+            + "|toNode=" + (getNodeB() == null ? "" : 
                         (getNodeB().getId() == null ? "" : Log.n(getNodeB())))
             + "|placement=" + getPlacement().toString()
             + "|rigid=" + (isRigid() ? "true" : "false")
@@ -347,6 +347,7 @@ public class Relation {
         return this;
     }
 
+    @Override
     public Relation clone() {
         Relation relation = new Relation();
         relation.setName(this.getName());
@@ -402,17 +403,14 @@ public class Relation {
     //@ requires nodes != null && nodes.size() > 1 && nodes.contains(getNodeA());
     //@ ensures \result == this;
     public Relation passToNextNodeA(NodeList nodes) {
-        throw new UnsupportedOperationException();
-        //TODO: make a command in the groovy base script for this.
-        /*
         if (nodes != null && nodes.size() > 1 && nodes.contains(getNodeA())) {
             Node nextNode = nodes.getCircularNext(getNodeA());
-            remove();
+            removeFromNodes();
             removeNodeA();
             // Node B is still set and node A isn't, so we add this Relation to one of the two.
             nextNode.addRelation(this);
         }
-        return this;*/
+        return this;
     }
 
     /**

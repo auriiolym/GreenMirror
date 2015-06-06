@@ -7,13 +7,13 @@ import greenmirror.GreenMirrorUtils;
 import greenmirror.Log;
 import greenmirror.ServerSide;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSpec;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSpec;
 
 /**
  * The help <code>CommandLineOptionHandler</code> (client and server side).
@@ -77,7 +77,7 @@ public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
     @Override
     public OptionSpec<?> setParserSettings(OptionParser optionParser) {
 
-        return optionParser.acceptsAll(getOptions()).forHelp();
+        return optionParser.acceptsAll(getOptions(), getDescription()).forHelp();
     }
 
     /* (non-Javadoc)

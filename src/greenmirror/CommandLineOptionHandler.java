@@ -2,6 +2,7 @@ package greenmirror;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.List;
 
@@ -77,13 +78,13 @@ public interface CommandLineOptionHandler extends Cloneable {
     /**
      * @return the description of this option
      */
-    /*@ pure non_null */ public String getDescription();
+    /*@ pure */ @NonNull public String getDescription();
     
     /**
      * @return the options of this option handler. For example: "help" for a help command
      */
     //@ ensures \result.size() > 0;
-    /*@ pure non_null */ public List<String> getOptions();
+    /*@ pure */ @NonNull public List<String> getOptions();
     
     /**
      * Returns the processing priority of this option handler. Option handlers with a lower 
@@ -121,8 +122,7 @@ public interface CommandLineOptionHandler extends Cloneable {
      * @see <a href="https://pholser.github.io/jopt-simple/apidocs/joptsimple/OptionParser.html">
      *      JOpt Simple: OptionParser</a>
      */
-    /*@ non_null */ public OptionSpec<?> setParserSettings(
-            /*@ non_null */ OptionParser optionParser);
+    @NonNull public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser);
     
     /**
      * Validates the passed arguments. It throws a <code>FatalException</code> if the arguments
@@ -133,8 +133,8 @@ public interface CommandLineOptionHandler extends Cloneable {
      * @throws FatalException if the arguments can't be validated
      */
     //@ requires arguments.length > 0;
-    public void validate(/*@ non_null */ GreenMirrorController controller, 
-            /*@ non_null */ String... arguments) throws FatalException;
+    public void validate(@NonNull GreenMirrorController controller, 
+                         @NonNull String... arguments) throws FatalException;
     
     /**
      * Process this option.
@@ -142,10 +142,10 @@ public interface CommandLineOptionHandler extends Cloneable {
      * @param controller      the GreenMirror controller
      * @throws FatalException if something went wrong during processing
      */
-    public void process(/*@ non_null */ GreenMirrorController controller) throws FatalException;
+    public void process(@NonNull GreenMirrorController controller) throws FatalException;
     
     /**
      * @return a new instance of this option handler
      */
-    /*@ non_null */ public CommandLineOptionHandler clone();
+    @NonNull public CommandLineOptionHandler clone();
 }

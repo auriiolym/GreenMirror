@@ -233,7 +233,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
     /*@ pure */ private List<VisualizerMemento> getMementos() {
         return this.savedMementos;
     }
-    
+
+    @Override
     /*@ pure */ public VisualizerMemento getMemento(int index) {
         return getMementos().get(index);
     }
@@ -348,6 +349,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
     // -- Commands ---------------------------------------------------------------------------
     
+    @Override
     public void addMemento(VisualizerMemento memento) {
         getMementos().add(memento);
     }
@@ -358,6 +360,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
      * @param transitions
      * @return TODO
      */
+    @Override
     public VisualizerMemento saveToMemento(SequentialTransition transition) {
         return new VisualizerMemento(getController().getNodes(), transition);
     }
@@ -378,7 +381,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
     public void toPreviousMemento() {
         restoreFromMemento(getPreviousMemento());
     }
-    
+
+    @Override
     public void restoreFromMemento(VisualizerMemento memento) {
         executeOnCorrectThread(() -> {
             setFxNodeVisibility(memento.getTransition(), true);
@@ -512,11 +516,11 @@ public class Visualizer extends Application implements Caretaker, Originator {
              * automatically filled in. 
              */
             if (isStarting  && (rate > 0 && (fr == null || fr == 0) && to > 0 
-                             || rate < 0 &&  fr > 0 && to == 0)) {
+                             || rate < 0 &&  fr != null && fr > 0 && to == 0)) {
                 ft.getNode().setVisible(true);
             } else
-            if (!isStarting && (rate > 0 &&  fr  > 0 && to == 0
-                             || rate < 0 &&  fr == 0 && to  > 0)) {
+            if (!isStarting && (rate > 0 &&  fr != null && fr  > 0 && to == 0
+                             || rate < 0 &&  fr != null && fr == 0 && to  > 0)) {
                 ft.getNode().setVisible(false);
             }
             return;
@@ -696,13 +700,10 @@ public class Visualizer extends Application implements Caretaker, Originator {
 
         // Process the command line startup.
         boolean successfulStartup = getController().processCommandLine(args);
+
         
-        if (!successfulStartup) {
-            // Listen for connections.
+        if (successfulStartup && getController().getPort() != null) {
             getController().listenForConnections();
-        } else {
-            // Exit.
-            getController().closeStreams();
         }
         
     }
@@ -745,7 +746,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
        visualizationsQueue = new SequentialTransition();
        visualizationsQueue.getChildren().add(new ParallelTransition());
    }
-   
+
+   @Override
    public void resetSavedMementos() {
        currentMementoIndex = 0;
        getMementos().clear();

@@ -1,5 +1,7 @@
 package greenmirror;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * All commands that are sent over the network are wrapped in subclasses of this abstract class. 
  * The order of using a subclass is as follows:
@@ -34,9 +36,8 @@ public abstract class Command {
      * 
      * @return the textual, one word description of this command
      */
-    //@ ensures \result != null;
-    /*@ pure */ public String getCommand() {
-        return getClass().getSimpleName().replace("Command", "");
+    /*@ pure */ @NonNull public String getCommand() {
+        return "" + getClass().getSimpleName().replace("Command", "");
     }
 
     /**
@@ -44,11 +45,9 @@ public abstract class Command {
      * the specified format.
      * 
      * @param format The communication format.
-     * @see CommunicationFormat
+     * @see          CommunicationFormat
      */
-    //@ requires format != null;
-    //@ ensures \result != null;
-    public abstract String getFormattedString(CommunicationFormat format);
+    @NonNull public abstract String getFormattedString(@NonNull CommunicationFormat format);
     
 
     // -- Setters ----------------------------------------------------------------------------
@@ -59,7 +58,7 @@ public abstract class Command {
      * @param controller
      */
     //@ ensures getController() == controller;
-    public void setController(GreenMirrorController controller) {
+    public void setController(@NonNull GreenMirrorController controller) {
         this.controller = controller;
     }
 

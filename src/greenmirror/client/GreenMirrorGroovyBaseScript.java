@@ -13,7 +13,7 @@ import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.Script;
 
-import java.util.regex.Pattern;
+import org.eclipse.jdt.annotation.NonNull;
 
 // Extends groovy.lang.Script.
 /**
@@ -98,7 +98,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
      * @param width    The width of the canvas.
      * @param height   The height of the canvas.
      * @param duration The default duration for transitions (in milliseconds); -1 for 
-     *                 unspecified duration.
+     *                 unspecified duration; 0 if you don't want animations to play
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
     public void initialize(double width, double height, double duration) {
@@ -122,7 +122,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
      * @param width    The width of the canvas.
      * @param height   The height of the canvas.
      * @param duration The default duration for transitions (in milliseconds); -1 for 
-     *                 unspecified duration.
+     *                 unspecified duration; 0 if you don't want animations to play
      * @param rotateRigidlyRelatedNodesRigidly
      *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
      */
@@ -249,17 +249,6 @@ public class GreenMirrorGroovyBaseScript extends Script {
         currentPlacementRelation.removeFromNodes();
         newRelation.addToNodes();
     }
-    
-    /**
-     * Add a transition to the list of possible transitions.
-     * @param transitionPattern The <code>Pattern</code> that indicates the transition name.
-     * @param code              The code that will be executed when the transition executes.
-     */
-    //@ requires transitionPattern != null && code != null;
-    public void addTransition(Pattern transitionPattern, Closure<Object> code) {
-        getController().getTransitions().add(
-                new ModelTransition(transitionPattern, code, -1.0));
-    }
 
     /**
      * Add a transition to the list of possible transitions.
@@ -270,19 +259,6 @@ public class GreenMirrorGroovyBaseScript extends Script {
     public void addTransition(String transitionRegex, Closure<Object> code) {
         getController().getTransitions().add(
                 new ModelTransition(transitionRegex, code, -1.0));
-    }
-    
-    /**
-     * Add a transition to the list of possible transitions.
-     * @param transitionPattern The <code>Pattern</code> that indicates the transition name.
-     * @param duration          {@link greenmirror.client.ModelTransition#duration}
-     * @param code              The code that will be executed when the transition executes.
-     */
-    //@ requires transitionPattern != null && duration >= -1.0 && code != null;
-    public void addTransition(Pattern transitionPattern, double duration, 
-                              Closure<Object> code) {
-        getController().getTransitions().add(
-                new ModelTransition(transitionPattern, code, duration));
     }
 
     /**
@@ -298,11 +274,18 @@ public class GreenMirrorGroovyBaseScript extends Script {
                 new ModelTransition(transitionRegex, code, duration));
     }
     
+    public void addTransition(String transitionRegex, double duration, 
+                              boolean supplemental, Closure<Object> code) {
+        getController().getTransitions().add(
+                new ModelTransition(transitionRegex, code, duration, supplemental));
+    }
+    
     /**
      * Set the duration of all single (upcoming) animations. This means that when <code>flush()</code>
      * is used, the total duration is doubled. If <code>-1</code> is passed, the duration is set to the
      * default (as determined by the default duration per transition or for the whole visualizer).
-     * @param duration The duration in milliseconds; <code>-1</code> to set it to default.
+     * @param duration The duration in milliseconds; <code>-1</code> to set it to default; 0 if 
+     *                 you don't want the animation to play
      */
     //@ requires duration >= -1.0;
     public void setAnimationDuration(double duration) {
@@ -316,7 +299,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
      * @throws IllegalArgumentException If the type was invalid.
      */
     //@ requires type != null;
-    public FxWrapper fx(String type) {
+    public FxWrapper fx(@NonNull String type) {
         return FxWrapper.getNewInstance(type);
     }
     
@@ -384,5 +367,16 @@ public class GreenMirrorGroovyBaseScript extends Script {
         for (Relation relation : relations) {
             removeRelation(relation);
         }
+    }
+    
+    /**
+     * Fail!
+     */
+    public void fail() {
+        throw new IllegalStateException("Your Groovy script encountered a fail() call.");
+    }
+    
+    public void fail(String msg) {
+        throw new IllegalStateException("Your Groovy script encountered a fail: " + msg);
     }
 }

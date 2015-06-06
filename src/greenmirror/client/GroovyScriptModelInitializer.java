@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The model initializer that initializes the model through a Groovy script.
@@ -169,7 +171,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
             throw new ModelInitializer.PreparationException("your script should begin with an "
                     + "\"initialize()\" statement (or \"//#secondary\" if you know for sure that "
                     + "the visualizer has already been initialized by another model initializer). "
-                    + "Import statements are also allowed.");
+                    + "Import statements, blank lines and single comment lines are also allowed.");
         }
         
         // Add the base class.
@@ -200,6 +202,18 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
      */
     @Override
     public void executeInitializer() {
-        script.run();
+        try {
+            script.run();
+        } catch (Exception e) {
+            List<StackTraceElement> st = Arrays.asList(e.getStackTrace());
+            for (StackTraceElement ste : e.getStackTrace()) {
+                if (ste.getFileName().startsWith("Script") 
+                 && ste.getFileName().endsWith(".groovy")) {
+                    e.setStackTrace(st.subList(0, st.indexOf(ste) + 1)
+                                    .toArray(new StackTraceElement[]{}));
+                }
+            }
+            throw e;
+        }
     }
 }

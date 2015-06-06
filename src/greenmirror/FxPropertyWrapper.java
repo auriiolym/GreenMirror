@@ -5,6 +5,8 @@ import java.util.List;
 
 import javafx.util.Duration;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * A wrapper class for handling JavaFX properties.
  * <p>
@@ -18,7 +20,7 @@ public abstract class FxPropertyWrapper {
     // -- Instance variables -----------------------------------------------------------------
     
     /** the name of the property */
-    /*@ non_null */ private String propertyName;
+    private String propertyName;
     
 
     // -- Constructors -----------------------------------------------------------------------
@@ -32,7 +34,7 @@ public abstract class FxPropertyWrapper {
      * @throws NullPointerException if <code>propertyName</code> is <code>null</code>
      */
     //@ ensures getPropertyName() == propertyName;
-    public FxPropertyWrapper(/*@ non_null */ String propertyName) {
+    public FxPropertyWrapper(@NonNull String propertyName) {
         setPropertyName(propertyName);
     }
 
@@ -40,8 +42,8 @@ public abstract class FxPropertyWrapper {
     // -- Queries ----------------------------------------------------------------------------
     
     /** @return the property name */
-    /*@ pure non_null */ public String getPropertyName() {
-        return propertyName;
+    /*@ pure */ @NonNull public String getPropertyName() {
+        return propertyName == null ? "" : propertyName + "";
     }
     
     /**
@@ -54,7 +56,7 @@ public abstract class FxPropertyWrapper {
      * 
      * @return the property type
      */
-    /*@ pure non_null */ public abstract Class<?> getPropertyType();
+    /*@ pure */ @NonNull public abstract Class<?> getPropertyType();
     
     /**
      * Gets the set method of <code>originClass</code> for this <code>FxPropertyWrapper</code>.

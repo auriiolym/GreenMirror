@@ -2,7 +2,6 @@ package greenmirror.fxwrappers;
 
 import greenmirror.FxPropertyWrapper;
 import greenmirror.FxShapeWrapper;
-import greenmirror.FxWrapper;
 import greenmirror.GreenMirrorUtils;
 import greenmirror.Placement;
 import greenmirror.fxpropertywrappers.DoubleFxProperty;
@@ -17,6 +16,8 @@ import javafx.animation.Transition;
 import javafx.geometry.Point3D;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * 
@@ -146,6 +147,9 @@ public class CircleFxWrapper extends FxShapeWrapper {
     }
     
     public CircleFxWrapper setRadius(double value) {
+        if (value < 0) {
+            throw new IllegalArgumentException("radius can't be negative");
+        }
         this.radius = value;
         setChanged();
         notifyObservers();
@@ -171,11 +175,10 @@ public class CircleFxWrapper extends FxShapeWrapper {
     
     // -- Class usage ------------------------------------------------------------------------
     
-    @Override
-    public CircleFxWrapper clone() {
-        CircleFxWrapper rect = new CircleFxWrapper();
-        rect.setFromMap(this.toMap());
-        return rect;
+    @Override @NonNull public CircleFxWrapper clone() {
+        CircleFxWrapper circ = new CircleFxWrapper();
+        circ.setFromMap(this.toMap());
+        return circ;
     }
     
     // -- Network responses ------------------------------------------------------------------
