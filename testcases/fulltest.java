@@ -185,12 +185,19 @@ addTransition("shapeNodePropertyTest", {
     node("r").fx().setFill(Color.GREEN);
     flush();
     
-    // And an impossible one: JavaFX can't animate into a gradient (probably because there are so many options).
+    // An impossible one: JavaFX can't animate into a gradient (probably because there are so many options).
     // See your serverside logs for the "Animating of JavaFX node property (...) failed" message.
     // It's not a fatal exception, so GreenMirror continues with nothing more than a log entry. The fill is
     // still green.
     node("r").fx().setFill("linear-gradient(white, black)");
-    flush();    
+    flush();
+    
+    // Another impossible one, or rather an invalid one.
+    try {
+        node("r").fx().setFill("invalid fill value");
+        fail("invalid fill value");
+    } catch (IllegalArgumentException e) {}
+    flush();
 });
 
 

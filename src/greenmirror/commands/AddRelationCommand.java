@@ -8,6 +8,8 @@ import groovy.json.JsonOutput;
 
 import java.util.LinkedHashMap;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * The command to add a relation. This command is sent to the server.
  * 
@@ -53,8 +55,8 @@ public class AddRelationCommand extends Command {
      * Fetch the raw data that will be sent.
      * @param format The format in which the data will be.
      */
-    //@ requires format != null;
-    public String getFormattedString(CommunicationFormat format) {
+    @Override 
+    @NonNull public String getFormattedString(@NonNull CommunicationFormat format) {
         Log.add("Relation added: " + getRelation().toString());
         
         switch (format) {

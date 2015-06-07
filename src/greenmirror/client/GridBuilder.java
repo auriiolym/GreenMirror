@@ -441,20 +441,20 @@ public class GridBuilder {
                 new RectangleFxWrapper()
                     .setPosition(posX, posY)
                     .setSize(totalWidth, totalHeight)
-                    .setFill(getBackgroundFill())
                     .setArcWidth(getBackgroundArcWidth())
-                    .setArcHeight(getBackgroundArcHeight()));
+                    .setArcHeight(getBackgroundArcHeight())
+                    .setFill(getBackgroundFill()));
         nodes.add(bg);
         
         // Build the cells
         int cellI = 0; // Cell index (and name).
         double currPosX;
         double currPosY;
-        RectangleFxWrapper fxPrototype = new RectangleFxWrapper()
-                                                .setSize(getCellWidth(), getCellHeight())
-                                                .setFill(getCellFill())
-                                                .setArcWidth(getCellArcWidth())
-                                                .setArcHeight(getCellArcHeight());
+        RectangleFxWrapper fxPrototype = ((RectangleFxWrapper) new RectangleFxWrapper()
+                                                        .setSize(getCellWidth(), getCellHeight())
+                                                        .setArcWidth(getCellArcWidth())
+                                                        .setArcHeight(getCellArcHeight())
+                                                        .setFill(getCellFill()));
         // Loop through every row.
         for (int gridY = 0; gridY < getCellCountVertical(); gridY++) {
             // Determine y coordinate for the whole row.

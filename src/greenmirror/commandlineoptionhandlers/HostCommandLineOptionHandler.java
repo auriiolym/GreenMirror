@@ -4,19 +4,22 @@ import greenmirror.ClientSide;
 import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.client.Client;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * The host <code>CommandLineOptionHandler</code> (client side).
+ * The host <code>CommandLineOptionHandler</code> (client side). It checks if the host and port
+ * arguments are valid and connects (via the client controller) to the server. Select port -1
+ * to debug.
  * 
  * @author Karim El Assal
  */
@@ -25,47 +28,35 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Instance variables -----------------------------------------------------------------
     
+    /** the selected server host */
     private InetAddress host;
+    
+    /** the selected server port */
     private int port;
 
     
     // -- Queries ----------------------------------------------------------------------------
    
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getDescription()
-     */
-    @Override
+    @Override @NonNull
     public String getDescription() {
         return "connect to a server";
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getOptions()
-     */
-    @Override
+    @Override @NonNull
     public List<String> getOptions() {
-        return Arrays.asList("host", "h");
+        return new ArrayList<String>(Arrays.asList("host", "h"));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getProcessPriority()
-     */
     @Override
     public int getProcessPriority() {
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getParameterCount()
-     */
     @Override
     public int getArgumentCount() {
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#allowMultiple()
-     */    
     @Override
     public boolean allowMultiple() {
         return false;
@@ -74,12 +65,8 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#setParserSettings(joptsimple.OptionParser)
-     */
     @Override
-    public OptionSpec<?> setParserSettings(OptionParser optionParser) {
-
+    public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser) {
         return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
                     .required()
@@ -87,15 +74,12 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
                     .withValuesSeparatedBy(':');
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#validate(greenmirror.GreenMirrorController, 
-     *                                                                      java.lang.String[])
-     */
     @Override
-    public void validate(GreenMirrorController controller, String... parameters)
+    public void validate(@NonNull GreenMirrorController controller, String... parameters)
             throws FatalException {
+        
         if (parameters.length != 2) {
-            throw new FatalException("The host option has the wrong number of parameters.");
+            throw new FatalException("The host option has the wrong number of arguments.");
         }
         
         try {
@@ -111,11 +95,8 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#process(greenmirror.GreenMirrorController)
-     */
     @Override
-    public void process(GreenMirrorController controller) throws FatalException {
+    public void process(@NonNull GreenMirrorController controller) throws FatalException {
         
         if (port == -1) {
             return;
@@ -132,10 +113,7 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#clone()
-     */
-    @Override
+    @Override @NonNull
     public CommandLineOptionHandler clone() {
         return new HostCommandLineOptionHandler();
     }

@@ -1,11 +1,11 @@
 package greenmirror;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
 import javafx.util.Duration;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A wrapper class for handling JavaFX properties.
@@ -31,7 +31,6 @@ public abstract class FxPropertyWrapper {
      * @param propertyName          the name of the property this <code>FxPropertyWrapper</code> 
      *                              is representing with the correct case (first character lower
      *                              case, the rest as its get or set methods)
-     * @throws NullPointerException if <code>propertyName</code> is <code>null</code>
      */
     //@ ensures getPropertyName() == propertyName;
     public FxPropertyWrapper(@NonNull String propertyName) {
@@ -67,16 +66,16 @@ public abstract class FxPropertyWrapper {
      *                    by calling {@link #getPropertyType()}), with the signature:
      *                    <code>setPropertyName(PropertyType)</code>
      * @throws NoSuchMethodException if the method was not found
-     * @throws NullPointerException  if <code>originClass</code> is <code>null</code>
      */
-    /*@ pure non_null */ public Method getSetMethod(/*@ non_null */ Class<?> originClass) 
+    /*@ pure */ @NonNull public Method getSetMethod(@NonNull Class<?> originClass) 
             throws NoSuchMethodException {
-        if (originClass == null) {
-            throw new NullPointerException("passed class" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        final Method method = originClass.getMethod("set" 
+                            + GreenMirrorUtils.capitalizeFirstChar(getPropertyName()), 
+                            getPropertyType());
+        if (method == null) {
+            throw new NoSuchMethodException("setter for " + getPropertyName());
         }
-        return originClass.getMethod("set" + GreenMirrorUtils.capitalizeFirstChar(
-                                                                    getPropertyName()), 
-                                     getPropertyType());
+        return method;
     }
     
     /**
@@ -88,9 +87,8 @@ public abstract class FxPropertyWrapper {
      *                    by calling {@link #getPropertyType()}), with the signature:
      *                    <code>getPropertyName()</code>
      * @throws NoSuchMethodException if the method was not found.
-     * @throws NullPointerException  if <code>originClass</code> is <code>null</code>
      */
-    /*@ pure non_null */ public Method getGetMethod(/*@ non_null */ Class<?> originClass) 
+    /*@ pure */ @NonNull public Method getGetMethod(@NonNull Class<?> originClass) 
             throws NoSuchMethodException {
         return getGetMethod(originClass, "get");
     }
@@ -106,17 +104,16 @@ public abstract class FxPropertyWrapper {
      *                         (retrieved by calling {@link #getPropertyType()}), with the
      *                         signature: <code>methodNamePrefixPropertyName()</code>
      * @throws NoSuchMethodException if the method was not found
-     * @throws NullPointerException  if <code>originClass</code> or <code>methodNamePrefix</code> 
-     *                               is <code>null</code>
      */
-    /*@ pure non_null */ public Method getGetMethod(/*@ non_null */ Class<?> originClass, 
-            /*@ non_null */ String methodNamePrefix) throws NoSuchMethodException {
-        if (originClass == null || methodNamePrefix == null) {
-            throw new NullPointerException("passed class and method name prefix" 
-                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+    /*@ pure */ @NonNull public Method getGetMethod(@NonNull Class<?> originClass, 
+            @NonNull String methodNamePrefix) throws NoSuchMethodException {
+        final Method method = originClass.getMethod(methodNamePrefix 
+                        + GreenMirrorUtils.capitalizeFirstChar(getPropertyName()));
+        if (method == null) {
+            throw new NoSuchMethodException("prefix: " + methodNamePrefix + ", property: " 
+                    + getPropertyName());
         }
-        return originClass.getMethod(methodNamePrefix + GreenMirrorUtils.capitalizeFirstChar(
-                                                                            getPropertyName()));
+        return method;
     }
     
     /**
@@ -128,17 +125,16 @@ public abstract class FxPropertyWrapper {
      *                    (retrieved by calling {@link #getPropertyType()}), with the signature:
      *                    <code>animatePropertyName(PropertyType, Duration)</code>
      * @throws NoSuchMethodException if the method was not found
-     * @throws NullPointerException  if <code>originClass</code> is <code>null</code>
      */
-    /*@ pure non_null */ public Method getAnimateMethod(/*@ non_null */ Class<?> originClass) 
+    /*@ pure */ @NonNull public Method getAnimateMethod(@NonNull Class<?> originClass) 
             throws NoSuchMethodException {
-        if (originClass == null) {
-            throw new NullPointerException("passed class" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
+        final Method method = originClass.getMethod("animate" 
+                        + GreenMirrorUtils.capitalizeFirstChar(getPropertyName()),
+                        getPropertyType(), Duration.class);
+        if (method == null) {
+            throw new NoSuchMethodException("animator for " + getPropertyName());
         }
-        return originClass.getMethod("animate" + GreenMirrorUtils.capitalizeFirstChar(
-                                                                                getPropertyName()),
-                                     getPropertyType(),
-                                     Duration.class);
+        return method;
     }
     
     
@@ -146,11 +142,9 @@ public abstract class FxPropertyWrapper {
     
     /**
      * @param propertyName the property name to set
-     * @throws NullPointerException if <code>propertyName</code> is <code>null</code>
      */
     //@ ensures getPropertyName() == propertyName;
-    protected void setPropertyName(/*@ non_null */ String propertyName) {
-        GreenMirrorUtils.checkNull(propertyName, "property name");
+    protected void setPropertyName(@NonNull String propertyName) {
         this.propertyName = propertyName;
     }
     
@@ -193,10 +187,9 @@ public abstract class FxPropertyWrapper {
      * @param list the <code>List</code> to search through
      * @param name the property name to search for
      * @return     <code>true</code> if it was found
-     * @throws NullPointerException if <code>list</code> or <code>name</code> is <code>null</code>
      */
     /*@ pure */ public static boolean hasPropertyName(
-            /*@ non_null */ List<FxPropertyWrapper> list, /*@ non_null */ String name) {
+            @NonNull List<FxPropertyWrapper> list, @NonNull String name) {
         return getFromList(list, name) != null;
     }
     
@@ -207,14 +200,11 @@ public abstract class FxPropertyWrapper {
      * @param list the <code>List</code> to search through
      * @param name the property name to search for
      * @return     the <code>FxPropertyWrapper</code>; <code>null</code> if it wasn't found
-     * @throws NullPointerException if <code>list</code> or <code>name</code> is <code>null</code>
      */
     /*@ pure */ public static FxPropertyWrapper getFromList(
-            /*@ non_null */ List<FxPropertyWrapper> list, /*@ non_null */ String name) {
-        GreenMirrorUtils.checkNull(list, "property list");
-        GreenMirrorUtils.checkNull(list, "property name");
+            @NonNull List<FxPropertyWrapper> list, String name) {
         for (FxPropertyWrapper fxProperty : list) {
-            if (name.equals(fxProperty.getPropertyName())) {
+            if (fxProperty.getPropertyName().equals(name)) {
                 return fxProperty;
             }
         }

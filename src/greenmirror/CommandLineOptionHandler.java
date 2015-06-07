@@ -122,7 +122,7 @@ public interface CommandLineOptionHandler extends Cloneable {
      * @see <a href="https://pholser.github.io/jopt-simple/apidocs/joptsimple/OptionParser.html">
      *      JOpt Simple: OptionParser</a>
      */
-    @NonNull public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser);
+    public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser);
     
     /**
      * Validates the passed arguments. It throws a <code>FatalException</code> if the arguments
@@ -132,9 +132,9 @@ public interface CommandLineOptionHandler extends Cloneable {
      * @param arguments       the arguments of this option
      * @throws FatalException if the arguments can't be validated
      */
-    //@ requires arguments.length > 0;
+    //@ requires arguments != null && arguments.length > 0;
     public void validate(@NonNull GreenMirrorController controller, 
-                         @NonNull String... arguments) throws FatalException;
+                         String... arguments) throws FatalException;
     
     /**
      * Process this option.

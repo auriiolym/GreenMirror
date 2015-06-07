@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import javafx.geometry.Point3D;
 
 /**
@@ -226,27 +228,28 @@ public abstract class Placement implements Cloneable {
     
     
     
-    public static final Placement NONE = new NoPlacement();
+    @NonNull public static final Placement NONE = new NoPlacement();
     
-    public static final Placement RANDOM = new RandomPlacement();
+    @NonNull public static final Placement RANDOM = new RandomPlacement();
     
-    public static final Placement MIDDLE = new MiddlePlacement();
+    @NonNull public static final Placement MIDDLE = new MiddlePlacement();
         
-    public static final Placement EDGE_TOP = new EdgeTopPlacement();
+    @NonNull public static final Placement EDGE_TOP = new EdgeTopPlacement();
     
-    public static final Placement EDGE_RIGHT = new EdgeRightPlacement();
+    @NonNull public static final Placement EDGE_RIGHT = new EdgeRightPlacement();
         
-    public static final Placement EDGE_BOTTOM = new EdgeBottomPlacement();
+    @NonNull public static final Placement EDGE_BOTTOM = new EdgeBottomPlacement();
     
-    public static final Placement EDGE_LEFT = new EdgeLeftPlacement();
+    @NonNull public static final Placement EDGE_LEFT = new EdgeLeftPlacement();
     
-    public static final Placement CORNER_TOP_LEFT = new CornerTopLeftPlacement();
+    @NonNull public static final Placement CORNER_TOP_LEFT = new CornerTopLeftPlacement();
     
-    public static final Placement CORNER_TOP_RIGHT = new CornerTopRightPlacement();
+    @NonNull public static final Placement CORNER_TOP_RIGHT = new CornerTopRightPlacement();
     
-    public static final Placement CORNER_BOTTOM_RIGHT = new CornerBottomRightPlacement();    
+    @NonNull public static final Placement CORNER_BOTTOM_RIGHT 
+                                                = new CornerBottomRightPlacement();    
     
-    public static final Placement CORNER_BOTTOM_LEFT = new CornerBottomLeftPlacement();
+    @NonNull public static final Placement CORNER_BOTTOM_LEFT = new CornerBottomLeftPlacement();
     
 
 }

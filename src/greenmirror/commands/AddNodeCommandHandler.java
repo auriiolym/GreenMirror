@@ -5,39 +5,28 @@ import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.ServerSide;
-import greenmirror.server.ServerController;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.Map;
 
+
 /**
  * The handler that adds a node. This command is received from the client.
+ * <p>
+ * Expected data:
+ * id : int              The node id
+ * identifier : String   The node identifier
+ * 
+ * @author Karim El Assal
  */
 @ServerSide
 public class AddNodeCommandHandler extends CommandHandler {
 
-    // -- Queries ----------------------------------------------------------------------------
-    
-    /* (non-Javadoc)
-     * @see greenmirror.CommandHandler#getController()
-     */
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
 
-    
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
         
         int id;
@@ -45,7 +34,7 @@ public class AddNodeCommandHandler extends CommandHandler {
         
         switch (format) {
         default: case JSON:
-            Map<String, Object> map = CommandHandler.parseJson(data);
+            final Map<String, Object> map = CommandHandler.parseJson(data);
             if (!map.containsKey("id") || !map.containsKey("identifier")) {
                 throw new MissingDataException();
             }
@@ -55,15 +44,19 @@ public class AddNodeCommandHandler extends CommandHandler {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
-                throw new DataParseException("The passed node id was not valid.");
+                throw new DataParseException("the received node id was not valid");
             }
             identifier = String.valueOf(map.get("identifier"));
         }
 
+        // Create node.
         Node node = new Node(identifier);
         node.setId(id);
+        
+        // Add to the controller.
         getController().getNodes().add(node);
-        Log.add("Node (" + id + "," + identifier + ") added.");
+        
+        Log.add("Node " + Log.n(node) + " added.");
     }
 
 }

@@ -7,6 +7,7 @@ import greenmirror.Placement;
 import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.placements.EdgePlacement;
 import greenmirror.server.DoublePropertyTransition;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,38 +18,32 @@ import javafx.geometry.Point3D;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
-import org.eclipse.jdt.annotation.NonNull;
 
 /**
+ * The {@link greenmirror.FxWrapper} for circle FX nodes.
  * 
  * @author Karim El Assal
  */
 public class CircleFxWrapper extends FxShapeWrapper {
-    
-    // -- Enumerations -----------------------------------------------------------------------
-
-    // -- Exceptions -------------------------------------------------------------------------
-
-    // -- Constants --------------------------------------------------------------------------
-    
-    // -- Class variables --------------------------------------------------------------------
 
     // -- Instance variables -----------------------------------------------------------------
     
+    /** the virtual centerX value of the FX node */
     private Double centerX;
+    
+    /** the virtual centerY value of the FX node */
     private Double centerY;
+    
+    /** the virtual radius value of the FX node */
     private Double radius;
     
 
     // -- Constructors -----------------------------------------------------------------------
 
     // -- Queries ----------------------------------------------------------------------------
-    
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getChangableProperties()
-     */
+
     @Override
-    protected List<FxPropertyWrapper> getAnimatableProperties() {
+    @NonNull protected List<FxPropertyWrapper> getAnimatableProperties() {
         final List<FxPropertyWrapper> supersAnimatableProperties = super.getAnimatableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {
@@ -59,12 +54,9 @@ public class CircleFxWrapper extends FxShapeWrapper {
             }
         };
     }
-    
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getChangableProperties()
-     */
+
     @Override
-    protected List<FxPropertyWrapper> getChangableProperties() {
+    @NonNull protected List<FxPropertyWrapper> getChangableProperties() {
         final List<FxPropertyWrapper> supersChangableProperties = super.getChangableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {
@@ -74,70 +66,78 @@ public class CircleFxWrapper extends FxShapeWrapper {
         };
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getFxNode()
-     */
     @Override
     /*@ pure */ public javafx.scene.shape.Circle getFxNode() {
         return (javafx.scene.shape.Circle) super.getFxNode();
     }
     
+    /** @return the virtual centerX value of the FX node */
     /*@ pure */ public Double getCenterX() {
         return this.centerX;
     }
     
-    // Only added for support in Groovy scripts.
-    /*@ pure */ public Double getX() {
-        return getCenterX();
-    }
-    
+    /** @return the virtual centerY value of the FX node */
     /*@ pure */ public Double getCenterY() {
         return this.centerY;
     }
     
-    // Only added for support in Groovy scripts.
+    @Override
+    /*@ pure */ public Double getX() {
+        return getCenterX();
+    }
+
+    @Override
     /*@ pure */ public Double getY() {
         return getCenterY();
     }
     
+    /** @return the virtual radius value of the FX node */
     /*@ pure */ public Double getRadius() {
         return this.radius;
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#isPositionSet()
-     */
-    @Override
-    /*@ pure */ public boolean isPositionSet() {
-        return getCenterX() != null && getCenterY() != null;
-    }
     
     // -- Setters ----------------------------------------------------------------------------
 
-    public CircleFxWrapper setCenterX(double value) {
+    /**
+     * Sets the virtual centerX property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
+     */
+    //@ ensures getCenterX() == value;
+    @NonNull public CircleFxWrapper setCenterX(double value) {
         this.centerX = value;
         setChanged();
         notifyObservers();
         return this;
     }
-
-    // Only used for extra support in Groovy scripts.
-    public CircleFxWrapper setX(double value) {
-        return setCenterX(value);
-    }
     
-    public CircleFxWrapper setCenterY(double value) {
+    /**
+     * Sets the virtual centerY property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
+     */
+    //@ ensures getCenterY() == value;
+    @NonNull public CircleFxWrapper setCenterY(double value) {
         this.centerY = value;
         setChanged();
         notifyObservers();
         return this;
     }
 
-    // Only used for extra support in Groovy scripts.
+    @Override @NonNull
+    public CircleFxWrapper setX(double value) {
+        return setCenterX(value);
+    }
+
+    @Override @NonNull
     public CircleFxWrapper setY(double value) {
         return setCenterY(value);
     }
     
+    @Override @NonNull
     public CircleFxWrapper setPosition(double posX, double posY) {
         this.centerX = posX;
         this.centerY = posY;
@@ -146,7 +146,16 @@ public class CircleFxWrapper extends FxShapeWrapper {
         return this;
     }
     
-    public CircleFxWrapper setRadius(double value) {
+    /**
+     * Sets the virtual radius property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
+     * @throws IllegalArgumentException if <code>value</code> is negative
+     */
+    //@ requires value >= 0;
+    //@ ensures getRadius() == value;
+    @NonNull public CircleFxWrapper setRadius(double value) {
         if (value < 0) {
             throw new IllegalArgumentException("radius can't be negative");
         }
@@ -156,19 +165,78 @@ public class CircleFxWrapper extends FxShapeWrapper {
         return this;
     }
     
-    public CircleFxWrapper setDiameter(double value) {
+    /**
+     * Sets the virtual radius (=diameter/2) property and notifies the observers.
+     * 
+     * @param value the new diameter value
+     * @return      <code>this</code>
+     */
+    //@ ensures getRadius() == value / 2;
+    @NonNull public CircleFxWrapper setDiameter(double value) {
         return setRadius(value / 2);
     }
 
-    public Transition animateCenterX(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the centerX property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @see            CenterXTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateCenterX(double value, 
+                                                                @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new CenterXTransition(duration, getFxNode(), value);
     }
-    
-    public Transition animateCenterY(double value, Duration duration) {
+
+    /**
+     * Creates the animation that changes the CenterY property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @throws         IllegalArgumentException if <code>value</code> is invalid
+     * @see            CenterYTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateCenterY(double value, 
+                                                                @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new CenterYTransition(duration, getFxNode(), value);
     }
-    
-    public Transition animateRadius(double value, Duration duration) {
+
+    /**
+     * Creates the animation that changes the radius property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @throws         IllegalArgumentException if <code>value</code> is invalid
+     * @see            RadiusTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateRadius(double value, @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new RadiusTransition(duration, getFxNode(), value);
     }
     
@@ -181,19 +249,11 @@ public class CircleFxWrapper extends FxShapeWrapper {
         return circ;
     }
     
-    // -- Network responses ------------------------------------------------------------------
-    
-    // -- Network requests -------------------------------------------------------------------
-    
-    // -- View requests ----------------------------------------------------------------------
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#calculatePosition(greenmirror.Placement)
-     */
-    @Override
-    public Point3D calculatePoint(Placement placement) {
+    @Override @NonNull 
+    public Point3D calculatePoint(@NonNull Placement placement) {
         
         final double radius = getRadius();
 
@@ -203,7 +263,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
         
         switch (placement.toString()) {
         case "None": default:
-            return Point3D.ZERO;
+            return new Point3D(0, 0, 0);
         case "Random":
             final double yRad = GreenMirrorUtils.getRandomBetween(-0.5 * Math.PI, 0.5 * Math.PI);
             final double xRadLimit = Math.cos(yRad);
@@ -248,57 +308,44 @@ public class CircleFxWrapper extends FxShapeWrapper {
             calcX = Math.sin(angle) * radius;
             calcY = Math.cos(angle) * radius * -1; // because positive on the canvas means down.
         }
-        
-        return new Point3D(getCenterX(), getCenterY(), 0)
-          .add(new Point3D(calcX, calcY, 0)
-          .add(placement.getRelativePosition()));
+
+        final Point3D returnPoint = new Point3D(getCenterX(), getCenterY(), 0)
+                                                .add(new Point3D(calcX, calcY, 0)
+                                                .add(placement.getRelativePosition()));
+        if (returnPoint == null) {
+            throw new RuntimeException("Point3D#add(Point3D) returned null");
+        }
+        return returnPoint;
     }
     
-
-
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#createFxNode()
-     */
     @Override
     public void createFxNode() {
         setFxNode(new Circle());
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#animateToWithMiddlePoint(javafx.geometry.Point3D, 
-     *                              javafx.util.Duration)
-     */
-    @Override
-    public Transition animateToMiddlePoint(Point3D position, Duration duration) {
+    @Override @NonNull 
+    public Transition animateToMiddlePoint(@NonNull Point3D position, @NonNull Duration duration) {
+        
         return new ParallelTransition(
                 new CenterXTransition(duration, getFxNode(), position.getX()),
                 new CenterYTransition(duration, getFxNode(), position.getY()));
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
-     */
-    @Override
-    protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
+    @Override @NonNull 
+    protected Point3D calculateOriginCoordinates(@NonNull Point3D middlePoint) {
         return new Point3D(middlePoint.getX(), 
                            middlePoint.getY(), 0);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#setToPositionWithMiddlePoint(javafx.geometry.Point3D)
-     */
     @Override
-    public void setToPositionWithMiddlePoint(Point3D middlePoint) {
+    public void setToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
         Point3D coord = calculateOriginCoordinates(middlePoint);
         setCenterX(coord.getX());
         setCenterY(coord.getY());
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#setFxToPositionWithMiddlePoint(javafx.geometry.Point3D)
-     */
     @Override
-    public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {
+    public void setFxToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
         Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setCenterX(coord.getX());
         getFxNode().setCenterY(coord.getY());
@@ -312,27 +359,17 @@ public class CircleFxWrapper extends FxShapeWrapper {
      */
     public static class CenterXTransition extends DoublePropertyTransition<Circle> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected CenterXTransition(Duration duration, Circle node, Double toValue) {
+        protected CenterXTransition(@NonNull Duration duration, Circle node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getCenterX();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
-        @Override
-        protected void setPropertyValue(Double value) {
+        @Override 
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setCenterX(value);
         }
     }
@@ -344,27 +381,17 @@ public class CircleFxWrapper extends FxShapeWrapper {
      */
     public static class CenterYTransition extends DoublePropertyTransition<Circle> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected CenterYTransition(Duration duration, Circle node, Double toValue) {
+        protected CenterYTransition(@NonNull Duration duration, Circle node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
-        @Override
+        @Override 
         protected Double getPropertyValue() {
             return getNode().getCenterY();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setCenterY(value);
         }
     }
@@ -375,28 +402,19 @@ public class CircleFxWrapper extends FxShapeWrapper {
      * @author Karim El Assal
      */
     public static class RadiusTransition extends DoublePropertyTransition<Circle> {
-        
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected RadiusTransition(Duration duration, Circle node, Double toValue) {
+
+        protected RadiusTransition(@NonNull Duration duration, Circle node, 
+                                                               @NonNull Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getRadius();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setRadius(value);
         }
     }

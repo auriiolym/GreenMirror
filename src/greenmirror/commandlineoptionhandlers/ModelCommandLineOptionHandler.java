@@ -7,16 +7,19 @@ import greenmirror.client.Client;
 import greenmirror.client.ModelInitializer;
 import greenmirror.commands.EndTransitionCommand;
 import groovy.lang.GroovyRuntimeException;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
+import org.eclipse.jdt.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The model <code>CommandLineOptionHandler</code> (client side).
+ * The model <code>CommandLineOptionHandler</code> (client side). It validates the model 
+ * initializers and their parameters, lets them prepare and ultimately executes them. When
+ * they're all done, a {@link greenmirror.commands.EndTransitionCommand} is sent to the server.
  * 
  * @author Karim El Assal
  */
@@ -25,59 +28,47 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Instance variables -----------------------------------------------------------------
 
-    private List<ModelInitializer> initializers = new LinkedList<>();
+    /** all selected initializers */
+    @NonNull private final List<ModelInitializer> initializers = new LinkedList<>();
     
 
     // -- Queries ----------------------------------------------------------------------------
    
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getDescription()
-     */
-    @Override
+    @Override @NonNull
     public String getDescription() {
-        return "select a initializer that initializes your model. Multiple are possible.";
+        return "select an initializer that initializes your model. Multiple are possible.";
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getOptions()
-     */
-    @Override
+    @Override @NonNull
     public List<String> getOptions() {
-        return Arrays.asList("model", "m");
+        return new ArrayList<String>(Arrays.asList("model", "m"));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getProcessPriority()
-     */
     @Override
     public int getProcessPriority() {
         return 5;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getParameterCount()
-     */
     @Override
     public int getArgumentCount() {
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#allowMultiple()
-     */    
     @Override
     public boolean allowMultiple() {
         return true;
     }
     
+    /** @return the selected initializers */
+    @NonNull private List<ModelInitializer> getInitializers() {
+        return this.initializers;
+    }
+    
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#setParserSettings(joptsimple.OptionParser)
-     */
     @Override
-    public OptionSpec<?> setParserSettings(OptionParser optionParser) {
+    public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser) {
 
         return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
@@ -86,15 +77,12 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
                     .withValuesSeparatedBy(':');
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#validate(greenmirror.GreenMirrorController, 
-     *                                                                      java.lang.String[])
-     */
     @Override
-    public void validate(GreenMirrorController controller, String... parameters)
+    public void validate(@NonNull GreenMirrorController controller, String... parameters)
             throws FatalException {
+        
         if (parameters.length != 2) {
-            throw new FatalException("The model option has the wrong number of parameters.");
+            throw new FatalException("the model option has the wrong number of parameters");
         }
         final Client client = (Client) controller;
         
@@ -104,14 +92,14 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
                 // Check if we're encountering one requested by the user.
                 if (initializer.getIdentifier().equals(parameters[0])) {
                     // Remember it.
-                    initializers.add(initializer);
+                    getInitializers().add(initializer);
                     // Pass the parameters.
                     initializer.setParameter(parameters[1]);
                     // And let it prepare.
                     initializer.prepare();
                 }
             }
-            if (initializers.isEmpty()) {
+            if (getInitializers().isEmpty()) {
                 throw new IllegalArgumentException("the model initializer was not found.");
             }
         } catch (ModelInitializer.PreparationException e) {
@@ -123,16 +111,14 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#process(greenmirror.GreenMirrorController)
-     */
+    
     @Override
-    public void process(GreenMirrorController controller) throws FatalException {
+    public void process(@NonNull GreenMirrorController controller) throws FatalException {
         Client client = (Client) controller;
 
         // Initialize the model.
         try {
-            client.initializeModel(initializers);
+            client.initializeModel(getInitializers());
             
             /* The initialization of the model might be animated, so we execute the initial 
              * transition without delay. */
@@ -145,10 +131,7 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#clone()
-     */
-    @Override
+    @Override @NonNull
     public CommandLineOptionHandler clone() {
         return new ModelCommandLineOptionHandler();
     }

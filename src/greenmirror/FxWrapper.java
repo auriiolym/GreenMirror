@@ -4,6 +4,7 @@ import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.fxpropertywrappers.StringFxProperty;
 import greenmirror.placements.EdgePlacement;
 import greenmirror.server.DoublePropertyTransition;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -19,8 +20,6 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
 import javafx.geometry.Point3D;
 import javafx.util.Duration;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A wrapper class for handling JavaFX nodes.
@@ -112,8 +111,9 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * 
      * @return the type of this <code>FxWrapper</code>
      */
-    /*@ pure non_null */ public String getType() {
-        return getClass().getSimpleName().replace("FxWrapper", "");
+    /*@ pure */ @NonNull public String getType() {
+        final String str = getClass().getSimpleName().replace("FxWrapper", ""); 
+        return str == null ? "" : str;
     }
  
     /**
@@ -144,6 +144,28 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     /*@ pure */ public String getStyle() {
         return this.style;
     }
+    
+    /**
+     * Returns the x coordinate of the virtual origin of the FX node. Warning: the origin might 
+     * differ per subclass of <code>FxWrapper</code> (for example: circles have their origin in 
+     * their center, while rectangles have their origin in their top left corner).
+     * <p>
+     * This method is only added for compatibility reasons.
+     * 
+     * @return the x coordinate of the origin
+     */
+    /*@ pure */ public abstract Double getX();
+    
+    /**
+     * Returns the y coordinate of the virtual origin of the FX node. Warning: the origin might 
+     * differ per subclass of <code>FxWrapper</code> (for example: circles have their origin in 
+     * their center, while rectangles have their origin in their top left corner).
+     * <p>
+     * This method is only added for compatibility reasons.
+     * 
+     * @return the y coordinate of the origin
+     */
+    /*@ pure */ public abstract Double getY();
 
     /**
      * Returns a mapping of the properties of this <code>FxWrapper</code> that are defined
@@ -156,7 +178,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     //@ ensures \result.containsKey("type") && \result.containsKey("opacity");
     //@ ensures \result.containsKey("rotate") && \result.containsKey("style");
-    /*@ pure non_null */ public Map<String, Object>  toMap() {
+    /*@ pure */ @NonNull public Map<String, Object>  toMap() {
         final Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("type", getType());
         
@@ -166,7 +188,12 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             
             try {
                 // Execute getter.
-                final Object result = fxProperty.getGetMethod(this.getClass()).invoke(this);
+                final Class<? extends FxWrapper> thisClass = this.getClass();
+                if (thisClass == null) {
+                    // This won't happen, but it's for the @NonNull annotations.
+                    throw new RuntimeException("this.getClass() is null");
+                }
+                final Object result = fxProperty.getGetMethod(thisClass).invoke(this);
                 
                 // Put result into map.
                 map.put(var, fxProperty.castToMapValue(result));
@@ -191,7 +218,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     //@ ensures !\result.containsKey("x") && !\result.containsKey("y") && !\result.containsKey("z");
     //@ ensures !\result.containsKey("centerX") && !\result.containsKey("centerY");
     //@ ensures !\result.containsKey("centerZ");
-    /*@ pure non_null */ public Map<String, Object> toMapWithoutPositionData() {
+    /*@ pure */ @NonNull public Map<String, Object> toMapWithoutPositionData() {
         final Map<String, Object> map = toMap();
         map.remove("x");
         map.remove("y");
@@ -213,7 +240,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @see    FxPropertyWrapper
      */
     //@ ensures \result.size() >= 2;
-    /*@ pure non_null */ protected List<FxPropertyWrapper> getAnimatableProperties() {
+    /*@ pure */ @NonNull protected List<FxPropertyWrapper> getAnimatableProperties() {
         return new ArrayList<FxPropertyWrapper>() {
             {
                 add(new DoubleFxProperty("rotate"));
@@ -233,7 +260,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     /*@ ensures \result.size() >= 3;
       @ ensures (\forall int i; i >= 0 && i < \result.size(); 
       @         getAnimatableProperties().contains(\result.get(i))); */
-    /*@ pure non_null */ protected List<FxPropertyWrapper> getChangableProperties() {
+    /*@ pure */ @NonNull protected List<FxPropertyWrapper> getChangableProperties() {
         return new ArrayList<FxPropertyWrapper>() {
             {
                 addAll(getAnimatableProperties());
@@ -249,8 +276,8 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * 
      * @return a string representation of this <code>FxWrapper</code>
      */
-    @Override
-    /*@ pure non_null */ public String toString() {
+    @Override @NonNull
+    /*@ pure */ public String toString() {
         final Map<String, Object> map = toMap();
         if (map.containsKey("image") && map.get("image") != null 
                 && ((String) map.get("image")).length() > 40) {
@@ -260,13 +287,14 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     }
     
     /**
-     * Checks if the position of the FX node was set. Usually it checks if the x and y values 
-     * are set. This method is abstract because not all JavaFX nodes work with the
-     * <code>getX</code> and <code>getY</code> methods.
+     * Checks if the position of the FX node was set. It checks if the x and y coordinates 
+     * are set.
      * 
      * @return <code>true</code> if the position was set
      */
-    /*@ pure */ public abstract boolean isPositionSet();
+    /*@ pure */ public boolean isPositionSet() {
+        return getX() != null && getY() != null;
+    }
     
     /**
      * Calculate the adjustment for a point relative to the middle point of the current node.
@@ -274,13 +302,8 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @param obj the point relative to the middle point of the current node. Only the x and y
      *            coordinates are taken into account.
      * @return    the new point
-     * @throws    NullPointerException if <code>obj</code> is <code>null</code>
      */
-    /*@ pure non_null */ public Point3D getPointAdjustedForRotation(/*@ non_null */ Point3D obj) {
-        if (obj == null) {
-            throw new NullPointerException("relative point" 
-                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
-        }
+    /*@ pure */ @NonNull public Point3D getPointAdjustedForRotation(@NonNull Point3D obj) {
         final Point3D pivotPoint = calculatePoint(Placement.MIDDLE);
         final double angle = Math.toRadians(getRotate());
         final Point3D relativePoint = obj.subtract(pivotPoint);
@@ -288,9 +311,13 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         final double cos = Math.cos(angle);
         final double sin = Math.sin(angle);
         
-        return pivotPoint.add(
+        final Point3D returnPoint = pivotPoint.add(
                 new Point3D(cos * relativePoint.getX() - sin * relativePoint.getY(),
                             sin * relativePoint.getX() + cos * relativePoint.getY(), 0));
+        if (returnPoint == null) {
+            throw new RuntimeException("Point3D#add(Point3D) returned null");
+        }
+        return returnPoint;
     }
     
     /**
@@ -302,7 +329,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @param placement the position of placement which should be calculated.
      * @return          the absolute point
      */
-    /*@ pure non_null */ public abstract Point3D calculatePoint(/*@ non_null */Placement placement);
+    /*@ pure */ @NonNull public abstract Point3D calculatePoint(@NonNull Placement placement);
     
     
     // -- Setters ----------------------------------------------------------------------------
@@ -328,7 +355,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     //@ ensures getRotate() == value;
     //@ ensures \result == this;
-    public FxWrapper setRotate(double value) {
+    @NonNull public FxWrapper setRotate(double value) {
         this.rotate = value;
         setChanged();
         notifyObservers();
@@ -347,7 +374,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     //@ ensures getRotate() == \old(getRotate()) + value;
     //@ ensures \result == this;
-    public FxWrapper setRotateBy(double value) {
+    @NonNull public FxWrapper setRotateBy(double value) {
         return setRotate(getRotate() + value);
     }
     
@@ -364,7 +391,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     //@ requires value >= 0.0 && value <= 1.0;
     //@ ensures getOpacity() == value;
     //@ ensures \result == this;
-    public FxWrapper setOpacity(double value) {
+    @NonNull public FxWrapper setOpacity(double value) {
         if (value < 0 || value > 1.0) {
             throw new IllegalArgumentException("invalid value for the opacity: " + value);
         }
@@ -380,31 +407,63 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * 
      * @param value the new css style
      * @return      <code>this</code>
-     * @throws NullPointerException if <code>value</code> is <code>null</code>
      */
     //@ ensures getStyle() == value;
     //@ ensures \result == this;
-    public FxWrapper setStyle(/*@ non_null */ String value) {
-        if (value == null) {
-            throw new NullPointerException("style value" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
-        }
+    @NonNull public FxWrapper setStyle(@NonNull String value) {
         this.style = value;
         setChanged();
         notifyObservers();
         return this;
     }
+    
+    /**
+     * Sets the x coordinate of the virtual origin of the FX node. Warning: the origin might differ
+     * per subclass of <code>FxWrapper</code> (for example: circles have their origin in their
+     * center, while rectangles have their origin in their top left corner).
+     * <p>
+     * This method is only added for compatibility reasons.
+     * 
+     * @param value the new x coordinate
+     * @return      <code>this</code>
+     */
+    //@ ensures getX() == value;
+    @NonNull public abstract FxWrapper setX(double value);
+
+    /**
+     * Sets the y coordinate of the virtual origin of the FX node. Warning: the origin might differ
+     * per subclass of <code>FxWrapper</code> (for example: circles have their origin in their
+     * center, while rectangles have their origin in their top left corner).
+     * <p>
+     * This method is only added for compatibility reasons.
+     * 
+     * @param value the new x coordinate
+     * @return      <code>this</code>
+     */
+    //@ ensures getY() == value;
+    @NonNull public abstract FxWrapper setY(double value);
+    
+    /**
+     * Sets the x and y coordinates of the virtual origin of the FX node. Warning: the origin 
+     * might differ per subclass of <code>FxWrapper</code> (for example: circles have their 
+     * origin in their center, while rectangles have their origin in their top left corner).
+     * <p>
+     * This method is only added for compatibility reasons.
+     * 
+     * @param posX the new x coordinate
+     * @param posY the new y coordinate
+     * @return     <code>this</code>
+     */
+    //@ ensures getX() == posX && getY() == posY;
+    @NonNull public abstract FxWrapper setPosition(double posX, double posY);
 
     /**
      * Sets the virtual JavaFX node properties in this <code>FxWrapper</code> from a map.
      * 
      * @param newValues a property-value map with the new values
-     * @throws NullPointerException if <code>newValues</code> is <code>null</code>
      */
     //@ ensures newValues.equals(toMap());
-    public void setFromMap(/*@ non_null */ Map<String, Object> newValues) {
-        if (newValues == null) {
-            throw new NullPointerException("new value map" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
-        }
+    public void setFromMap(@NonNull Map<String, Object> newValues) {
         
         String property = null;
         try {
@@ -423,7 +482,11 @@ public abstract class FxWrapper extends Observable implements Cloneable {
                 }
                 
                 // Get set method and execute with the cast value.
-                fxPropertyWrapper.getSetMethod(this.getClass())
+                final Class<?> thisClass = this.getClass();
+                if (thisClass == null) {
+                    throw new RuntimeException("this.getClass() returned null");
+                }
+                fxPropertyWrapper.getSetMethod(thisClass)
                                  .invoke(this, fxPropertyWrapper.cast(value));
                 
             }
@@ -437,15 +500,11 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * 
      * @param newValues a property-value map with the new values
      * @throws IllegalStateException if this wrapper does not have a JavaFX node
-     * @throws NullPointerException  if <code>newValues</code> is <code>null</code>
      */
     //@ requires getFxNode() != null;
-    public void setFxNodeValuesFromMap(/*@ non_null */ Map<String, Object> newValues) {
+    public void setFxNodeValuesFromMap(@NonNull Map<String, Object> newValues) {
         if (getFxNode() == null) {
             throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
-        }
-        if (newValues == null) {
-            throw new NullPointerException("new value map" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
         }
         
         String property = null;
@@ -467,7 +526,11 @@ public abstract class FxWrapper extends Observable implements Cloneable {
                 }
                 
                 // Get set method and execute with the cast value.
-                fxPropertyWrapper.getSetMethod(getFxNode().getClass())
+                final Class<? extends javafx.scene.Node> fxClass = getFxNode().getClass();
+                if (fxClass == null) {
+                    throw new RuntimeException("getFxNode().getClass() returned null");
+                }
+                fxPropertyWrapper.getSetMethod(fxClass)
                                  .invoke(getFxNode(), fxPropertyWrapper.cast(value));
                 
             }
@@ -488,19 +551,15 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @param duration the duration of the animation
      * @return         the JavaFX <code>Animation</code> that animates the change
      * @throws         IllegalStateException if <code>getFxNode()</code> is <code>null</code>
-     * @throws         NullPointerException  if <code>duration</code> is <code>null</code>
      * @see            RotateTransition
      */
     //@ requires getFxNode() != null;
     //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
     //@ ensures \result.getNode() == getFxNode();
-    /*@ pure non_null*/ public RotateTransition animateRotate(double value, 
-            /*@ non_null */ Duration duration) {
+    /*@ pure */ @NonNull public RotateTransition animateRotate(double value, 
+            @NonNull Duration duration) {
         if (getFxNode() == null) {
             throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
-        }
-        if (duration == null) {
-            throw new NullPointerException("duration" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
         }
         return new RotateTransition(duration, getFxNode(), value);
     }
@@ -515,22 +574,18 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @return         the JavaFX <code>Animation</code> that animates the change
      * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
      * @throws         IllegalArgumentException if <code>value</code> is invalid
-     * @throws         NullPointerException     if <code>duration</code> is <code>null</code>
      * @see            FadeTransition
      */
     //@ requires getFxNode() != null && value >= 0 && value <= 1.0;
     //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
     //@ ensures \result.getNode() == getFxNode();
-    /*@ pure non_null*/ public FadeTransition animateOpacity(double value, 
-            /*@ non_null */ Duration duration) {
+    /*@ pure */ @NonNull public FadeTransition animateOpacity(double value, 
+            @NonNull Duration duration) {
         if (getFxNode() == null) {
             throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
         }
         if (value < 0 || value > 1.0) {
             throw new IllegalArgumentException("invalid opacity value: " + value);
-        }
-        if (duration == null) {
-            throw new NullPointerException("duration" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
         }
         return new FadeTransition(duration, getFxNode(), value);
     }
@@ -548,7 +603,6 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @throws          IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
      * @throws          IllegalArgumentException if <code>fromValue</code> or <code>toValue</code>
      *                                           is invalid
-     * @throws          NullPointerException     if <code>duration</code> is <code>null</code>
      * @see             #animateOpacity(double, Duration)
      * @see             FadeTransition
      */
@@ -556,8 +610,8 @@ public abstract class FxWrapper extends Observable implements Cloneable {
     //@ requires toValue >= 0 && toValue <= 1.0;
     //@ ensures \result.getToValue() == toValue && \result.getFromValue() == fromValue;
     //@ ensures \result.getDuration() == duration && \result.getNode() == getFxNode();
-    /*@ pure non_null*/ public FadeTransition animateOpacity(double fromValue, double toValue, 
-            /*@ non_null */Duration duration) {
+    /*@ pure */ @NonNull public FadeTransition animateOpacity(double fromValue, double toValue, 
+            @NonNull Duration duration) {
         if (getFxNode() == null) {
             throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
         }
@@ -566,9 +620,6 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         }
         if (toValue < 0 || toValue > 1.0) {
             throw new IllegalArgumentException("invalid opacity toValue: " + toValue);
-        }
-        if (duration == null) {
-            throw new NullPointerException("duration" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
         }
         final FadeTransition transition = new FadeTransition(duration, getFxNode(), toValue);
         transition.setFromValue(fromValue);
@@ -592,7 +643,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @see             greenmirror.Placement
      */
     //@ requires width >= 0 && height >= 0;
-    /*@ pure non_null */ public static Point3D calculatePointOnRectangle(double width, 
+    /*@ pure */ @NonNull public static Point3D calculatePointOnRectangle(double width, 
             double height, @NonNull Placement placement) {
         if (width < 0 || height < 0) {
             throw new IllegalArgumentException("width and height can't be negative.");
@@ -604,7 +655,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
         
         switch (placement.toString()) {
         case "None": default:
-            return Point3D.ZERO;
+            return new Point3D(0, 0, 0);
         case "Random":
             calcX = GreenMirrorUtils.getRandomBetween(0, width);
             calcY = GreenMirrorUtils.getRandomBetween(0, height);
@@ -707,7 +758,12 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             calcY = height;
             break;
         }
-        return new Point3D(calcX, calcY, 0).add(placement.getRelativePosition());
+        final Point3D returnPoint = new Point3D(calcX, calcY, 0)
+                                    .add(placement.getRelativePosition());
+        if (returnPoint == null) {
+            throw new RuntimeException("Point3D#add(Point3D) returned null");
+        }
+        return returnPoint;
     }
     
     /**
@@ -793,8 +849,8 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @param nodeMiddlePoint the middle point of the FX node
      * @return                the origin coordinates of the FX node
      */
-    /*@ pure non_null */ protected abstract Point3D calculateOriginCoordinates(
-            /*@ non_null */ Point3D nodeMiddlePoint);
+    /*@ pure */ @NonNull protected abstract Point3D calculateOriginCoordinates(
+            @NonNull Point3D nodeMiddlePoint);
     
     /**
      * Creates the animation that changes the position of the JavaFX node to the point where its
@@ -804,11 +860,9 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @param duration    the duration of the animation
      * @return            the JavaFX <code>Animation</code> that animates the change
      */
-    //@ requires middlePoint != null && duration != null;
     //@ requires getFxNode() != null;
-    //@ ensures \result != null;
-    /*@ pure non_null */ public abstract Transition animateToMiddlePoint(
-            /*@ non_null */ Point3D middlePoint, /*@ non_null */ Duration duration);
+    /*@ pure */ @NonNull public abstract Transition animateToMiddlePoint(
+            @NonNull Point3D middlePoint, @NonNull Duration duration);
     
     /**
      * Sets the virtual positioning property values to the point where its middle point is equal 
@@ -819,7 +873,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     //@ ensures nodesNewMiddlePoint.equals(calculatePoint(Placement.MIDDLE));
     public abstract void setToPositionWithMiddlePoint(
-            /*@ non_null */ Point3D nodesNewMiddlePoint);
+            @NonNull Point3D nodesNewMiddlePoint);
     
     /**
      * Sets the JavaFX node positioning property values to the point where its middle point is
@@ -843,17 +897,11 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * @param duration the total duration for the animations
      * @return         the JavaFX <code>Animation</code> that animates the changes
      * @throws IllegalStateException if <code>getFxNode()</code> returns <code>null</code>
-     * @throws NullPointerException  if <code>newValuesMap</code> or <code>duration</code>
-     *                               is <code>null</code>
      */
-    /*@ pure non_null */ public ParallelTransition animateFromMap(
-            /*@ non_null */ Map<String, Object> newValuesMap, /*@ non_null */ Duration duration) {
+    /*@ pure */ @NonNull public ParallelTransition animateFromMap(
+            @NonNull Map<String, Object> newValuesMap, @NonNull Duration duration) {
         if (getFxNode() == null) {
             throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
-        }
-        if (newValuesMap == null || duration == null) {
-            throw new NullPointerException("duration and new values map" 
-                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
         }
         
         final ParallelTransition transitions = new ParallelTransition();
@@ -886,7 +934,12 @@ public abstract class FxWrapper extends Observable implements Cloneable {
                 }
                 
                 // Get animate method and execute with the cast value.
-                final Object result = fxPropertyWrapper.getAnimateMethod(this.getClass())
+                final Class<? extends FxWrapper> thisClass = this.getClass();
+                if (thisClass == null) {
+                    // This won't happen, but it's for the @NonNull annotations.
+                    throw new RuntimeException("this.getClass() is null");
+                }
+                final Object result = fxPropertyWrapper.getAnimateMethod(thisClass)
                                           .invoke(this, fxPropertyWrapper.cast(value), duration);
                 
                 // Notify the user if the animation method couldn't produce an animation.
@@ -916,27 +969,19 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     public static class RotateTransition extends DoublePropertyTransition<javafx.scene.Node> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
-         */
-        protected RotateTransition(Duration duration, javafx.scene.Node node, Double toValue) {
+        protected RotateTransition(@NonNull Duration duration, javafx.scene.Node node, 
+                @NonNull Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
-        @Override
+        @Override @NonNull
         protected Double getPropertyValue() {
-            return getNode().getRotate();
+            final Double val = Double.valueOf(getNode().getRotate());
+            return val == null ? 0.0 : val;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setRotate(value);
         }
     }
@@ -951,27 +996,19 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      */
     public static class FadeTransition extends DoublePropertyTransition<javafx.scene.Node> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)
-         */
-        protected FadeTransition(Duration duration, javafx.scene.Node node, Double toValue) {
+        protected FadeTransition(@NonNull Duration duration, javafx.scene.Node node, 
+                @NonNull Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
-        @Override
+        @Override @NonNull
         protected Double getPropertyValue() {
-            return getNode().getOpacity();
+            final Double val = Double.valueOf(getNode().getOpacity());
+            return val == null ? 1.0 : val;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setOpacity(value);
         }
     }

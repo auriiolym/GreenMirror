@@ -19,6 +19,9 @@ public abstract class GreenMirrorUtils {
     
     /** the postfix of any NullPointerException message */
     public static final String MSG_NOT_NULL_POSTFIX = " can't be null.";
+
+    /** the seed for the random number generator */
+    private static final Random RAND = new Random();
     
     
     // -- Commands ---------------------------------------------------------------------------
@@ -80,5 +83,4 @@ public abstract class GreenMirrorUtils {
         return min + RAND.nextDouble() * (max - min);
     }
     
-    private final static Random RAND = new Random();
 }

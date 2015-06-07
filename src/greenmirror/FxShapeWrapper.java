@@ -1,6 +1,7 @@
 package greenmirror;
 
 import greenmirror.fxpropertywrappers.PaintFxProperty;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,8 @@ public abstract class FxShapeWrapper extends FxWrapper {
 
     // -- Queries ----------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getAnimatableProperties()
-     */
     @Override
-    protected List<FxPropertyWrapper> getAnimatableProperties() {
+    @NonNull protected List<FxPropertyWrapper> getAnimatableProperties() {
         final List<FxPropertyWrapper> supersAnimatableProperties = super.getAnimatableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {
@@ -49,11 +47,8 @@ public abstract class FxShapeWrapper extends FxWrapper {
         };
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getChangableProperties()
-     */
     @Override
-    protected List<FxPropertyWrapper> getChangableProperties() {
+    @NonNull protected List<FxPropertyWrapper> getChangableProperties() {
         final List<FxPropertyWrapper> supersChangableProperties = super.getChangableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {
@@ -64,9 +59,6 @@ public abstract class FxShapeWrapper extends FxWrapper {
         };
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getFxNode()
-     */
     @Override
     public Shape getFxNode() {
         return (Shape) super.getFxNode();
@@ -92,7 +84,7 @@ public abstract class FxShapeWrapper extends FxWrapper {
      */
     //@ ensures getFill() == value;
     //@ ensures \result == this;
-    /*@ non_null */ public FxShapeWrapper setFill(Paint value) {
+    @NonNull public FxShapeWrapper setFill(Paint value) {
         this.fill = value;
         setChanged();
         notifyObservers();
@@ -110,7 +102,6 @@ public abstract class FxShapeWrapper extends FxWrapper {
      * 
      * @param value the new fill
      * @return      <code>this</code>
-     * @throws NullPointerException     if <code>value</code> is <code>null</code>
      * @throws IllegalArgumentException if <code>value</code> can not be parsed by the
      *                                  <code>Paint.valueOf(String)</code> method
      * @see         #setFill(Paint)
@@ -118,10 +109,7 @@ public abstract class FxShapeWrapper extends FxWrapper {
      */
     //@ ensures getFill() == value;
     //@ ensures \result == this;
-    /*@ non_null */ public FxShapeWrapper setFill(/*@ non_null */ String value) {
-        if (value == null) {
-            throw new NullPointerException("fill value" + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
-        }
+    @NonNull public FxShapeWrapper setFill(@NonNull String value) {
         return setFill(Paint.valueOf(value));
     }
     
@@ -139,8 +127,6 @@ public abstract class FxShapeWrapper extends FxWrapper {
      * @return         the JavaFX <code>Animation</code> that animates the change
      * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
      * @throws         IllegalArgumentException if the 'to' or 'from' value can't be animated
-     * @throws         NullPointerException     if <code>value</code> or <code>duration</code> is 
-     *                                          <code>null</code>
      * @see            #animateFill(Color, Duration)
      * @see            FillTransition
      * @see            Color
@@ -149,8 +135,8 @@ public abstract class FxShapeWrapper extends FxWrapper {
     //@ requires getFxNode() != null;
     //@ ensures \result.getToValue().equals(value) && \result.getDuration() == duration;
     //@ ensures \result.getShape() == getFxNode();
-    /*@ pure non_null*/ public FillTransition animateFill(/*@ non_null */ Paint value,
-            /*@ non_null */ Duration duration) {
+    /*@ pure */ @NonNull public FillTransition animateFill(@NonNull Paint value,
+            @NonNull Duration duration) {
         return animateFill(Color.valueOf(value.toString()), duration);
     }
     
@@ -165,9 +151,8 @@ public abstract class FxShapeWrapper extends FxWrapper {
      * @param duration the duration of the animation
      * @return         the JavaFX <code>Animation</code> that animates the change
      * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
-     * @throws         IllegalArgumentException if the 'to' or 'from' value can't be animated
-     * @throws         NullPointerException     if <code>value</code> or <code>duration</code> is 
-     *                                          <code>null</code>
+     * @throws         IllegalArgumentException if the 'to' or 'from' value can't be animated or
+     *                                          <code>value</code> is an invalid color value
      * @see            #animateFill(Color, Duration)
      * @see            FillTransition
      * @see            Color
@@ -176,7 +161,8 @@ public abstract class FxShapeWrapper extends FxWrapper {
     //@ requires getFxNode() != null;
     //@ ensures \result.getToValue().equals(value) && \result.getDuration() == duration;
     //@ ensures \result.getShape() == getFxNode();
-    /*@ pure non_null*/ public FillTransition animateFill(String value, Duration duration) {
+    /*@ pure */ @NonNull public FillTransition animateFill(@NonNull String value, 
+            @NonNull Duration duration) {
         return animateFill(Color.valueOf(value), duration);
     }
     
@@ -195,8 +181,6 @@ public abstract class FxShapeWrapper extends FxWrapper {
      * @return         the JavaFX <code>Animation</code> that animates the change
      * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
      * @throws         IllegalArgumentException if the 'to' or 'from' value can't be animated
-     * @throws         NullPointerException     if <code>value</code> or <code>duration</code> is 
-     *                                          <code>null</code>
      * @see            FillTransition
      * @see            Color
      * @see            Color#valueOf(String)
@@ -204,14 +188,10 @@ public abstract class FxShapeWrapper extends FxWrapper {
     //@ requires getFxNode() != null;
     //@ ensures \result.getToValue().equals(value) && \result.getDuration() == duration;
     //@ ensures \result.getShape() == getFxNode();
-    /*@ pure non_null*/ public FillTransition animateFill(/*@ non_null */ Color value, 
-            /*@ non_null */ Duration duration) {
+    /*@ pure */ @NonNull public FillTransition animateFill(Color value, 
+            @NonNull Duration duration) {
         if (getFxNode() == null) {
             throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
-        }
-        if (value == null || duration == null) {
-            throw new NullPointerException("fill value and duration" 
-                    + GreenMirrorUtils.MSG_NOT_NULL_POSTFIX);
         }
         final FillTransition transition = new FillTransition(duration, getFxNode());
         transition.setFromValue(getFill() == null 

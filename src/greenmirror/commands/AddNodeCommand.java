@@ -4,8 +4,10 @@ import greenmirror.Command;
 import greenmirror.CommunicationFormat;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.LinkedHashMap;
+
 
 /**
  * The command to add a node. This command is sent to the server.
@@ -58,11 +60,11 @@ public class AddNodeCommand extends Command {
 
     /**
      * Fetch the raw data that will be sent.
+     * 
      * @param format The format in which the data will be.
      */
-    //@ requires format != null;
     @Override
-    public String getFormattedString(CommunicationFormat format) {
+    public String getFormattedString(@NonNull CommunicationFormat format) {
         switch (format) {
         default: case JSON:
             return JsonOutput.toJson(new LinkedHashMap<String, Object>() {

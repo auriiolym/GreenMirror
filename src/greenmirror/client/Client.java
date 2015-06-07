@@ -20,7 +20,6 @@ import greenmirror.commands.RemoveRelationCommand;
 import greenmirror.commands.SetAnimationDurationCommand;
 import greenmirror.commands.SetNodeFxCommand;
 import greenmirror.commands.StartVisualizationCommand;
-import groovy.lang.GroovyRuntimeException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,12 +30,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.ServiceLoader;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Implements java.util.Observer.
@@ -114,10 +114,8 @@ public class Client extends GreenMirrorController implements Observer {
 
     // -- Queries ----------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see greenmirror.GreenMirrorController#getHelpMessage()
-     */
-    @Override
+
+    @Override @NonNull
     public String getHelpMessage() {
         String help = 
             "\nGreenMirror State-Transition Visualization client v" + VERSION + "."
@@ -310,7 +308,7 @@ public class Client extends GreenMirrorController implements Observer {
      * Initialize the model.
      * @param initializers The instantiated <code>ModelInitializer</code>s.
      */
-    public void initializeModel(List<ModelInitializer> initializers) {
+    public void initializeModel(@NonNull List<ModelInitializer> initializers) {
         for (ModelInitializer initializer : initializers) {
             initializer.executeInitializer();
         }

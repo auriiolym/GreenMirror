@@ -216,7 +216,7 @@ public class ImageFxWrapper extends FxWrapper {
     //@ ensures \result == this;
     public ImageFxWrapper setImage(Image value) {
         if (!(value instanceof MyImage) && value != null) {
-            throw new IllegalArgumentException("Image has to be of type MyImage.");
+            throw new IllegalArgumentException("Image has to be of type StoredBytesImage.");
         }
         this.image = value;
         setChanged();

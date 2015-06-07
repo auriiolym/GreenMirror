@@ -37,7 +37,8 @@ public abstract class Command {
      * @return the textual, one word description of this command
      */
     /*@ pure */ @NonNull public String getCommand() {
-        return "" + getClass().getSimpleName().replace("Command", "");
+        final String str = getClass().getSimpleName().replace("Command", "");
+        return str == null ? "" : str;
     }
 
     /**
@@ -47,7 +48,7 @@ public abstract class Command {
      * @param format The communication format.
      * @see          CommunicationFormat
      */
-    @NonNull public abstract String getFormattedString(@NonNull CommunicationFormat format);
+    public abstract String getFormattedString(@NonNull CommunicationFormat format);
     
 
     // -- Setters ----------------------------------------------------------------------------

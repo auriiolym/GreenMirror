@@ -10,6 +10,8 @@ import java.util.Base64;
 
 import javafx.scene.image.Image;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * A wrapper for the <code>Paint</code> type of FX properties.
  * 
@@ -24,7 +26,7 @@ public class ImageFxProperty extends FxPropertyWrapper {
      * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
-    public ImageFxProperty(String propertyName) {
+    public ImageFxProperty(@NonNull String propertyName) {
         super(propertyName);
     }
 
@@ -34,7 +36,7 @@ public class ImageFxProperty extends FxPropertyWrapper {
     /* (non-Javadoc)
      * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#getPropertyType()
      */
-    @Override
+    @Override @NonNull
     public Class<?> getPropertyType() {
         return Image.class;
     }
