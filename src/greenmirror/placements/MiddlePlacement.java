@@ -1,13 +1,11 @@
 package greenmirror.placements;
 
 import greenmirror.Placement;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class MiddlePlacement extends Placement {
     
-    /* (non-Javadoc)
-     * @see greenmirror.Placement#clone()
-     */
-    @Override
+    @Override @NonNull
     public MiddlePlacement clone() {
         return ((MiddlePlacement) new MiddlePlacement().withData(toData()));
     }

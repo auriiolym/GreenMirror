@@ -6,21 +6,22 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-
 import greenmirror.FxWrapper;
+import greenmirror.StoredBytesImage;
 import greenmirror.fxwrappers.CircleFxWrapper;
 import greenmirror.fxwrappers.ImageFxWrapper;
-import greenmirror.fxwrappers.MyImage;
 import greenmirror.fxwrappers.RectangleFxWrapper;
 import greenmirror.fxwrappers.TextFxWrapper;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import javafx.geometry.Point3D;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class FxWrapperTest {
     
@@ -214,11 +215,11 @@ public class FxWrapperTest {
         // Test setImage(Image)
         imag.setImageFromUrl("http://www.utwente.nl/repository/utwente/ws2013/img/nl/"
                            + "inv-utlogo.png");
-        assertThat(((MyImage) imag.getImage()).getBytes().length, is(2258));
+        assertThat(((StoredBytesImage) imag.getImage()).getBytes().length, is(2258));
         imag.setImage(null);
         assertThat(imag.getImage(), is(nullValue()));
         imag.setImageFromFile("testcases/inv-utlogo.png");
-        assertThat(((MyImage) imag.getImage()).getBytes().length, is(2258));
+        assertThat(((StoredBytesImage) imag.getImage()).getBytes().length, is(2258));
 
         // Test clone.
         assertThat(imag.clone().toMap(), equalTo(imag.toMap()));

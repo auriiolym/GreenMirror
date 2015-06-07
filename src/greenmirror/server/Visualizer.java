@@ -368,7 +368,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
     /**
      * Transition to the next state. Any code that needs to be executed after the transition 
-     * has finished should be set with getNextTransition().setOnFinished(...).
+     * has finished should be set with getNextMemento().getTransition().setOnFinished(...).
      */
     public void toNextMemento() {
         restoreFromMemento(getNextMemento());
@@ -376,7 +376,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
     
     /**
      * Transition to the previous state. Any code that needs to be executed after the transition 
-     * has finished should be set with getNextTransition().setOnFinished(...).
+     * has finished should be set with getPreviousMemento().getTransition().setOnFinished(...).
      */
     public void toPreviousMemento() {
         restoreFromMemento(getPreviousMemento());

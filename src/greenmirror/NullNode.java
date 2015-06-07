@@ -1,9 +1,14 @@
 package greenmirror;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Observable;
 
 /**
- * A class to handle removed <code>Node</code>s better.
+ * A class to handle removed <code>Node</code>s better. It's an implementation of the null object
+ * design pattern. All the getters except for {@link #getOldName()} and {@link #getOldType()}
+ * return a <code>null</code> or <code>false</code> value and all the setters throw a
+ * {@link RemovedNodeUsedException}.
  * 
  * @author Karim El Assal
  */
@@ -11,17 +16,20 @@ public class NullNode extends Node {
     
     // -- Exceptions -------------------------------------------------------------------------
 
+    /**
+     * An exception thrown when a removed node was used, which was impossible and essential.
+     * 
+     * @author Karim El Assal
+     */
     public static class RemovedNodeUsedException extends RuntimeException {
-        public RemovedNodeUsedException(NullNode node) {
+        public RemovedNodeUsedException(@NonNull NullNode node) {
             super("You tried to work with a removed node ("
                     + "type: " + node.getOldType() + ", "
                     + "name: " + node.getOldName() + ").");
         }
     }
 
-    /**
-     * The old type and name. These are allowed to be <code>null</code>.
-     */
+    /** the old type and name */
     private String oldType = null;
     private String oldName = null;
     
@@ -29,6 +37,7 @@ public class NullNode extends Node {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
+     * Creates a new <code>NullNode</code> with its old type and name.
      * 
      * @param oldType
      * @param oldName
@@ -42,100 +51,74 @@ public class NullNode extends Node {
 
     // -- Queries ----------------------------------------------------------------------------
     
-    /**
-     * @return The old type of this <code>Node</code>.
-     */
+    /** @return the old type of this <code>Node</code> */
     /*@ pure */ public String getOldType() {
         return oldType;
     }
 
-    /**
-     * @return The old name of this <code>Node</code>.
-     */
+    /** @return the old name of this <code>Node</code> */
     /*@ pure */ public String getOldName() {
         return oldName;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#getType()
-     */
+    /** @return <code>null</code>: this is a removed node */
     @Override
     public String getType() {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#getName()
-     */
+    /** @return <code>null</code>: this is a removed node */
     @Override
     public String getName() {
         return null;
     }
-    
-    /* (non-Javadoc)
-     * @see greenmirror.Node#hasLabel(java.lang.String)
-     */
+
+    /** @return <code>false</code>: this is a removed node */
     @Override
     public boolean hasLabel(String label) {
         return false;
     }
 
-
-    /* (non-Javadoc)
-     * @see greenmirror.Node#getRelations()
-     */
-    @Override
+    /** @return an empty <code>RelationList</code>: this is a removed node */
+    @Override @NonNull 
     public RelationList getRelations() {
         return new RelationList();
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#getFxWrapper()
-     */
+    /** @return <code>null</code>: this is a removed node */    
     @Override
     public FxWrapper getFxWrapper() {
-        return super.getFxWrapper();
+        return null;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#toString()
-     */
-    @Override
+    @Override @NonNull 
     public String toString() {
-        return "deleted " + super.toString();
+        return "DELETED " + super.toString();
     }
     
     
     // -- Setters ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#setType(java.lang.String)
-     */
-    @Override
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull
     public Node setType(String type) {
         throw new RemovedNodeUsedException(this);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#setName(java.lang.String)
-     */
-    @Override
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
     public Node setName(String name) {
         throw new RemovedNodeUsedException(this);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#addLabel(java.lang.String)
-     */
-    @Override
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
     public Node addLabel(String label) {
         throw new RemovedNodeUsedException(this);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#removeLabel(java.lang.String)
-     */
-    @Override
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
     public Node removeLabel(String label) {
         throw new RemovedNodeUsedException(this);
     }
@@ -143,62 +126,44 @@ public class NullNode extends Node {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#addRelation(greenmirror.Relation)
-     */
-    @Override
-    public Node addRelation(Relation relation) {
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
+    public Node addRelation(@NonNull Relation relation) {
         throw new RemovedNodeUsedException(this);
     }
 
-
-    /* (non-Javadoc)
-     * @see greenmirror.Node#removeRelation(greenmirror.Relation)
-     */
+    /** @throws RemovedNodeUsedException because this node is removed */
     @Override
     public void removeRelation(Relation relation) {
         throw new RemovedNodeUsedException(this);
     }
 
-
-    /* (non-Javadoc)
-     * @see greenmirror.Node#set(greenmirror.FxWrapper)
-     */
-    @Override
-    public Node set(FxWrapper fxWrapper) {
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
+    public Node set(@NonNull FxWrapper fxWrapper) {
         throw new RemovedNodeUsedException(this);
     }
 
-
-    /* (non-Javadoc)
-     * @see greenmirror.Node#fx(java.lang.String)
-     */
-    @Override
-    public FxWrapper fx(String type) {
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
+    public FxWrapper fx(@NonNull String type) {
         throw new RemovedNodeUsedException(this);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#fx()
-     */
-    @Override
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
     public FxWrapper fx() {
         throw new RemovedNodeUsedException(this);
     }
 
-
-    /* (non-Javadoc)
-     * @see greenmirror.Node#update(java.util.Observable, java.lang.Object)
-     */
+    /** @throws RemovedNodeUsedException because this node is removed */
     @Override
     public void update(Observable observable, Object arg1) {
         throw new RemovedNodeUsedException(this);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.Node#clone()
-     */
-    @Override
+    /** @throws RemovedNodeUsedException because this node is removed */
+    @Override @NonNull 
     public Node clone() {
         throw new RemovedNodeUsedException(this);
     }

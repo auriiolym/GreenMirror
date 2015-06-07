@@ -1,83 +1,67 @@
 package greenmirror;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
+import java.util.TreeSet;
 
 /**
- * The class handling the log.
+ * A simple singleton class handling the log.
+ * <p>
+ * The most simple usage is <code>Log.add("message");</code>, which will use the default
+ * <code>System.out</code> as output.
  * 
  * @author Karim El Assal
  */
 public class Log {
     
+    // -- Constants --------------------------------------------------------------------------
+    
+    /**
+     * The default output stream. It overrides the <code>print</code> method to add a timestamp
+     * before any string.
+     */
     public static final PrintStream DEFAULT = new PrintStream(System.out) {
         
         @Override
         public void print(String str) {
             super.print("[" + getTimestamp() + "] " + str);
         }
-        
-        @Override
-        public void close() {
-            print("Default log output closed.");
-        }
     };
     
-    // -- Enumerations -----------------------------------------------------------------------
-
-    // -- Constants --------------------------------------------------------------------------
-
+    
     // -- Class variables --------------------------------------------------------------------
     
-    /**
-     * Entries of the log.
-     */
-    //@ private invariant entries != null;
-    private static final List<String> entries = new LinkedList<String>();
+    /** all entries of the log */
+    @NonNull private static final List<String> entries = new LinkedList<String>();
     
-    /**
-     * The selected log outputs.
-     */
-    //@ private invariant outputs != null;
-    private static final Set<PrintStream> outputs = new HashSet<PrintStream>();
+    /** the selected log output streams */
+    @NonNull private static final Set<PrintStream> outputs = new TreeSet<PrintStream>();
     
-    /**
-     * Whether to log verbose data.
-     */
+    /** whether to log verbose data */
     private static boolean verbose = false;
     
 
-    // -- Class usage ------------------------------------------------------------------------
- 
-
-
     // -- Queries ----------------------------------------------------------------------------
     
-    /**
-     * @return a copy of the log entries
-     */
-    /*@ pure non_null */ public static List<String> getEntries() {
+    /** @return a copy of the log entries */
+    /*@ pure */ @NonNull public static List<String> getEntries() {
         return new LinkedList<String>(entries);
     }
     
-    /**
-     * @return The current date and time.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ public static String getTimestamp() {
-        return new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS")
-                    .format(Calendar.getInstance().getTime());
+    /** @return the current date and time in YYYY-MM-dd HH:mm:ss.SSS format */
+    /*@ pure */ @NonNull public static String getTimestamp() {
+        final String str = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS")
+                                .format(Calendar.getInstance().getTime());
+        return str == null ? "" : str;
     }
     
-    /**
-     * @return Whether to output verbose data.
-     */
+    /** @return whether to output verbose data */
     /*@ pure */ public static boolean isVerbose() {
         return verbose;
     }
@@ -85,7 +69,7 @@ public class Log {
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param verbose Set whether to be verbose.
+     * @param verbose set whether to be verbose
      */
     //@ ensures isVerbose() == verbose;
     public static void setVerbose(boolean verbose) {
@@ -93,21 +77,21 @@ public class Log {
     }
     
     /**
-     * Add <code>output</code> to the list of outputs.
-     * @param output The type of output.
+     * Adds <code>output</code> to the list of outputs.
+     * 
+     * @param output the output stream
      */
-    //@ requires output != null;
-    public static void addOutput(PrintStream output) {
+    public static void addOutput(@NonNull PrintStream output) {
         outputs.add(output);
     }
     
     
     // -- Commands ---------------------------------------------------------------------------
     
-    
     /**
-     * Remove the selected output and clean up if necessary.
-     * @param output The output.
+     * Removes the selected output and clean up if necessary.
+     * 
+     * @param output the output
      */
     public static void removeOutput(PrintStream output) {
         if (outputs.contains(output)) {
@@ -118,12 +102,13 @@ public class Log {
     
     
     /**
-     * Add data to the log.
-     * @param obj Any (stringifiable) data.
+     * Adds data to the log.
+     * 
+     * @param obj any (stringifiable) object
      */
     public static void add(Object obj) {
         // Get String value.
-        String data = String.valueOf(obj);
+        final String data = String.valueOf(obj);
         
         // Store in the list.
         entries.add(data);
@@ -142,11 +127,16 @@ public class Log {
     }
     
     /**
-     * Add data to the log with the information of an <code>Exception</code> appended.
-     * @param obj       Any (stringifiable) data.
-     * @param throwable The thrown exception.
+     * Adds data to the log with the information of an <code>Exception</code> appended.
+     * 
+     * @param obj       any (stringifiable) data
+     * @param throwable the thrown exception
      */
-    public static void add(/*@ non_null */ Object obj, /*@ non_null */ Throwable throwable) {
+    public static void add(Object obj, Throwable throwable) {
+        if (throwable == null) {
+            add(obj);
+            return;
+        }
         String data = String.valueOf(obj) + String.valueOf(throwable) + "\nWith stacktrace:";
         for (StackTraceElement stElement : throwable.getStackTrace()) {
             data += "\n    " + stElement.toString();
@@ -155,8 +145,9 @@ public class Log {
     }
     
     /**
-     * Add verbose data to the log, but only if the verbose setting is enabled.
-     * @param obj Any (stringifiable) data.
+     * Adds verbose data to the log, but only if the verbose setting is enabled.
+     * 
+     * @param obj any (stringifiable) data
      */
     public static void addVerbose(Object obj) {
         if (isVerbose()) {
@@ -165,13 +156,12 @@ public class Log {
     }
     
     /**
-     * An auxilary, shorthand method to get an identifying string of a node for the logs. 
-     * @param node The relevant node.
-     * @return     The identifying string in the format: "(id,type:name)".
+     * An auxiliary, shorthand method to get an identifying string of a node for the logs.
+     *  
+     * @param node the relevant node
+     * @return     the identifying string in the format: "(id,type:name)"
      */
-    //@ requires node != null;
-    //@ ensures \result != null;
-    /*@ pure */ public static String n(Node node) {
+    /*@ pure */ @NonNull public static String n(@NonNull Node node) {
         return "(" + node.getId() + "," + node.getIdentifier() + ")";
     }
 }

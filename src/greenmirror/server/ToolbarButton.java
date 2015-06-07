@@ -1,13 +1,12 @@
 package greenmirror.server;
 
 import greenmirror.Log;
+import greenmirror.server.Visualizer.PlaybackState;
 import greenmirror.server.playbackstates.PausedState;
 import greenmirror.server.playbackstates.PlayingBackState;
 import greenmirror.server.playbackstates.PlayingState;
 import greenmirror.server.playbackstates.SteppingBackState;
 import greenmirror.server.playbackstates.SteppingState;
-import greenmirror.server.Visualizer.PlaybackState;
-
 import javafx.animation.Transition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,6 +15,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * All the toolbar buttons.
@@ -309,18 +310,18 @@ public enum ToolbarButton {
 
     /**
      * Execute a visualizer transition. This method assumes a forward or backward transition
-     * is possible. If <code>rate</code> is positive, a forward transition is assumed. If
-     * <code>pbStateWhilePlaying</code> is <code>null</code> or the <code>pbStateWhilePlaying</code> is NOT
+     * is possible. If <code>rate</code> is positive, a forward transition is assumed. If the 
+     * <code>pbStateWhilePlaying</code> is NOT
      * continuous, a 'stepping' transition is assumed: the delay is removed and after the
      * transition is finished, the playback state is set to paused.
      * @param pbStateWhilePlaying The playback status set during the transition.
      * @param rate The rate with which the transition will take place. 
      *        {@see javafx.animation.Animation#rateProperty()}
      */
-    public void executeVisualizerTransition(PlaybackState pbStateWhilePlaying, double rate) {
+    public void executeVisualizerTransition(@NonNull PlaybackState pbStateWhilePlaying, double rate) {
 
         final boolean goingForward = rate > 0;
-        final boolean isStep = pbStateWhilePlaying == null || !pbStateWhilePlaying.isContinuous();
+        final boolean isStep = !pbStateWhilePlaying.isContinuous();
         final int newStateNumber = getVisualizer().getCurrentMementoNumber() 
                 + (goingForward ? 1 : -1);
         final Transition toTransition = goingForward 
@@ -330,11 +331,9 @@ public enum ToolbarButton {
         Log.add("Transition to state " + newStateNumber + " started.");
         
         // Update status.
-        if (pbStateWhilePlaying != null) {
-            getVisualizer().setPlaybackState(pbStateWhilePlaying);
-            getVisualizer().getPlaybackState().determineButtonOperation(
-                    getVisualizer().hasPreviousMemento(), getVisualizer().hasNextMemento());
-        }
+        getVisualizer().setPlaybackState(pbStateWhilePlaying);
+        getVisualizer().getPlaybackState().determineButtonOperation(
+                getVisualizer().hasPreviousMemento(), getVisualizer().hasNextMemento());
         
         // Set what to do when the transition finishes.
         toTransition.setOnFinished(new EventHandler<ActionEvent>() {

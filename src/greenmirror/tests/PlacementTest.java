@@ -91,13 +91,6 @@ public class PlacementTest {
                 new Point3D(-1, -1, 0),
         };
         
-        // Test null value.
-        try {
-            rect.calculatePoint(null);
-            fail();
-        } catch (NullPointerException e) {}
-        
-        
         // Test placements.
         for (int i = 0; i < testPlacement.length; i++) {
             
@@ -182,12 +175,6 @@ public class PlacementTest {
                 new Point3D(15, 85, 0),
                 Point3D.ZERO,
         };
-        
-        // Test null value.
-        try {
-            circ.calculatePoint(null);
-            fail();
-        } catch (NullPointerException e) {}
         
         
         // Test placements.

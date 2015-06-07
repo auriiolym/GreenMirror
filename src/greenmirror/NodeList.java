@@ -1,46 +1,46 @@
 package greenmirror;
 
+import greenmirror.Node.Identifier;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.LinkedList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.annotation.NonNull;
-
-// Extends java.util.LinkedList<Node>.
 /**
- * A custom <code>List</code> implementation to apply specific filters.
+ * A custom <code>List</code> extension to apply specific filters to a list of <code>Node</codes>.
  * 
  * @author Karim El Assal
  */
 public class NodeList extends LinkedList<Node> {
     
-
     // -- Constructors -----------------------------------------------------------------------
     
-    /**
-     * Create an empty <code>NodeList</code>.
-     */
+    /** Creates an empty <code>NodeList</code>. */
     //@ ensures this.size() == 0;
     public NodeList() {}
     
     /**
-     * Create a new <code>NodeList</code> with the given <code>Node</code>s.
-     * @param nodes All <code>Node</code>s you automatically want to be added.
+     * Creates a new <code>NodeList</code> with the given <code>Node</code>s.
+     * 
+     * @param nodes all <code>Node</code>s that should be added
      */
     //@ ensures this.size() == nodes.length;
     public NodeList(Node... nodes) {
+        if (nodes == null) {
+            return;
+        }
         for (Node node : nodes) {
             this.add(node);
         }
     }
     
     /**
-     * Create a <code>NodeList</code> with elements from <code>oldList</code>.
+     * Creates a <code>NodeList</code> with all <code>Node</code>s from <code>oldList</code>.
+     * 
      * @param oldList The old list.
      */
-    //@ requires oldList != null;
     //@ ensures this.size() == oldList.size();
-    //TODO: add forall condition.
     public NodeList(@NonNull NodeList oldList) {
         super(oldList);
     }
@@ -49,21 +49,23 @@ public class NodeList extends LinkedList<Node> {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @param currentNode The current <code>Node</code>.
-     * @return            The next <code>Node</code> in the list; if <code>currentNode</code> is the
+     * @param currentNode the current <code>Node</code>
+     * @return            the next <code>Node</code> in the list; if <code>currentNode</code> is the
      *                    last in the list or <code>currentNode</code> doesn't appear in the list, 
-     *                    the first <code>Node</code> will be returned.
+     *                    the first <code>Node</code> will be returned
      */
     //@ requires this.size() > 0;
     //@ ensures \result != null;
     /*@ pure */ public Node getCircularNext(Node currentNode) {
-        int currentIndex = this.indexOf(currentNode); // Returns -1 if currentNode is not found.
+        final int currentIndex = this.indexOf(currentNode); // == -1 if currentNode is not found.
         return this.get(this.size() - 1 == currentIndex ? 0 : currentIndex + 1);
     }
 
     /**
-     * @param predicate The filter.
-     * @return          A new <code>NodeList</code> with a filter applied.
+     * Returns a new list with only the nodes that pass through the filter.
+     * 
+     * @param predicate the filter
+     * @return          a new <code>NodeList</code> with a filter applied
      */
     //@ ensures \result.size() <= this.size();
     /*@ pure */ private NodeList withFilter(@NonNull Predicate<Node> predicate) {
@@ -72,89 +74,75 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
-     * Get a <code>NodeList</code> which contains <code>Node</code>s that correspond to the 
+     * Gets a <code>NodeList</code> which contains <code>Node</code>s that correspond to the 
      * <code>identifier</code>.
-     * @param identifier See {@link greenmirror.Node.Identifier}.
-     * @return           A new <code>NodeList</code> with the matching <code>Node</code>s.
+     * 
+     * @param identifier see {@link Identifier}
+     * @return           a new <code>NodeList</code> with the matching <code>Node</code>s
      */
-    //@ requires identifier != null;
     //@ ensures \result != null;
-    /*@ pure */ public NodeList withIdentifier(Node.Identifier identifier) {
-        /*NodeList result = new NodeList();
-        
-        for (Node node : this) {
-            if ((identifier.hasType() && !identifier.getType().equals(node.getType()))
-             || (identifier.hasName() && !identifier.getName().equals(node.getName()))) {
-                continue;
-            }
-            result.add(node);
-        }*/
-        
+    /*@ pure */ public NodeList withIdentifier(@NonNull Identifier identifier) { 
         return withFilter(node -> 
                     identifier.hasType() ? identifier.getType().equals(node.getType()) : true)
               .withFilter(node ->
                     identifier.hasName() ? identifier.getName().equals(node.getName()) : true);
-        
     }
     
     /**
-     * Get a <code>NodeList</code> which contains <code>Node</code>s that correspond to the 
+     * Gets a <code>NodeList</code> which contains <code>Node</code>s that correspond to the 
      * <code>identifier</code>.
-     * @param identifier See {@link greenmirror.Node.Identifier#Identifier(String)}.
-     * @return           A new <code>NodeList</code> with the matching <code>Node</code>s.
+     * 
+     * @param identifier see {@link Identifier#Identifier(String)}
+     * @return           a new <code>NodeList</code> with the matching <code>Node</code>s
      */
-    //@ requires identifier != null;
     //@ ensures \result != null;
     /*@ pure */ public NodeList withIdentifier(String identifier) {
-        return withIdentifier(new Node.Identifier(identifier));
+        return withIdentifier(new Identifier(identifier));
     }
     
     /**
-     * @param name The name part of a <code>Node.Identifier</code>.
-     * @return     Every <code>Node</code> with <code>name</code>. 
+     * @param name the name part of a <code>Node.Identifier</code>
+     * @return     every <code>Node</code> with <code>name</code> that is on the current list 
      */
-    //@ requires name != null;
     //@ ensures \result != null;
     /*@ pure */ public NodeList withName(String name) {
-        Node.Identifier identifier = new Node.Identifier();
+        final Identifier identifier = new Identifier();
         identifier.setName(name);
         return withIdentifier(identifier);
     }
 
     /**
-     * @param type The name part of a <code>Node.Identifier</code>.
-     * @return     Every <code>Node</code> of <code>type</code>.
+     * @param type the name part of a <code>Node.Identifier</code>
+     * @return     every <code>Node</code> of <code>type</code> that is on the current list
      */
-    //@ requires type != null;
     //@ ensures \result != null;
     /*@ pure */ public NodeList ofType(String type) {
-        Node.Identifier identifier = new Node.Identifier();
+        final Identifier identifier = new Identifier();
         identifier.setType(type);
         return withIdentifier(identifier);
     }
 
     /**
-     * @param label The label to match for.
-     * @return      Every <code>Node</code> that has <code>label</code>.
+     * @param label the label to match for
+     * @return      every <code>Node</code> that has <code>label</code> that is on the current list
      */
-    //@ requires label != null;
     //@ ensures \result != null;
     /*@ pure */ public NodeList withLabel(String label) {
         return withFilter(node -> node.hasLabel(label));
     }
 
     /**
-     * Get <code>Node</code>s that have a <code>Relation</code> with any of <code>nodes</code> in the 
-     * specified </code>direction</code>.
-     * @param direction  The direction of the <code>Relation</code>s. See 
-     *                   {@link greenmirror.Node#getRelations(int)}.
-     * @param matchNodes Possible <code>Node</code>s on the other end of the <code>Relation</code>.
-     * @return           The matching <code>Node</code>s.
+     * Gets <code>Node</code>s that have a {@link Relation} with any of <code>nodes</code> 
+     * in the specified </code>direction</code>.
+     * 
+     * @param direction  see {@link Node#getRelations(int)}
+     * @param matchNodes possible <code>Node</code>s on the other end of the <code>Relation</code>
+     * @return           the matching <code>Node</code>s
+     * @throws IllegalArgumentException if <code>direction</code> is invalid
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
-    //@ requires matchNodes != null;
     //@ ensures \result != null;
-    /*@ pure */ public NodeList withRelationTo(int direction, NodeList matchNodes) {
+    /*@ pure */ public NodeList withRelationTo(int direction, @NonNull NodeList matchNodes) {
         return withFilter(node -> {
             for (Node relatedNode : node.getRelatedNodes(direction)) {
                 if (matchNodes.contains(relatedNode)) {
@@ -165,45 +153,70 @@ public class NodeList extends LinkedList<Node> {
         });
     }
     
-    public NodeList withRelationTo(int direction, @NonNull Node matchNode) {
+    /**
+     * The same as {{@link #withRelationTo(int, NodeList)}, but with one <code>Node</code>.
+     * 
+     * @see #withRelationTo(int, NodeList)
+     */
+    //@ requires direction == -1 || direction == 0 || direction == 1;
+    //@ ensures \result != null;
+    /*@ pure */ public NodeList withRelationTo(int direction, @NonNull Node matchNode) {
         return withRelationTo(direction, new NodeList(matchNode));
     }
     
     /**
-     * Get <code>Node</code>s that have a specific <code>Relation</code>.
-     * @param direction    The direction of the <code>Relation</code>. See
-     *                     {@link greenmirror.Node#getRelations(int)}.
-     * @param relationName The name of the relation.
-     * @return             The matching <code>Node</code>s.
+     * Gets <code>Node</code>s that have a specific {@link Relation}.
+     * 
+     * @param direction    see {@link Node#getRelations(int)}
+     * @param relationName the name of the relation
+     * @return             the matching <code>Node</code>s
+     * @throws IllegalArgumentException if <code>direction</code> is invalid
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
-    //@ requires relationName != null;
     //@ ensures \result != null;
-    /*@ pure */ public NodeList withRelation(int direction, String relationName) {
+    /*@ pure */ public NodeList withRelation(int direction, @NonNull String relationName) {
         return withFilter(node -> node.getRelation(direction, relationName) != null);
     }
     
+    /**
+     * Gets the list without the nodes passed in the argument.
+     * 
+     * @param nodes the <code>Node</code>s that won't be in the result
+     * @return      the list not matching <code>nodes</code>
+     */
+    //@ ensures \result != null;
     /*@ pure */ public NodeList without(@NonNull NodeList nodes) {
         return withFilter(node -> !nodes.contains(node));
     }
     
+    /**
+     * @see #without(NodeList)
+     */
+    //@ ensures \result != null;
     /*@ pure */ public NodeList without(@NonNull Node... nodes) {
         return without(new NodeList(nodes));
     }
     
+    /**
+     * @see #without(NodeList)
+     */
+    //@ ensures \result != null;
     /*@ pure */ public NodeList not(@NonNull NodeList nodes) {
         return without(new NodeList(nodes));
     }
     
+    /**
+     * @see #without(NodeList)
+     */
+    //@ ensures \result != null;
     /*@ pure */ public NodeList not(@NonNull Node... nodes) {
         return without(new NodeList(nodes));
     }
     
-
     /**
-     * @return This <code>NodeList</code> truncated with only the first element left;
+     * @return this <code>NodeList</code> truncated to only the first element;
      *         or just an empty <code>NodeList</code> if <code>this</code> doesn't contain any 
-     *         <code>Node</code>s.
+     *         <code>Node</code>s
      */
     //@ ensures (this.size() == 0) ? true : (\result.size() == 1);
     /*@ pure */ @NonNull public NodeList one() {
@@ -214,22 +227,23 @@ public class NodeList extends LinkedList<Node> {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Add a <code>Relation</code> to multiple <code>Node</code>s at once (although still sequential).
-     * @param relation The <code>Relation</code> to add.
+     * Adds a {@link Relation} to multiple <code>Node</code>s.
+     * 
+     * @param relation the <code>Relation</code> to add
      * @return         <code>this</code>
      */
-    //@ requires relation != null;
-    public NodeList addRelation(Relation relation) {
+    @NonNull public NodeList addRelation(@NonNull Relation relation) {
         this.forEach(node -> node.addRelation(relation));
         return this;
     }
 
     /**
-     * Remove a <code>Relation</code> from multiple <code>Node</code>s at once (altough still sequential).
-     * @param relationName The name of the <code>Relation</code>.
+     * Removes a {@link Relation} from multiple <code>Node</code>s.
+     * 
+     * @param relationName the name of the <code>Relation</code>
      * @return             <code>this</code>
      */
-    public NodeList removeRelation(String relationName) {
+    @NonNull public NodeList removeRelation(@NonNull String relationName) {
         this.forEach(node -> {
             node.removeRelation(node.getRelation(0, relationName));
         });

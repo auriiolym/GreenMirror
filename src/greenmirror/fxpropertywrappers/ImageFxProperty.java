@@ -2,7 +2,7 @@ package greenmirror.fxpropertywrappers;
 
 import greenmirror.FxPropertyWrapper;
 import greenmirror.Log;
-import greenmirror.fxwrappers.MyImage;
+import greenmirror.fxwrappers.StoredBytesImage;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -52,14 +52,14 @@ public class ImageFxProperty extends FxPropertyWrapper {
      * @return         The cast instance; <code>null</code> if <code>instance</code> is null.
      */
     @Override
-    public MyImage cast(Object instance) {
+    public StoredBytesImage cast(Object instance) {
         byte[] bytes = null;
         
         if (instance == null) {
             return null;
         }
-        if (instance instanceof MyImage) {
-            return (MyImage) instance;
+        if (instance instanceof StoredBytesImage) {
+            return (StoredBytesImage) instance;
         }
         
         // A base64 encoded byte array is assumed if it's a String. 
@@ -74,7 +74,7 @@ public class ImageFxProperty extends FxPropertyWrapper {
             bytes = (byte[]) instance;
         }
         if (bytes != null) {
-            final MyImage image = new MyImage(new ByteArrayInputStream(bytes));
+            final StoredBytesImage image = new StoredBytesImage(new ByteArrayInputStream(bytes));
             image.setBytes(bytes);
             return image;
         }
@@ -87,10 +87,10 @@ public class ImageFxProperty extends FxPropertyWrapper {
      */
     @Override
     public String castToMapValue(Object instance) {
-        if (!(instance instanceof MyImage)) {
+        if (!(instance instanceof StoredBytesImage)) {
             return null;
         }
-        final MyImage image = (MyImage) instance;
+        final StoredBytesImage image = (StoredBytesImage) instance;
         
         if (image.isError() && image.getException() != null 
                 && !(image.getException() instanceof EOFException)) {

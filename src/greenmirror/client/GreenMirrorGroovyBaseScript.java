@@ -3,6 +3,7 @@ package greenmirror.client;
 import greenmirror.FxWrapper;
 import greenmirror.Node;
 import greenmirror.NodeList;
+import greenmirror.Placement;
 import greenmirror.Relation;
 import greenmirror.commands.FlushCommand;
 import greenmirror.commands.SetAnimationDurationCommand;
@@ -232,7 +233,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     public void switchPlacementRelation(Relation newRelation) {
         Node nodeA = newRelation.getNodeA();
-        if (!nodeA.hasPlacementRelation()) {
+        if (!nodeA.hasPlacementRelation() || newRelation.getPlacement() == Placement.NONE) {
             addRelation(newRelation);
             return;
         }

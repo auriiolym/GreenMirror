@@ -1,12 +1,11 @@
 package greenmirror.placements;
 
 import greenmirror.Placement;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class CornerBottomRightPlacement extends Placement {
-    /* (non-Javadoc)
-     * @see greenmirror.Placement#clone()
-     */
-    @Override
+    
+    @Override @NonNull
     public CornerBottomRightPlacement clone() {
         return ((CornerBottomRightPlacement) new CornerBottomRightPlacement().withData(toData()));
     }

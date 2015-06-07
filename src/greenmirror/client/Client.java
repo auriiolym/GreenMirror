@@ -397,7 +397,7 @@ public class Client extends GreenMirrorController implements Observer {
      * @param data
      */
     @Override
-    public void handlePeerData(String data, CommandHandler handler) {
+    public void handlePeerData(@NonNull String data, CommandHandler handler) {
         // TODO - implement GMClient.handlePeerData
         throw new UnsupportedOperationException();
     }
@@ -406,7 +406,7 @@ public class Client extends GreenMirrorController implements Observer {
     
     
     
-    public static void main(String[] args) {
+    public static void main(@NonNull String[] args) {
         
         Log.addOutput(Log.DEFAULT);
         final Client greenmirror = new Client();

@@ -7,11 +7,13 @@ import greenmirror.client.Client;
 import greenmirror.client.TraceSelector;
 import groovy.lang.GroovyRuntimeException;
 
+import java.util.Arrays;
+import java.util.List;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
 
-import java.util.Arrays;
-import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * The trace selector <code>CommandLineOptionHandler</code> (client side).
@@ -71,11 +73,8 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#setParserSettings(joptsimple.OptionParser)
-     */
     @Override
-    public OptionSpec<?> setParserSettings(OptionParser optionParser) {
+    public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser) {
 
         return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
@@ -84,12 +83,8 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
                     .withValuesSeparatedBy(':');
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#validate(greenmirror.GreenMirrorController, 
-     *                                                                      java.lang.String[])
-     */
     @Override
-    public void validate(GreenMirrorController controller, String... parameters)
+    public void validate(@NonNull GreenMirrorController controller, String... parameters)
             throws FatalException {
         if (parameters.length != 2) {
             throw new FatalException("The model option has the wrong number of parameters.");
@@ -120,11 +115,8 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#process(greenmirror.GreenMirrorController)
-     */
     @Override
-    public void process(GreenMirrorController controller) throws FatalException {
+    public void process(@NonNull GreenMirrorController controller) throws FatalException {
         Client client = (Client) controller;
 
         // Check if the trace consists of valid transitions.
@@ -144,10 +136,7 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#clone()
-     */
-    @Override
+    @Override @NonNull 
     public CommandLineOptionHandler clone() {
         return new TraceCommandLineOptionHandler();
     }

@@ -1,13 +1,12 @@
 package greenmirror.placements;
 
 import greenmirror.Placement;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class EdgeBottomPlacement extends Placement {
     
-    /* (non-Javadoc)
-     * @see greenmirror.Placement#clone()
-     */
-    @Override
+    
+    @Override @NonNull
     public EdgeBottomPlacement clone() {
         return ((EdgeBottomPlacement) new EdgeBottomPlacement().withData(toData()));
     }

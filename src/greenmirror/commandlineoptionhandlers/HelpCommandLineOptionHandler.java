@@ -7,13 +7,16 @@ import greenmirror.GreenMirrorUtils;
 import greenmirror.Log;
 import greenmirror.ServerSide;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * The help <code>CommandLineOptionHandler</code> (client and server side).
@@ -27,21 +30,15 @@ public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
     // -- Instance variables -----------------------------------------------------------------
     
     // -- Queries ----------------------------------------------------------------------------
-   
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getDescription()
-     */
-    @Override
+
+    @Override @NonNull
     public String getDescription() {
         return "display this help message";
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getOptions()
-     */
-    @Override
+    @Override @NonNull
     public List<String> getOptions() {
-        return Arrays.asList("help", "?");
+        return new ArrayList<String>(Arrays.asList("help", "?"));
     }
 
     /* (non-Javadoc)

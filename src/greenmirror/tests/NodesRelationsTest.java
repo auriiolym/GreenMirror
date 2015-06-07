@@ -189,12 +189,6 @@ public class NodesRelationsTest {
             n1.fx();
             fail();
         } catch (IllegalStateException e) {}
-        
-        // Test creation of null-FxWrapper.
-        try {
-            n1.fx(null);
-            fail();
-        } catch (NullPointerException e) {}
 
         // Test creation of unknown FxWrapper type.
         try {

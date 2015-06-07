@@ -11,20 +11,19 @@ import greenmirror.placements.EdgeTopPlacement;
 import greenmirror.placements.MiddlePlacement;
 import greenmirror.placements.NoPlacement;
 import greenmirror.placements.RandomPlacement;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 import javafx.geometry.Point3D;
 
 /**
  * The <code>Placement</code> abstract class used for indicating where a <code>Node</code> 
  * should be placed relative to another <code>Node</code>.
- * 
- * If you want to use just the placement information, use The singleton Placement.SUBCLASS. E.g.:
+ * <p>
+ * If you want to use just the placement information, use the singleton Placement.SUBCLASS. E.g.:
  * <code>Placement.MIDDLE</code>. If you want to use extra, relative position information, create
  * a new instance of a subclass, like: <code>new Placement.Middle()</code>.
  * The <code>Custom</code> subclass does not have a singleton, because extra, relative position 
@@ -37,7 +36,7 @@ public abstract class Placement implements Cloneable {
     // -- Class variables --------------------------------------------------------------------
 
     /** The prototypes of all <code>Placement</code>s. */
-    private static List<Placement> prototypes = new LinkedList<Placement>();
+    @NonNull private static List<Placement> prototypes = new LinkedList<Placement>();
     
     
     // -- Instance variables -----------------------------------------------------------------
@@ -47,80 +46,43 @@ public abstract class Placement implements Cloneable {
      * it should default to Placement.MIDDLE. This means that when choosing Placement.CUSTOM,
      * a relative position should be set.
      */
-    //@ private invariant relativePosition != null;
-    private Point3D relativePosition = Point3D.ZERO;
+    @NonNull private Point3D relativePosition = new Point3D(0, 0, 0);
     
     
     // -- Constructors -----------------------------------------------------------------------
-    
-    /**
-     * Create a new <code>Placement</code> without any more relative position information.
-     */
-    public Placement() {}
-    
-    /**
-     * Create a new <code>Placement</code> with more relative position information.
-     * @param posX The x coordinate relative to this <code>Placement</code>.
-     * @param posY The y coordinate relative to this <code>Placement</code>.
-     */
-    //TODO: remove this and implement the same functionality at CustomPlacement.
-    public Placement(double posX, double  posY) {
-        withRelativePosition(posX, posY);
-    }
 
-    /**
-     * Create a new <code>Placement</code> with more relative position information.
-     * @param posX The x coordinate relative to this <code>Placement</code>.
-     * @param posY The y coordinate relative to this <code>Placement</code>.
-     * @param posZ The z coordinate relative to this <code>Placement</code>.
-     */
-    public Placement(double posX, double posY, double posZ) {
-        withRelativePosition(posX, posY, posZ);
-    }
-
-    
     // -- Queries ----------------------------------------------------------------------------
     
-    /**
-     * @return The relative position.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ public Point3D getRelativePosition() {
-        return relativePosition;
+    /** @return the relative position */
+    /*@ pure */ @NonNull public Point3D getRelativePosition() {
+        return this.relativePosition;
     }
     
-    /**
-     * @return The name of this placement.
-     */
-    //@ ensures \result != null;
-    @Override
+    /** @return the name of this placement */
+    @Override @NonNull 
     /*@ pure */ public String toString() {
-        return getClass().getSimpleName().replace("Placement", "");
+        final String str = getClass().getSimpleName().replace("Placement", "");
+        return str == null ? "" : str;
     }
     
-    /**
-     * @return A plain data representation.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ public String toData() {
+    /** @return a data representation */
+    /*@ pure */ @NonNull public String toData() {
         return toString() + ":" 
                 + getRelativePosition().getX() + ":" 
                 + getRelativePosition().getY() + ":"
                 + getRelativePosition().getZ();
     }
     
-    /**
-     * @return A deep copy of this <code>Placement</code>.
-     */
-    //@ ensures \result != null;
-    @Override
+    /** @return a copy of this <code>Placement</code> */
+    @Override @NonNull 
     /*@ pure */ public abstract Placement clone();
     
     /**
-     * Check if <code>object</code> is the same as <code>this</code> according to the type of 
-     * placement and relative position.
-     * @param object The object to check.
-     * @return       <code>true</code> if the placement type and relative position are the same.
+     * Checks if <code>object</code> is the same as <code>this</code> according to the placement 
+     * data.
+     * 
+     * @param object the object to check
+     * @return       <code>true</code> if the placement is the same
      */
     @Override
     /*@ pure */ public boolean equals(Object object) {
@@ -134,67 +96,78 @@ public abstract class Placement implements Cloneable {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * @param relativePosition The relative position to set.
+     * @param relativePosition the relative position to set
      * @return                 <code>this</code>
      */
     //@ ensures getRelativePosition() == relativePosition;
     //@ ensures \result == this;
-    public Placement withRelativePosition(Point3D relativePosition) {
+    @NonNull public Placement withRelativePosition(@NonNull Point3D relativePosition) {
         this.relativePosition = relativePosition;
         return this;
     }
     
     /**
-     * @param posX The relative x coordinate.
-     * @param posY The relative y coordinate.
+     * Sets the relative position and returns <code>this</code>.
+     * 
+     * @param posX the relative x coordinate
+     * @param posY the relative y coordinate
      * @return     <code>this</code>
      */
     //@ ensures getRelativePosition().equals(new Point3D(posX, posY, 0));
     //@ ensures \result == this;
-    public Placement withRelativePosition(double posX, double posY) {
+    @NonNull public Placement withRelativePosition(double posX, double posY) {
         return withRelativePosition(posX, posY, 0);
     }
     
     /**
-     * @param posX The relative x coordinate.
-     * @param posY The relative y coordinate.
-     * @param posY The relative z coordinate.
+     * @param posX the relative x coordinate
+     * @param posY the relative y coordinate
+     * @param posY the relative z coordinate
      * @return     <code>this</code>
      */
     //@ ensures getRelativePosition().equals(new Point3D(posX, posY, posZ));
     //@ ensures \result == this;
-    public Placement withRelativePosition(double posX, double posY, double posZ) {
+    @NonNull public Placement withRelativePosition(double posX, double posY, double posZ) {
         return withRelativePosition(new Point3D(posX, posY, posZ));
     }
     
-    public Placement withData(String data) {
-        String[] dataParts = data.split(":");
+    /**
+     * Sets the settings of the placement according to the passed data.
+     * 
+     * @param data data that could be returned by {@link #toData()}
+     * @return     <code>this</code>
+     * @throws IllegalArgumentException if <code>data</code> doesn't consist of at least four
+     *                                  parts seperated by colons
+     */
+    //@ ensures \result == this;
+    @NonNull public Placement withData(@NonNull String data) {
+        final String[] dataParts = data.split(":");
         if (dataParts.length < 4) {
-            throw new IllegalArgumentException("The passed placement data was invalid.");
+            throw new IllegalArgumentException("the passed placement data was invalid");
         }
         
-        withRelativePosition(new Point3D(
+        return withRelativePosition(new Point3D(
                 Double.valueOf(dataParts[1]), 
                 Double.valueOf(dataParts[2]),
                 Double.valueOf(dataParts[3])));
-        return this;
     }
     
 
     // -- Class usage ------------------------------------------------------------------------
 
     /**
-     * @param data The requested <code>Placement</code>.
-     * @return     A <code>Placement</code> according to <code>data</code>; <code>null</code> if none was
-     *             found.
-     * @throws IllegalArgumentException     If <code>data</code> was invalid.
+     * Creates a new <code>Placement</code> instance from a data string.
+     * 
+     * @param data the requested <code>Placement</code>
+     * @return     a <code>Placement</code> according to <code>data</code>; <code>null</code> if
+     *             none was found
+     * @throws IllegalArgumentException if <code>data</code> was invalid
      */
-    //@ requires data != null;
-    public static Placement fromData(String data) {
+    public static Placement fromData(@NonNull String data) {
         if (!data.contains(":")) {
-            throw new IllegalArgumentException("The passed placement data was invalid.");
+            throw new IllegalArgumentException("the passed placement data was invalid");
         }
-        String[] dataParts = data.split(":", 2);
+        final String[] dataParts = data.split(":", 2);
         
         retrievePlacements();
         
@@ -206,17 +179,12 @@ public abstract class Placement implements Cloneable {
         return null;
     }
     
-    /**
-     * @return The prototypes of all available <code>Placement</code>s.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ private static List<Placement> getPrototypes() {
+    /** @return the prototypes of all available <code>Placement</code>s */
+    @NonNull /*@ pure */ private static List<Placement> getPrototypes() {
         return prototypes;
     }
     
-    /**
-     * Retrieve all available <code>Placement</code>s.
-     */
+    /** Retrieves all available <code>Placement</code>s and stores them */
     //@ ensures getPrototypes().size() > 0;
     private static void retrievePlacements() {
         if (getPrototypes().size() == 0) {

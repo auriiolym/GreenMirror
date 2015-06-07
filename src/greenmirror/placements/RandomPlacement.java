@@ -1,18 +1,17 @@
 package greenmirror.placements;
 
 import greenmirror.Placement;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
- * Wordt omgezet in een custom
+ * A placement that is random on the relevant object. Internally, it is replaced by GreenMirror
+ * by a {@link CustomPlacement} so the placement won't be recalculated again and again.
  * 
  * @author Karim El Assal
  */
 public class RandomPlacement extends Placement {
     
-    /* (non-Javadoc)
-     * @see greenmirror.Placement#clone()
-     */
-    @Override
+    @Override @NonNull
     public RandomPlacement clone() {
         return ((RandomPlacement) new RandomPlacement().withData(toData()));
     }

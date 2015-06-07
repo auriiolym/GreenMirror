@@ -3,6 +3,7 @@ package greenmirror.fxwrappers;
 import greenmirror.FxPropertyWrapper;
 import greenmirror.FxWrapper;
 import greenmirror.Placement;
+import greenmirror.StoredBytesImage;
 import greenmirror.fxpropertywrappers.BooleanFxProperty;
 import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.fxpropertywrappers.ImageFxProperty;
@@ -20,14 +21,14 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 import javafx.animation.ParallelTransition;
 import javafx.animation.Transition;
 import javafx.geometry.Point3D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * 
@@ -215,7 +216,7 @@ public class ImageFxWrapper extends FxWrapper {
     //@ ensures getImage() == value;
     //@ ensures \result == this;
     public ImageFxWrapper setImage(Image value) {
-        if (!(value instanceof MyImage) && value != null) {
+        if (!(value instanceof StoredBytesImage) && value != null) {
             throw new IllegalArgumentException("Image has to be of type StoredBytesImage.");
         }
         this.image = value;
@@ -239,8 +240,8 @@ public class ImageFxWrapper extends FxWrapper {
                 throw new IllegalArgumentException("File " + filePath + " could not be found.");
             }
         }
-        final byte[] bytes = MyImage.readBytes(inputStream);
-        final MyImage img = new MyImage(new BufferedInputStream(inputStream));
+        final byte[] bytes = StoredBytesImage.readBytes(inputStream);
+        final StoredBytesImage img = new StoredBytesImage(new BufferedInputStream(inputStream));
         img.setBytes(bytes);
         return setImage(img);
     }
@@ -250,8 +251,8 @@ public class ImageFxWrapper extends FxWrapper {
             final URLConnection connection = new URL(url).openConnection();
             connection.connect();
             final InputStream inputStream = connection.getInputStream();
-            final byte[] bytes = MyImage.readBytes(inputStream);
-            final MyImage image = new MyImage(inputStream);
+            final byte[] bytes = StoredBytesImage.readBytes(inputStream);
+            final StoredBytesImage image = new StoredBytesImage(inputStream);
             image.setBytes(bytes);
             setImage(image);
             

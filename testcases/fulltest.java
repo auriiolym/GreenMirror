@@ -202,3 +202,11 @@ addTransition("shapeNodePropertyTest", {
 
 
 
+
+
+// Relations
+// Test adding a relation with placement when it already has it (should remove the previous placement relation)
+
+// Node.set(FxWrapper)
+// Test setting it twice with the same type (and with different type)
+

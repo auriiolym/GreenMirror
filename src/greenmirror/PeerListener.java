@@ -1,12 +1,11 @@
 package greenmirror;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.IOException;
 
-/*
- * Implements java.util.Runnable / extends java.util.Thread.
- */
 /**
- * A general class for listening to incoming data from the connected peer.
+ * A general class for listening to incoming data from a connected peer.
  * 
  * @author Karim El Assal
  */
@@ -14,68 +13,61 @@ public class PeerListener extends Thread {
 
     // -- Instance variables -----------------------------------------------------------------
     
-    /**
-     * The controller used for the connections and handling of incoming data.
-     */
-    //@ private invariant controller != null;
-    private GreenMirrorController controller;
+    /** the controller used for the connections and handling of incoming data */
+    @NonNull private final GreenMirrorController controller;
 
 
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Prepare the new listening <code>Thread</code>.
-     * @param controller The controller used for the connections and handling of incoming data.
+     * Prepares the new listening <code>Thread</code>.
+     * 
+     * @param controller the controller used for the connections and handling of incoming data
      */
-    //@ requires controller != null;
     //@ ensures getController() == controller;
-    public PeerListener(GreenMirrorController controller) {
+    public PeerListener(@NonNull GreenMirrorController controller) {
         this.controller = controller;
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /**
-     * @return The controller used for the connections and handling of incoming data.
-     */
-    //@ ensures \result != null;
-    public GreenMirrorController getController() {
-        return controller;
+    /** @return the controller used for the connections and handling of incoming data */
+    @NonNull public GreenMirrorController getController() {
+        return this.controller;
     }
     
     /**
-     * @param rawData Raw data with the format (without quotes): "command:data"
-     * @return        The command part of the raw data.
+     * @param rawData raw data in the format (without quotes): "command:data"
+     * @return        the command part of the raw data
      */
-    //@ requires rawData != null;
-    //@ ensures \result != null;
-    /*@ pure */ private String extractCommand(String rawData) {
-        String[] dataParts = rawData.split(":", 2);
-        return dataParts[0];
+    /*@ pure */ @NonNull private String extractCommand(@NonNull String rawData) {
+        final String cmd = rawData.split(":", 2)[0];
+        return cmd == null ? "" : cmd;
     }
     
     /**
-     * @param rawData Raw data with the format (without quotes): "command:data"
-     * @return        The data part of the raw data; <code>null</code> if no data was found.
+     * @param rawData raw data with the format (without quotes): "command:data"
+     * @return        the data part of the raw data; an empty string if no data was found.
      */
-    //@ requires rawData != null;
-    /*@ pure */ private String extractData(String rawData) {
-        String[] dataParts = rawData.split(":", 2);
-        return dataParts.length <= 1 ? null : dataParts[1];
+    /*@ pure */ @NonNull private String extractData(@NonNull String rawData) {
+        final String[] dataParts = rawData.split(":", 2);
+        return dataParts.length <= 1 ? "" : (dataParts[1] == null ? "" : dataParts[1]);
     }
     
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Start listening for incoming data. If a <code>CommandHandler</code> is found that can handle
+     * Start listening for incoming data. If a {@link CommandHandler} is found that can handle
      * specific incoming data, the data and the <code>CommandHandler</code> are sent to the 
-     * controller's handlePeerData(String, CommandHandler) method.
+     * controller's {@link GreenMirrorController#handlePeerData(String, CommandHandler)} method.
+     * 
+     * @throws IllegalStateException if there was no incoming connection found
      */
     @Override
     public void run() {
         if (getController().getStreamIn() == null) {
-            throw new IllegalStateException("No incoming connection could be found.");
+            throw new IllegalStateException("no incoming connection could be found");
         }
         
         try {
@@ -84,7 +76,7 @@ public class PeerListener extends Thread {
                 
                 // Read raw data.
                 boolean dataIsHandled = false;
-                String in = getController().getStreamIn().readLine();
+                final String in = getController().getStreamIn().readLine();
                 if (in == null || in.equals("")) {
                     throw new IOException();
                 }
@@ -94,8 +86,8 @@ public class PeerListener extends Thread {
                 Log.addVerbose("Data received from peer: " + inFormatted);
                 
                 // Extract data.
-                String command = extractCommand(in);
-                String data = extractData(in);
+                final String command = extractCommand(in);
+                final String data = extractData(in);
                 
                 // Find correct CommandHandlers.
                 for (CommandHandler handler : getController().getCommandHandlers()) {
