@@ -50,9 +50,6 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     // -- Class usage ------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see groovy.lang.Script#run()
-     */
     @Override
     public Object run() {
         return null;

@@ -48,7 +48,7 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
     }
 
     @Override
-    public int getProcessPriority() {
+    public double getProcessPriority() {
         return 2;
     }
 
@@ -79,7 +79,7 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
             throws FatalException {
         
         if (parameters.length != 2) {
-            throw new FatalException("The host option has the wrong number of arguments.");
+            throw new FatalException("the host option has the wrong number of arguments");
         }
         
         try {
@@ -89,9 +89,9 @@ public class HostCommandLineOptionHandler implements CommandLineOptionHandler {
                 throw new NumberFormatException();
             }
         } catch (UnknownHostException e) {
-            throw new FatalException("The host is unknown.");
+            throw new FatalException("the host is unknown");
         } catch (NumberFormatException e) {
-            throw new FatalException("The port number was invalid.");
+            throw new FatalException("the port number was invalid");
         }
     }
 

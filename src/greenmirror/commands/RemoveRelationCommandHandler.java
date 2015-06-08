@@ -18,9 +18,6 @@ public class RemoveRelationCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see greenmirror.CommandHandler#getController()
-     */
     @Override
     //@ ensures \result != null;
     /*@ pure */ public ServerController getController() {

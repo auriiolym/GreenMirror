@@ -24,9 +24,6 @@ public class StringFxProperty extends FxPropertyWrapper {
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#getPropertyType()
-     */
     @Override
     public Class<?> getPropertyType() {
         return String.class;
@@ -35,9 +32,6 @@ public class StringFxProperty extends FxPropertyWrapper {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#cast(java.lang.Object)
-     */
     @Override
     public String cast(Object instance) {
         if (instance == null) {
@@ -46,9 +40,6 @@ public class StringFxProperty extends FxPropertyWrapper {
         return String.valueOf(instance);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#castToMapValue(java.lang.Object)
-     */
     @Override
     public String castToMapValue(Object instance) {
         if (instance == null) {

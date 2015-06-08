@@ -148,9 +148,6 @@ public class WindowLogger extends PrintStream {
             vbox.setMinHeight(stage.getScene().getHeight() - 3);
         }
 
-        /* (non-Javadoc)
-         * @see java.io.OutputStream#write(int)
-         */
         @Override
         public synchronized void write(int arg0) throws IOException {
             buffer += (char) arg0;

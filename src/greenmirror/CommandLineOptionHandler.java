@@ -88,12 +88,12 @@ public interface CommandLineOptionHandler extends Cloneable {
     
     /**
      * Returns the processing priority of this option handler. Option handlers with a lower 
-     * priority integer are handled first. There are no limits to the integer, it's just that
+     * priority double are handled first. There are no limits to the double, it's just that
      * the option handlers are sorted according to their processing priority.
      * 
      * @return the processing priority
      */
-    /*@ pure */ public int getProcessPriority();
+    /*@ pure */ public double getProcessPriority();
     
     /**
      * Returns the amount of arguments this option handler accepts. This becomes relevant

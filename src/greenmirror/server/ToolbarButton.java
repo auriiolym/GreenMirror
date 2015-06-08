@@ -27,9 +27,6 @@ public enum ToolbarButton {
 
     STEP_BACK_FAST {
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#build()
-         */
         @Override
         public Button build() {
             Button button = super.build();
@@ -40,9 +37,6 @@ public enum ToolbarButton {
             return button;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#buttonClicked()
-         */
         @Override
         public void action() {
             executeVisualizerTransition(new SteppingBackState(), -1.0 * FAST_RATE);
@@ -53,9 +47,6 @@ public enum ToolbarButton {
    
     STEP_BACK {
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#build()
-         */
         @Override
         public Button build() {
             Button button = super.build();
@@ -66,9 +57,6 @@ public enum ToolbarButton {
             return button;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#buttonClicked()
-         */
         @Override
         public void action() {
             executeVisualizerTransition(new SteppingBackState(), -1.0 * NORMAL_RATE);
@@ -78,9 +66,6 @@ public enum ToolbarButton {
     
     PLAY_BACK {
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#build()
-         */
         @Override
         public Button build() {
             Button button = super.build();
@@ -91,9 +76,6 @@ public enum ToolbarButton {
             return button;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#buttonClicked()
-         */
         @Override
         public void action() {
             executeVisualizerTransition(new PlayingBackState(), -1.0 * NORMAL_RATE);
@@ -103,9 +85,6 @@ public enum ToolbarButton {
     
     PAUSE {
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#build()
-         */
         @Override
         public Button build() {
             Button button = super.build();
@@ -116,9 +95,6 @@ public enum ToolbarButton {
             return button;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#buttonClicked()
-         */
         @Override
         public void action() {
             Log.add("Visualizer paused.");
@@ -133,9 +109,6 @@ public enum ToolbarButton {
     
     PLAY {
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#build()
-         */
         @Override
         public Button build() {
             Button button = super.build();
@@ -147,9 +120,6 @@ public enum ToolbarButton {
             return button;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#buttonClicked()
-         */
         @Override
         public void action() {
             executeVisualizerTransition(new PlayingState(), NORMAL_RATE);
@@ -158,9 +128,6 @@ public enum ToolbarButton {
     
     STEP {
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#build()
-         */
         @Override
         public Button build() {
             Button button = super.build();
@@ -171,9 +138,6 @@ public enum ToolbarButton {
             return button;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#buttonClicked()
-         */
         @Override
         public void action() {
             executeVisualizerTransition(new SteppingState(), NORMAL_RATE);
@@ -183,9 +147,6 @@ public enum ToolbarButton {
     
     STEP_FAST {
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#build()
-         */
         @Override
         public Button build() {
             Button button = super.build();
@@ -196,9 +157,6 @@ public enum ToolbarButton {
             return button;
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.ToolbarButton#buttonClicked()
-         */
         @Override
         public void action() {
             executeVisualizerTransition(new SteppingState(), FAST_RATE);

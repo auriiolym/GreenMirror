@@ -337,8 +337,8 @@ public abstract class GreenMirrorController {
         
         
         // Restructure the argument handlers so we can process them according to their priority.
-        final Map<Integer, List<CommandLineOptionHandler>> map = 
-                new TreeMap<Integer, List<CommandLineOptionHandler>>();
+        final Map<Double, List<CommandLineOptionHandler>> map = 
+                new TreeMap<Double, List<CommandLineOptionHandler>>();
         for (CommandLineOptionHandler argumentHandler : usedHandlers) {
             final List<CommandLineOptionHandler> handlerToAdd = 
                     new LinkedList<CommandLineOptionHandler>();
@@ -353,7 +353,7 @@ public abstract class GreenMirrorController {
         // Process arguments in order.
         int handledArguments = 0;
         try {
-            for (Map.Entry<Integer, List<CommandLineOptionHandler>> entry : map.entrySet()) {
+            for (Map.Entry<Double, List<CommandLineOptionHandler>> entry : map.entrySet()) {
                 for (CommandLineOptionHandler argumentHandler : entry.getValue()) {
                     argumentHandler.process(this);
                     handledArguments++;

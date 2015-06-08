@@ -23,9 +23,6 @@ public class DoubleFxProperty extends FxPropertyWrapper {
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#getPropertyType()
-     */
     @Override
     public Class<?> getPropertyType() {
         return double.class;
@@ -34,9 +31,6 @@ public class DoubleFxProperty extends FxPropertyWrapper {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#cast(java.lang.Object)
-     */
     @Override
     public Double cast(Object instance) {
         if (instance == null) {
@@ -45,9 +39,6 @@ public class DoubleFxProperty extends FxPropertyWrapper {
         return Double.valueOf(String.valueOf(instance));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#castToMapValue(java.lang.Object)
-     */
     @Override
     public Double castToMapValue(Object instance) {
         return cast(instance);

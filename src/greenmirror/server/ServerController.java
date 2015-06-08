@@ -88,9 +88,6 @@ public class ServerController extends GreenMirrorController {
 
     // -- Queries ----------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see greenmirror.GreenMirrorController#getHelpMessage()
-     */
     @Override
     public String getHelpMessage() {
         return HELP_MSG;
@@ -185,10 +182,6 @@ public class ServerController extends GreenMirrorController {
         return visualizer;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.GreenMirrorController#handlePeerData(java.lang.String,
-                                                   greenmirror.CommandHandler)
-     */
     @Override
     public void handlePeerData(String data, CommandHandler handler) {
         

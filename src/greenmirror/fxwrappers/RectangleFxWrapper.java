@@ -426,14 +426,14 @@ public class RectangleFxWrapper extends FxShapeWrapper {
 
     @Override
     public void setToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         setX(coord.getX());
         setY(coord.getY());
     }
 
     @Override
     public void setFxToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setX(coord.getX());
         getFxNode().setY(coord.getY());
     }

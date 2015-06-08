@@ -7,13 +7,14 @@ import greenmirror.client.Client;
 import greenmirror.client.TraceSelector;
 import groovy.lang.GroovyRuntimeException;
 
-import java.util.Arrays;
-import java.util.List;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
 
 import org.eclipse.jdt.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The trace selector <code>CommandLineOptionHandler</code> (client side).
@@ -30,41 +31,26 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
 
     // -- Queries ----------------------------------------------------------------------------
    
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getDescription()
-     */
-    @Override
+    @Override @NonNull
     public String getDescription() {
         return "the selector that will select the trace of the model";
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getOptions()
-     */
-    @Override
+    @Override @NonNull
     public List<String> getOptions() {
-        return Arrays.asList("trace", "t");
+        return new ArrayList<String>(Arrays.asList("trace", "t"));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getProcessPriority()
-     */
     @Override
-    public int getProcessPriority() {
+    public double getProcessPriority() {
         return 8;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getParameterCount()
-     */
     @Override
     public int getArgumentCount() {
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#allowMultiple()
-     */    
     @Override
     public boolean allowMultiple() {
         return false;

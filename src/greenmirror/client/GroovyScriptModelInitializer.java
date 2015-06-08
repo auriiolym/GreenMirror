@@ -71,26 +71,17 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
 
     // -- Queries ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.ModelInitializer#getController()
-     */
     @Override
     /*@ pure */ public Client getController() {
         return controller;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.TraceSelector#getParameterSpecification()
-     */
     @Override
     //@ ensures \result != null;
     /*@ pure */ public String getParameterSpecification() {
         return PARAMS;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.ModelInitializer#getIdentifier()
-     */
     //@ ensures \result != null;
     @Override
     /*@ pure */ public String getIdentifier() {
@@ -109,9 +100,6 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
         this.controller = controller;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.ModelInitializer#setParameter(java.lang.String)
-     */
     @Override
     public void setParameter(String parameter) throws IllegalArgumentException {
         
@@ -197,9 +185,6 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
         script = new GroovyShell(binding).parse(usedSource);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.client.ModelInitializer#executeInitializer()
-     */
     @Override
     public void executeInitializer() {
         try {

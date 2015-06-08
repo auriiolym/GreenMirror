@@ -8,6 +8,9 @@ import greenmirror.server.ServerController;
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
 
+import org.eclipse.jdt.annotation.NonNull;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,41 +29,26 @@ public class PortCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Queries ----------------------------------------------------------------------------
    
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getDescription()
-     */
-    @Override
+    @Override @NonNull 
     public String getDescription() {
         return "the port the server will listen on";
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getOptions()
-     */
-    @Override
+    @Override @NonNull 
     public List<String> getOptions() {
-        return Arrays.asList("port", "p");
+        return new ArrayList<String>(Arrays.asList("port", "p"));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getProcessPriority()
-     */
     @Override
-    public int getProcessPriority() {
+    public double getProcessPriority() {
         return 5;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getParameterCount()
-     */
     @Override
     public int getArgumentCount() {
         return 1;
     }
-
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#allowMultiple()
-     */    
+    
     @Override
     public boolean allowMultiple() {
         return false;
@@ -69,11 +57,8 @@ public class PortCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#setParserSettings(joptsimple.OptionParser)
-     */
     @Override
-    public OptionSpec<?> setParserSettings(OptionParser optionParser) {
+    public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser) {
 
         return optionParser.acceptsAll(getOptions(), getDescription())
                     .withRequiredArg()
@@ -81,12 +66,8 @@ public class PortCommandLineOptionHandler implements CommandLineOptionHandler {
                     .describedAs("portnumber");
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#validate(greenmirror.GreenMirrorController, 
-     *                                                                      java.lang.String[])
-     */
     @Override
-    public void validate(GreenMirrorController controller, String... arguments)
+    public void validate(@NonNull GreenMirrorController controller, String... arguments)
             throws FatalException {
         if (arguments.length != getArgumentCount()) {
             throw new FatalException("The port option has the wrong number of parameters.");
@@ -102,19 +83,13 @@ public class PortCommandLineOptionHandler implements CommandLineOptionHandler {
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#process(greenmirror.GreenMirrorController)
-     */
     @Override
-    public void process(GreenMirrorController controller) throws FatalException {
+    public void process(@NonNull GreenMirrorController controller) throws FatalException {
         // Set port.
         ((ServerController) controller).setPort(port);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#clone()
-     */
-    @Override
+    @Override @NonNull 
     public CommandLineOptionHandler clone() {
         return new PortCommandLineOptionHandler();
     }

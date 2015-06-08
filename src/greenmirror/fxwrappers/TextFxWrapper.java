@@ -3,11 +3,13 @@ package greenmirror.fxwrappers;
 import greenmirror.FxPropertyWrapper;
 import greenmirror.FxShapeWrapper;
 import greenmirror.FxWrapper;
+import greenmirror.GreenMirrorUtils;
 import greenmirror.Placement;
 import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.fxpropertywrappers.StringFxProperty;
 import greenmirror.server.AbstractTransition;
 import greenmirror.server.DoublePropertyTransition;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ import javafx.geometry.VPos;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+
 /**
  * 
  * @author Karim El Assal
@@ -26,10 +29,14 @@ import javafx.util.Duration;
 public class TextFxWrapper extends FxShapeWrapper {
 
     // -- Instance variables -----------------------------------------------------------------
-    
+
+    /** the virtual x value of the FX node */
     private Double posX;
+    /** the virtual y value of the FX node */
     private Double posY;
+    /** the virtual wrappingWidth value of the FX node */
     private Double wrappingWidth;
+    /** the virtual text value of the FX node */
     private String text;
     
 
@@ -38,10 +45,7 @@ public class TextFxWrapper extends FxShapeWrapper {
     // -- Queries ----------------------------------------------------------------------------
 
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getChangableProperties()
-     */
-    @Override
+    @Override @NonNull
     protected List<FxPropertyWrapper> getAnimatableProperties() {
         final List<FxPropertyWrapper> supersAnimatableProperties = super.getAnimatableProperties();
         return new ArrayList<FxPropertyWrapper>() {
@@ -55,10 +59,7 @@ public class TextFxWrapper extends FxShapeWrapper {
         };
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getChangableProperties()
-     */
-    @Override
+    @Override @NonNull
     protected List<FxPropertyWrapper> getChangableProperties() {
         final List<FxPropertyWrapper> supersChangableProperties = super.getChangableProperties();
         return new ArrayList<FxPropertyWrapper>() {
@@ -69,9 +70,6 @@ public class TextFxWrapper extends FxShapeWrapper {
         };
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getFxNode()
-     */
     @Override
     /*@ pure */ public javafx.scene.text.Text getFxNode() {
         return (javafx.scene.text.Text) super.getFxNode();
@@ -79,51 +77,37 @@ public class TextFxWrapper extends FxShapeWrapper {
     
     
 
-    /**
-     * @return The x coordinate.
-     */
+    @Override
     /*@ pure */ public Double getX() {
         return posX;
     }
 
-    /**
-     * @return The y coordinate.
-     */
+    @Override
     /*@ pure */ public Double getY() {
         return posY;
     }
 
-    /**
-     * @return The wrappingWidth.
-     */
+    /** @return the virtual wrappingWidth value of the FX node */
     /*@ pure */ public Double getWrappingWidth() {
         return wrappingWidth;
     }
 
-    /**
-     * @return The text.
-     */
+    /** @return the virtual text value of the FX node */
     /*@ pure */ public String getText() {
         return text;
-    }
-    
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#isPositionSet()
-     */
-    @Override
-    /*@ pure */ public boolean isPositionSet() {
-        return getX() != null && getY() != null;
     }
     
     
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param value The posX to set.
+     * Sets the virtual x property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
-    //@ ensures getX().doubleValue() == value;
-    //@ ensures \result == this;
-    public TextFxWrapper setX(double value) {
+    //@ ensures getX() == value;
+    @Override @NonNull public TextFxWrapper setX(double value) {
         this.posX = value;
         setChanged();
         notifyObservers();
@@ -131,11 +115,13 @@ public class TextFxWrapper extends FxShapeWrapper {
     }
 
     /**
-     * @param value The posY to set.
+     * Sets the virtual y property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
-    //@ ensures getY().doubleValue() == value;
-    //@ ensures \result == this;
-    public TextFxWrapper setY(double value) {
+    //@ ensures getX() == value;
+    @Override @NonNull public TextFxWrapper setY(double value) {
         this.posY = value;
         setChanged();
         notifyObservers();
@@ -143,13 +129,14 @@ public class TextFxWrapper extends FxShapeWrapper {
     }
     
     /**
-     * @param posX The posX to set.
-     * @param posY The posY to set.
-     * @return     <code>this</code>
+     * Sets the virtual x and y properties and notifies the observers.
+     * 
+     * @param posX the x coordinate
+     * @param posY the y coordinate
+     * @return      <code>this</code>
      */
-    //@ ensures getX().doubleValue() == posX && getY().doubleValue() == posY;
-    //@ ensures \result == this;
-    public TextFxWrapper setPosition(double posX, double posY) {
+    //@ ensures getX() == posX && getY() == posY;
+    @Override @NonNull public TextFxWrapper setPosition(double posX, double posY) {
         this.posX = posX;
         this.posY = posY;
         setChanged();
@@ -158,11 +145,13 @@ public class TextFxWrapper extends FxShapeWrapper {
     }
 
     /**
-     * @param value The image to set.
+     * Sets the virtual text property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
     //@ ensures getText() == value;
-    //@ ensures \result == this;
-    public TextFxWrapper setText(String value) {
+    @NonNull public TextFxWrapper setText(String value) {
         this.text = value;
         setChanged();
         notifyObservers();
@@ -170,40 +159,104 @@ public class TextFxWrapper extends FxShapeWrapper {
     }
 
     /**
-     * @param wrappingWidth The fitWidth to set.
+     * Sets the virtual wrappingWidth property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
-    //@ ensures getWrappingWidth().doubleValue() == value;
-    //@ ensures \result == this;
-    public TextFxWrapper setWrappingWidth(double wrappingWidth) {
+    //@ ensures getWrappingWidth() == value;
+    @NonNull public TextFxWrapper setWrappingWidth(double wrappingWidth) {
         this.wrappingWidth = wrappingWidth;
         setChanged();
         notifyObservers();
         return this;
     }
     
-    public Transition animateX(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the x property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException if <code>getFxNode()</code> is <code>null</code>
+     * @see            XTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateX(double value, @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new XTransition(duration, getFxNode(), value);
     }
     
-    public Transition animateY(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the y property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException if <code>getFxNode()</code> is <code>null</code>
+     * @see            YTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateY(double value, @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new YTransition(duration, getFxNode(), value);
     }
     
-    public Transition animateWrappingWidth(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the wrappingWidth property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException if <code>getFxNode()</code> is <code>null</code>
+     * @see            WrappingWidthTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateWrappingWidth(double value, 
+                                                                @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new WrappingWidthTransition(duration, getFxNode(), value);
     }
     
-    public Transition animateText(String value, Duration duration) {
+    /**
+     * Creates the animation that changes the text property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException if <code>getFxNode()</code> is <code>null</code>
+     * @see            TextTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateText(String value, @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new TextTransition(duration, getFxNode(), value);
     }
     
 
     // -- Class usage ------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#clone()
-     */
-    @Override
+    @Override @NonNull
     public TextFxWrapper clone() {
         TextFxWrapper rect = new TextFxWrapper();
         rect.setFromMap(this.toMap());
@@ -213,25 +266,20 @@ public class TextFxWrapper extends FxShapeWrapper {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#calculatePoint(greenmirror.Placement)
-     */
-    @Override
-    /*@ pure */ public Point3D calculatePoint(Placement placement) {
+    @Override @NonNull 
+    /*@ pure */ public Point3D calculatePoint(@NonNull Placement placement) {
         double width = getWrappingWidth() == null ? 0 : getWrappingWidth();
         double height = 0;
-        /*
-        if (getFxNode() != null) {
-            width = getFxNode().getBoundsInLocal().getWidth();
-            height = getFxNode().getBoundsInLocal().getHeight();
-        }*/
-        return new Point3D(getX(), getY(), 0)
-            .add(FxWrapper.calculatePointOnRectangle(width, height, placement));
+
+        final Point3D returnPoint
+            =  new Point3D(getX(), getY(), 0)
+                    .add(FxWrapper.calculatePointOnRectangle(width, height, placement));
+        if (returnPoint == null) {
+            throw new RuntimeException("Point3D#add(Point3D) returned null");
+        }
+        return returnPoint;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#createFxNode()
-     */
     @Override
     public void createFxNode() {
         final Text node = new Text();
@@ -239,43 +287,31 @@ public class TextFxWrapper extends FxShapeWrapper {
         setFxNode(node);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#animateToMiddlePoint(javafx.geometry.Point3D, 
-     *                                          javafx.util.Duration)
-     */
-    @Override
-    public Transition animateToMiddlePoint(Point3D middlePoint, Duration duration) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+    @Override @NonNull 
+    public Transition animateToMiddlePoint(@NonNull Point3D middlePoint, 
+                                           @NonNull Duration duration) {
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         return new ParallelTransition(
                 new XTransition(duration, getFxNode(), coord.getX()),
                 new YTransition(duration, getFxNode(), coord.getY()));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
-     */
-    @Override
-    protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
+    @Override @NonNull 
+    protected Point3D calculateOriginCoordinates(@NonNull Point3D middlePoint) {
         return new Point3D(middlePoint.getX() - getWrappingWidth() / 2, 
                            middlePoint.getY() - 1 / 2, 0);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#setToPositionWithMiddlePoint(javafx.geometry.Point3D)
-     */
     @Override
-    public void setToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+    public void setToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         setX(coord.getX());
         setY(coord.getY());
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#setFxToPositionWithMiddlePoint(javafx.geometry.Point3D)
-     */
     @Override
-    public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+    public void setFxToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setX(coord.getX());
         getFxNode().setY(coord.getY());
     }
@@ -289,27 +325,17 @@ public class TextFxWrapper extends FxShapeWrapper {
      */
     public static class XTransition extends DoublePropertyTransition<Text> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected XTransition(Duration duration, Text node, Double toValue) {
+        protected XTransition(@NonNull Duration duration, Text node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getX();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setX(value);
         }
     }
@@ -321,27 +347,17 @@ public class TextFxWrapper extends FxShapeWrapper {
      */
     public static class YTransition extends DoublePropertyTransition<Text> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected YTransition(Duration duration, Text node, Double toValue) {
+        protected YTransition(@NonNull Duration duration, Text node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getY();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setY(value);
         }
     }
@@ -353,27 +369,17 @@ public class TextFxWrapper extends FxShapeWrapper {
      */
     public static class WrappingWidthTransition extends DoublePropertyTransition<Text> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected WrappingWidthTransition(Duration duration, Text node, Double toValue) {
+        protected WrappingWidthTransition(@NonNull Duration duration, Text node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getWrappingWidth();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setWrappingWidth(value);
         }
     }
@@ -383,16 +389,13 @@ public class TextFxWrapper extends FxShapeWrapper {
 
         // --- Constructors -------------------------------
         
-        public TextTransition(Duration duration, Text node, String toValue) {
+        public TextTransition(@NonNull Duration duration, Text node, String toValue) {
             super(duration, node, toValue);
         }
         
         
         // --- Commands -----------------------------------
         
-        /* (non-Javadoc)
-         * @see javafx.animation.Transition#interpolate(double)
-         */
         @Override
         //@ requires getNode() != null;
         protected void interpolate(final double frac) {

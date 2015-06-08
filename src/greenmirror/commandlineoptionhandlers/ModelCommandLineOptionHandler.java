@@ -45,7 +45,7 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
     }
 
     @Override
-    public int getProcessPriority() {
+    public double getProcessPriority() {
         return 5;
     }
 

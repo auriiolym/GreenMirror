@@ -9,9 +9,6 @@ import greenmirror.server.Visualizer.PlaybackState;
  */
 public class PlayingBackState extends PlaybackState {
 
-    /* (non-Javadoc)
-     * @see greenmirror.server.Visualizer.PlaybackState#determineButtonOperation(boolean, boolean)
-     */
     @Override
     public void determineButtonOperation(boolean hasPreviousState, boolean hasNextState) {
         ToolbarButton.STEP_BACK_FAST.setEnabled(false);
@@ -23,17 +20,11 @@ public class PlayingBackState extends PlaybackState {
         ToolbarButton.STEP_FAST.setEnabled(false);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.server.Visualizer.PlaybackState#isContinuous()
-     */
     @Override
     public boolean isContinuous() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.server.Visualizer.PlaybackState#toString()
-     */
     @Override
     public String toString() {
         return "playing back...";

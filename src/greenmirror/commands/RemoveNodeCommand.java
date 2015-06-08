@@ -45,17 +45,11 @@ public class RemoveNodeCommand extends Command {
 
     // -- Commands ---------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see greenmirror.Command#prepare()
-     */
     @Override
     public void prepare() {
         // Nothing to prepare.
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.Command#getFormattedString(greenmirror.CommunicationFormat)
-     */
     @Override
     public String getFormattedString(CommunicationFormat format) {
         Log.add("Node removed: " + getNode().toString());

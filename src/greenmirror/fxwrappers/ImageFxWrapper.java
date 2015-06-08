@@ -2,6 +2,7 @@ package greenmirror.fxwrappers;
 
 import greenmirror.FxPropertyWrapper;
 import greenmirror.FxWrapper;
+import greenmirror.GreenMirrorUtils;
 import greenmirror.Placement;
 import greenmirror.StoredBytesImage;
 import greenmirror.fxpropertywrappers.BooleanFxProperty;
@@ -9,12 +10,13 @@ import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.fxpropertywrappers.ImageFxProperty;
 import greenmirror.server.AbstractTransition;
 import greenmirror.server.DoublePropertyTransition;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -28,21 +30,27 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 /**
+ * The {@link FxWrapper} for image FX nodes. The JavaFX type is {@link ImageView} and its 
+ * image content type is {@link Image}. 
  * 
  * @author Karim El Assal
  */
 public class ImageFxWrapper extends FxWrapper {
 
     // -- Instance variables -----------------------------------------------------------------
-    
+
+    /** the virtual x value of the FX node */
     private Double posX;
+    /** the virtual y value of the FX node */
     private Double posY;
+    /** the virtual fitWidth value of the FX node */
     private Double fitWidth;
+    /** the virtual fitHeight value of the FX node */
     private Double fitHeight;
+    /** the virtual image value of the FX node */
     private Image image;
+    /** the virtual preserveRatio value of the FX node */
     private Boolean preserveRatio = false;
     
 
@@ -50,11 +58,7 @@ public class ImageFxWrapper extends FxWrapper {
 
     // -- Queries ----------------------------------------------------------------------------
 
-    
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getChangableProperties()
-     */
-    @Override
+    @Override @NonNull 
     protected List<FxPropertyWrapper> getAnimatableProperties() {
         final List<FxPropertyWrapper> supersAnimatableProperties = super.getAnimatableProperties();
         return new ArrayList<FxPropertyWrapper>() {
@@ -69,10 +73,7 @@ public class ImageFxWrapper extends FxWrapper {
         };
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getChangableProperties()
-     */
-    @Override
+    @Override @NonNull 
     protected List<FxPropertyWrapper> getChangableProperties() {
         final List<FxPropertyWrapper> supersChangableProperties = super.getChangableProperties();
         return new ArrayList<FxPropertyWrapper>() {
@@ -84,75 +85,53 @@ public class ImageFxWrapper extends FxWrapper {
         };
     }
     
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#getFxNode()
-     */
     @Override
     /*@ pure */ public javafx.scene.image.ImageView getFxNode() {
         return (javafx.scene.image.ImageView) super.getFxNode();
     }
     
-    
 
-    /**
-     * @return The x coordinate.
-     */
+    @Override
     /*@ pure */ public Double getX() {
-        return posX;
+        return this.posX;
     }
-
-    /**
-     * @return The y coordinate.
-     */
+    
+    @Override
     /*@ pure */ public Double getY() {
-        return posY;
+        return this.posY;
     }
 
-    /**
-     * @return The fitWidth.
-     */
+    /** @return the virtual fitWidth value of the FX node */
     /*@ pure */ public Double getFitWidth() {
         return fitWidth;
     }
 
-    /**
-     * @return The fitHeight.
-     */
+    /** @return the virtual fitHeight value of the FX node */
     /*@ pure */ public Double getFitHeight() {
         return fitHeight;
     }
 
-    /**
-     * @return The image.
-     */
+    /** @return the virtual image value of the FX node */
     /*@ pure */ public Image getImage() {
         return image;
     }
 
-    /**
-     * @return The preserveRatio.
-     */
+    /** @return the virtual preserveRatio value of the FX node */
     /*@ pure */ public Boolean isPreserveRatio() {
         return preserveRatio;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#isPositionSet()
-     */
-    @Override
-    /*@ pure */ public boolean isPositionSet() {
-        return getX() != null && getY() != null;
-    }
-    
     
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param value The posX to set.
+     * Sets the virtual x property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
-    //@ ensures getX().doubleValue() == value;
-    //@ ensures \result == this;
-    public ImageFxWrapper setX(double value) {
+    //@ ensures getX() == value;
+    @Override @NonNull public ImageFxWrapper setX(double value) {
         this.posX = value;
         setChanged();
         notifyObservers();
@@ -160,11 +139,13 @@ public class ImageFxWrapper extends FxWrapper {
     }
 
     /**
-     * @param value The posY to set.
+     * Sets the virtual y property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
-    //@ ensures getY().doubleValue() == value;
-    //@ ensures \result == this;
-    public ImageFxWrapper setY(double value) {
+    //@ ensures getY() == value;
+    @Override @NonNull public ImageFxWrapper setY(double value) {
         this.posY = value;
         setChanged();
         notifyObservers();
@@ -172,50 +153,60 @@ public class ImageFxWrapper extends FxWrapper {
     }
     
     /**
-     * @param posX The posX to set.
-     * @param posY The posY to set.
-     * @return     <code>this</code>
+     * Sets the virtual x and y properties and notifies the observers.
+     * 
+     * @param posX the x coordinate
+     * @param posY the y coordinate
+     * @return      <code>this</code>
      */
-    //@ ensures getX().doubleValue() == posX && getY().doubleValue() == posY;
-    //@ ensures \result == this;
-    public ImageFxWrapper setPosition(double posX, double posY) {
+    //@ ensures getX() == posX && getY() == posY;
+    @Override @NonNull public ImageFxWrapper setPosition(double posX, double posY) {
         this.posX = posX;
         this.posY = posY;
         setChanged();
         notifyObservers();
         return this;
     }
-
+    
     /**
-     * @param fitWidth The fitWidth to set.
+     * Sets the virtual fitWidth property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
-    //@ ensures getFitWidth().doubleValue() == value;
-    //@ ensures \result == this;
-    public ImageFxWrapper setFitWidth(double fitWidth) {
+    //@ ensures getFitWidth() == value;
+    @NonNull public ImageFxWrapper setFitWidth(double fitWidth) {
         this.fitWidth = fitWidth;
         setChanged();
         notifyObservers();
         return this;
     }
-
+    
     /**
-     * @param value The fitHeight to set.
+     * Sets the virtual fitHeight property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
-    //@ ensures getFitHeight().doubleValue() == value;
-    //@ ensures \result == this;
-    public ImageFxWrapper setFitHeight(double value) {
+    //@ ensures getFitHeight() == value;
+    @NonNull public ImageFxWrapper setFitHeight(double value) {
         this.fitHeight = value;
         setChanged();
         notifyObservers();
         return this;
     }
-
+    
     /**
-     * @param value The image to set.
+     * Sets the virtual image property and notifies the observers.
+     * 
+     * @param value the new value; should be an instance of {@link StoredBytesImage}
+     * @return      <code>this</code>
+     * @throws IllegalArgumentException if <code>value</code> is not an instance of 
+     *                                  <code>StoredBytesImage</code>
      */
+    //@ requires value instanceof StoredBytesImage;
     //@ ensures getImage() == value;
-    //@ ensures \result == this;
-    public ImageFxWrapper setImage(Image value) {
+    @NonNull public ImageFxWrapper setImage(Image value) {
         if (!(value instanceof StoredBytesImage) && value != null) {
             throw new IllegalArgumentException("Image has to be of type StoredBytesImage.");
         }
@@ -226,10 +217,19 @@ public class ImageFxWrapper extends FxWrapper {
     }
 
     /**
-     * @param filePath The image to set.
+     * Sets the image from a file path. This method first tries to find the file with
+     * <code>ImageFxWrapper.class.getResourceAsStream(filePath)</code> and if that does not
+     * work, it tries it again with <code>new FileInputStream(filePath)</code>. If both won't
+     * work, an exception is thrown.
+     * The stored image is of type {@link StoredBytesImage} and the image's bytes are stored
+     * with it.
+     * 
+     * @param filePath the path to the image file
+     * @return         <code>this</code>
+     * @throws IllegalArgumentException if the file could not be found
      */
     //@ ensures \result == this;
-    public ImageFxWrapper setImageFromFile(String filePath) {
+    @NonNull public ImageFxWrapper setImageFromFile(String filePath) {
         
         // Get InputStream of the file.
         InputStream inputStream;
@@ -237,7 +237,7 @@ public class ImageFxWrapper extends FxWrapper {
             try {
                 inputStream = new FileInputStream(filePath);
             } catch (FileNotFoundException e) {
-                throw new IllegalArgumentException("File " + filePath + " could not be found.");
+                throw new IllegalArgumentException("file " + filePath + " could not be found");
             }
         }
         final byte[] bytes = StoredBytesImage.readBytes(inputStream);
@@ -245,67 +245,166 @@ public class ImageFxWrapper extends FxWrapper {
         img.setBytes(bytes);
         return setImage(img);
     }
-    
-    public ImageFxWrapper setImageFromUrl(@NonNull String url) {
+
+    /**
+     * Sets the image from an URL. This method uses <code>new URL(url).openConnection()</code>
+     * for the URL connection.
+     * The stored image is of type {@link StoredBytesImage} and the image's bytes are stored
+     * with it.
+     * 
+     * @param url the url to the image file
+     * @return    <code>this</code>
+     * @throws IllegalArgumentException if the file could not be found
+     * @throws NullPointerException     if <code>inputStream</code> is <code>null</code>
+     */
+    //@ ensures \result == this;
+    @NonNull public ImageFxWrapper setImageFromUrl(@NonNull String url) {
         try {
             final URLConnection connection = new URL(url).openConnection();
             connection.connect();
             final InputStream inputStream = connection.getInputStream();
+            if (inputStream == null) {
+                throw new IllegalArgumentException("unable to retrieve image from " + url);
+            }
             final byte[] bytes = StoredBytesImage.readBytes(inputStream);
             final StoredBytesImage image = new StoredBytesImage(inputStream);
             image.setBytes(bytes);
             setImage(image);
             
             if (bytes == null || bytes.length == 0) {
-                throw new IllegalArgumentException("Unable to retrieve image from " + url);
+                throw new IllegalArgumentException("unable to retrieve image from " + url);
             }
             
         } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("The following URL is malformed: " + url);
+            throw new IllegalArgumentException("the following URL is malformed: " + url);
         } catch (IOException e) {
-            throw new IllegalArgumentException("This went wrong with opening url " + url 
+            throw new IllegalArgumentException("this went wrong with opening url " + url 
                     + ": " + e.getMessage());
         }
         return this;
     }
-
+    
     /**
-     * @param value The preserveRatio to set.
+     * Sets the virtual preserveRatio property and notifies the observers.
+     * 
+     * @param value the new value
+     * @return      <code>this</code>
      */
     //@ ensures isPreserveRatio() == value;
-    //@ ensures \result == this;
-    public ImageFxWrapper setPreserveRatio(boolean value) {
+    @NonNull public ImageFxWrapper setPreserveRatio(boolean value) {
         this.preserveRatio = value;
         setChanged();
         notifyObservers();
         return this;
-    }    
-    public Transition animateX(double value, Duration duration) {
+    }
+    
+    
+    
+    /**
+     * Creates the animation that changes the x property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException if <code>getFxNode()</code> is <code>null</code>
+     * @see            XTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateX(double value, @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new XTransition(duration, getFxNode(), value);
     }
     
-    public Transition animateY(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the y property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @see            YTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateY(double value, @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new YTransition(duration, getFxNode(), value);
     }
     
-    public Transition animateFitWidth(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the fitWidth property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @see            FitWidthTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateFitWidth(double value, 
+                                                           @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new FitWidthTransition(duration, getFxNode(), value);
     }
     
-    public Transition animateFitHeight(double value, Duration duration) {
+    /**
+     * Creates the animation that changes the fitHeight property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @see            FitHeightTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateFitHeight(double value, 
+                                                            @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new FitHeightTransition(duration, getFxNode(), value);
     }
-    
-    public Transition animateImage(Image value, Duration duration) {
+
+    /**
+     * Creates the animation that changes the image property of the JavaFX node to
+     * <code>value</code>.
+     * 
+     * @param value    the new value
+     * @param duration the duration of the animation
+     * @return         the JavaFX <code>Animation</code> that animates the change
+     * @throws         IllegalStateException    if <code>getFxNode()</code> is <code>null</code>
+     * @see            ImageTransition
+     */
+    //@ requires getFxNode() != null;
+    //@ ensures \result.getToValue() == value && \result.getDuration() == duration;
+    //@ ensures \result.getNode() == getFxNode();
+    /*@ pure */ @NonNull public Transition animateImage(Image value, @NonNull Duration duration) {
+        if (getFxNode() == null) {
+            throw new IllegalStateException(GreenMirrorUtils.MSG_NO_FXNODE);
+        }
         return new ImageTransition(duration, getFxNode(), value);
     }
     
 
     // -- Class usage ------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#clone()
-     */
     @Override @NonNull
     public ImageFxWrapper clone() {
         ImageFxWrapper rect = new ImageFxWrapper();
@@ -358,64 +457,50 @@ public class ImageFxWrapper extends FxWrapper {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#calculatePoint(greenmirror.Placement)
-     */
-    @Override
-    /*@ pure */ public Point3D calculatePoint(Placement placement) {
+    @Override @NonNull 
+    /*@ pure */ public Point3D calculatePoint(@NonNull Placement placement) {
         final double[] size = determineSize();
-        
-        return new Point3D(getX(), getY(), 0)
-            .add(FxWrapper.calculatePointOnRectangle(size[0], size[1], placement));
+        final Point3D returnPoint
+            =  new Point3D(getX(), getY(), 0)
+                    .add(FxWrapper.calculatePointOnRectangle(size[0], size[1], placement));
+        if (returnPoint == null) {
+            throw new RuntimeException("Point3D#add(Point3D) returned null");
+        }
+        return returnPoint;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#createFxNode()
-     */
     @Override
     public void createFxNode() {
         setFxNode(new ImageView(getImage()));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#animateToMiddlePoint(javafx.geometry.Point3D, 
-     *                                          javafx.util.Duration)
-     */
-    @Override
-    public Transition animateToMiddlePoint(Point3D middlePoint, Duration duration) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+    @Override @NonNull 
+    public Transition animateToMiddlePoint(@NonNull Point3D middlePoint, @
+                                           NonNull Duration duration) {
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         return new ParallelTransition(
                 new XTransition(duration, getFxNode(), coord.getX()),
                 new YTransition(duration, getFxNode(), coord.getY()));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#calculateCoordinates(javafx.geometry.Point3D)
-     */
-    @Override
-    protected Point3D calculateOriginCoordinates(Point3D middlePoint) {
+    @Override @NonNull 
+    protected Point3D calculateOriginCoordinates(@NonNull Point3D middlePoint) {
         final double[] size = determineSize();
         
         return new Point3D(middlePoint.getX() - size[0] / 2, 
                            middlePoint.getY() - size[1] / 2, 0);
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#setToPositionWithMiddlePoint(javafx.geometry.Point3D)
-     */
     @Override
-    public void setToPositionWithMiddlePoint(Point3D middlePoint) {
+    public void setToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
         final Point3D coord = calculateOriginCoordinates(middlePoint);
         setX(coord.getX());
         setY(coord.getY());
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.FxWrapper#setFxToPositionWithMiddlePoint(javafx.geometry.Point3D)
-     */
     @Override
-    public void setFxToPositionWithMiddlePoint(Point3D middlePoint) {
-        Point3D coord = calculateOriginCoordinates(middlePoint);
+    public void setFxToPositionWithMiddlePoint(@NonNull Point3D middlePoint) {
+        final Point3D coord = calculateOriginCoordinates(middlePoint);
         getFxNode().setX(coord.getX());
         getFxNode().setY(coord.getY());
     }
@@ -429,27 +514,17 @@ public class ImageFxWrapper extends FxWrapper {
      */
     public static class XTransition extends DoublePropertyTransition<ImageView> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected XTransition(Duration duration, ImageView node, Double toValue) {
+        protected XTransition(@NonNull Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getX();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setX(value);
         }
     }
@@ -461,27 +536,17 @@ public class ImageFxWrapper extends FxWrapper {
      */
     public static class YTransition extends DoublePropertyTransition<ImageView> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected YTransition(Duration duration, ImageView node, Double toValue) {
+        protected YTransition(@NonNull Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getY();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setY(value);
         }
     }
@@ -493,27 +558,17 @@ public class ImageFxWrapper extends FxWrapper {
      */
     public static class FitWidthTransition extends DoublePropertyTransition<ImageView> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected FitWidthTransition(Duration duration, ImageView node, Double toValue) {
+        protected FitWidthTransition(@NonNull Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getFitWidth();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setFitWidth(value);
         }
     }
@@ -525,27 +580,17 @@ public class ImageFxWrapper extends FxWrapper {
      */
     public static class FitHeightTransition extends DoublePropertyTransition<ImageView> {
         
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#
-         *     DoublePropertyTransition(javafx.util.Duration, javafx.scene.Node, java.lang.Double)s
-         */
-        protected FitHeightTransition(Duration duration, ImageView node, Double toValue) {
+        protected FitHeightTransition(@NonNull Duration duration, ImageView node, Double toValue) {
             super(duration, node, toValue);
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#getPropertyValue()
-         */
         @Override
         protected Double getPropertyValue() {
             return getNode().getFitHeight();
         }
 
-        /* (non-Javadoc)
-         * @see greenmirror.server.DoublePropertyTransition#setPropertyValue(java.lang.Double)
-         */
         @Override
-        protected void setPropertyValue(Double value) {
+        protected void setPropertyValue(@NonNull Double value) {
             getNode().setFitHeight(value);
         }
     }
@@ -553,20 +598,10 @@ public class ImageFxWrapper extends FxWrapper {
     
     public static class ImageTransition extends AbstractTransition<ImageView, Image> {
         
-        // --- Constructors -------------------------------
-        
-        public ImageTransition(Duration duration, ImageView node, Image toValue) {
+        public ImageTransition(@NonNull Duration duration, ImageView node, Image toValue) {
             super(duration, node, toValue);
         }
         
-        
-        // --- Setters ---------------------------------------------------------------------------
-        
-        // --- Commands --------------------------------------------------------------------------
-        
-        /* (non-Javadoc)
-         * @see javafx.animation.Transition#interpolate(double)
-         */
         @Override
         //@ requires getNode() != null;
         protected void interpolate(final double frac) {

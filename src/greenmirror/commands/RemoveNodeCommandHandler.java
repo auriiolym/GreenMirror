@@ -21,9 +21,6 @@ public class RemoveNodeCommandHandler extends CommandHandler {
 
     // -- Queries ----------------------------------------------------------------------------
     
-    /* (non-Javadoc)
-     * @see greenmirror.CommandHandler#getController()
-     */
     @Override
     //@ ensures \result != null;
     /*@ pure */ public ServerController getController() {
@@ -34,9 +31,6 @@ public class RemoveNodeCommandHandler extends CommandHandler {
     // -- Commands ---------------------------------------------------------------------------
 
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandHandler#handle(greenmirror.CommunicationFormat, java.lang.String)
-     */
     @Override
     public void handle(CommunicationFormat format, String data) 
             throws MissingDataException, DataParseException {

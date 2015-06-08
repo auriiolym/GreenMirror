@@ -26,17 +26,11 @@ public class BooleanFxProperty extends FxPropertyWrapper {
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#getPropertyType()
-     */
     @Override
     public Class<?> getPropertyType() {
         return boolean.class;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertywrappers.FxPropertyWrapper#getGetMethod(java.lang.Class)
-     */
     @Override
     public Method getGetMethod(Class<?> originClass) throws NoSuchMethodException {
         return getGetMethod(originClass, "is");
@@ -46,9 +40,6 @@ public class BooleanFxProperty extends FxPropertyWrapper {
     // -- Commands ---------------------------------------------------------------------------
 
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#cast(java.lang.Object)
-     */
     @Override
     public Boolean cast(Object instance) {
         if (instance == null) {
@@ -57,9 +48,6 @@ public class BooleanFxProperty extends FxPropertyWrapper {
         return Boolean.valueOf(String.valueOf(instance));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#castToMapValue(java.lang.Object)
-     */
     @Override
     public Boolean castToMapValue(Object instance) {
         return cast(instance);

@@ -33,9 +33,6 @@ public class ImageFxProperty extends FxPropertyWrapper {
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#getPropertyType()
-     */
     @Override @NonNull
     public Class<?> getPropertyType() {
         return Image.class;
@@ -82,9 +79,6 @@ public class ImageFxProperty extends FxPropertyWrapper {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.fxpropertytype.FxPropertyTypeWrapper#castToMapValue(java.lang.Object)
-     */
     @Override
     public String castToMapValue(Object instance) {
         if (!(instance instanceof StoredBytesImage)) {

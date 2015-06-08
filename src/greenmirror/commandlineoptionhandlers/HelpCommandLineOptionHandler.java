@@ -7,16 +7,16 @@ import greenmirror.GreenMirrorUtils;
 import greenmirror.Log;
 import greenmirror.ServerSide;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSpec;
+
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSpec;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * The help <code>CommandLineOptionHandler</code> (client and server side).
@@ -41,25 +41,16 @@ public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
         return new ArrayList<String>(Arrays.asList("help", "?"));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getProcessPriority()
-     */
     @Override
-    public int getProcessPriority() {
-        return 1;
+    public double getProcessPriority() {
+        return 1.0;
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#getParameterCount()
-     */
     @Override
     public int getArgumentCount() {
         return 0;
     }
-
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#allowMultiple()
-     */    
+    
     @Override
     public boolean allowMultiple() {
         return false;
@@ -68,30 +59,19 @@ public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#setParserSettings(joptsimple.OptionParser)
-     */
     @Override
-    public OptionSpec<?> setParserSettings(OptionParser optionParser) {
-
+    public OptionSpec<?> setParserSettings(@NonNull OptionParser optionParser) {
         return optionParser.acceptsAll(getOptions(), getDescription()).forHelp();
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#validate(greenmirror.GreenMirrorController, 
-     *                                                                      java.lang.String[])
-     */
     @Override
-    public void validate(GreenMirrorController controller, String... parameters)
+    public void validate(@NonNull GreenMirrorController controller, String... parameters)
             throws FatalException {
         // Nothing to validate.
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#process(greenmirror.GreenMirrorController)
-     */
     @Override
-    public void process(GreenMirrorController controller) throws FatalException {
+    public void process(@NonNull GreenMirrorController controller) throws FatalException {
         
         // Rebuild the parser.
         final OptionParser parser = new OptionParser();
@@ -110,10 +90,7 @@ public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
         Log.add(String.format(controller.getHelpMessage(), stringWriter.toString()));
     }
 
-    /* (non-Javadoc)
-     * @see greenmirror.CommandLineOptionHandler#clone()
-     */
-    @Override
+    @Override @NonNull
     public CommandLineOptionHandler clone() {
         return new HelpCommandLineOptionHandler();
     }
