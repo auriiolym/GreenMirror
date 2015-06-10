@@ -14,6 +14,7 @@ import java.util.List;
  */
 public interface TraceSelector {
     
+    
     // -- Exceptions -------------------------------------------------------------------------
     
     /**
@@ -27,30 +28,25 @@ public interface TraceSelector {
         }
     }
 
+    
     // -- Queries ----------------------------------------------------------------------------
 
-    /**
-     * @return a unique identifier for this <code>TraceSelector</code>
-     */
+    /** @return a unique identifier for this <code>TraceSelector</code> */
     @NonNull public String getIdentifier();
     
     /**
      * @return a specification of the parameters. For example, in command line usage: 
-     *         "&lt;param1&gt;". Only one parameter is allowed.
+     *         "&lt;param1&gt;". Only one parameter is allowed
      */
     @NonNull public String getParameterSpecification();
     
-    /**
-     * @return the trace this selector has selected
-     */
+    /** @return the trace this selector has selected */
     @NonNull public List<String> getTrace();
     
     
     // -- Setters ----------------------------------------------------------------------------
     
-    /**
-     * @param parameter parameter to store (like an input source)
-     */
+    /** @param parameter parameter to store (like an input source) */
     public void setParameter(String parameter);
     
     

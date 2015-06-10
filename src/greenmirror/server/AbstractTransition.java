@@ -38,7 +38,7 @@ public abstract class AbstractTransition<E extends javafx.scene.Node, T extends 
     // --- Constructors ----------------------------------------------------------------------
     
     /**
-     * Create a new <code>AbstractTransition</code> and set the required values.
+     * Creates a new <code>AbstractTransition</code> and sets the required values.
      * 
      * @param duration the duration of the transition
      * @param node     the node to which the transition applies
@@ -118,7 +118,7 @@ public abstract class AbstractTransition<E extends javafx.scene.Node, T extends 
 
     /**
      * @param duration the duration of the transition to set
-     * @see Duration
+     * @see   Duration
      */
     public void setDuration(@NonNull Duration duration) {
         this.setCycleDuration(duration);

@@ -7,6 +7,7 @@ import greenmirror.CommandLineOptionHandler;
 import greenmirror.GreenMirrorController;
 import greenmirror.Log;
 import greenmirror.Node;
+import greenmirror.NodeList;
 import greenmirror.NullNode;
 import greenmirror.PeerListener;
 import greenmirror.Relation;
@@ -21,10 +22,12 @@ import greenmirror.commands.SetAnimationDurationCommand;
 import greenmirror.commands.SetNodeFxCommand;
 import greenmirror.commands.StartVisualizationCommand;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -36,52 +39,43 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.ServiceLoader;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 /**
- * Implements java.util.Observer.
+ * The controller on the client side. It handles nearly everything, from the connection with the
+ * server to the tracking of the model.
+ * 
+ * @author Karim El Assal
  */
 public class Client extends GreenMirrorController implements Observer {
 
     // -- Constants --------------------------------------------------------------------------
     
-    /**
-     * The current GreenMirror client application version.
-     */
+    /** the current GreenMirror client application version */
     private static final double VERSION = 1.0;
     
-    /**
-     * The connection timeout in seconds.
-     */
+    /** the connection timeout in seconds */
     private static final int CONNECTION_TIMEOUT = 30;
 
     
     // -- Instance variables -----------------------------------------------------------------
     
-    /**
-     * The available transitions as defined by the model initializer.
-     */
-    //@ private invariant availableTransitions != null;
-    private List<ModelTransition> availableTransitions = new LinkedList<ModelTransition>();
+    /** the available transitions as loaded by the model initializer */
+    @NonNull private List<ModelTransition> availableTransitions 
+                                            = new LinkedList<ModelTransition>();
     
-    /**
-     * All registered <code>ModelInitializer</code>s.
-     */
-    //@ private invariant registeredModelInitializers != null;
-    private List<ModelInitializer> registeredModelInitializers = new LinkedList<ModelInitializer>();
+    /** all registered <code>ModelInitializer</code>s */
+    @NonNull private List<ModelInitializer> registeredModelInitializers 
+                                            = new LinkedList<ModelInitializer>();
     
-    /**
-     * All registered <code>TraceSelector</code>s.
-     */
-    //@ private invariant registeredTraceSelectors != null;
-    private List<TraceSelector> registeredTraceSelectors = new LinkedList<TraceSelector>();
+    /** all registered <code>TraceSelector</code>s */
+    @NonNull private List<TraceSelector> registeredTraceSelectors 
+                                            = new LinkedList<TraceSelector>();
 
     
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create a new Client controller. It registers any available <code>ModelInitializer</code>s,
-     * <code>TraceSelector</code>s and <code>CommandHandler</code>s.
+     * Creates a new <code>Client</code> controller. It registers any available 
+     * {@link ModelInitializer}s, {@link TraceSelector}s and {@link CommandHandler}s.
      */
     public Client() {
         
@@ -112,9 +106,9 @@ public class Client extends GreenMirrorController implements Observer {
         });
     }
 
+    
     // -- Queries ----------------------------------------------------------------------------
     
-
     @Override @NonNull
     public String getHelpMessage() {
         String help = 
@@ -145,45 +139,38 @@ public class Client extends GreenMirrorController implements Observer {
         return help;
     }
 
-    /**
-     * @return The available transitions as defined by the model initializer.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ public List<ModelTransition> getTransitions() {
+    /** @return the available transitions as defined by the model initializer */
+    /*@ pure */ @NonNull public List<ModelTransition> getTransitions() {
         return availableTransitions;
     }
     
     /**
-     * @param traceTransition A transition from a trace.
-     * @return                All <code>ModelTransition</code>s that would execute from
-     *                        <code>traceTransition</code>.
+     * @param traceTransition a transition from a trace
+     * @return                all {@link ModelInitializer}s that would execute from
+     *                        <code>traceTransition</code>
      */
-    //@ requires traceTransition != null;
-    //@ ensures !\result.isEmpty();
-    /*@ pure */ public List<ModelTransition> getTransitions(String traceTransition) {
-        List<ModelTransition> matchedTransitions = new LinkedList<ModelTransition>();
+    /*@ pure */ @NonNull public List<ModelTransition> getTransitions(
+                                                            @NonNull String traceTransition) {
+        final List<ModelTransition> matchedTransitions = new LinkedList<ModelTransition>();
         for (ModelTransition transition : getTransitions()) {
             if (transition.executableBy(traceTransition)) {
                 matchedTransitions.add(transition);
             }
         }
-        //TODO - use lambda function here.
         return matchedTransitions;
     }
 
     /**
-     * @return All registered <code>ModelInitializer</code>s.
+     * @return all registered {@link ModelInitializer}s
      */
-    //@ ensures \result != null;
-    /*@ pure */ public List<ModelInitializer> getModelInitializers() {
+    /*@ pure */ @NonNull public List<ModelInitializer> getModelInitializers() {
         return registeredModelInitializers;
     }
 
     /**
-     * @return All registered <code>TraceSelector</code>s.
+     * @return all registered {@link TraceSelector}s
      */
-    //@ ensures \result != null;
-    /*@ pure */ public List<TraceSelector> getTraceSelectors() {
+    /*@ pure */ @NonNull public List<TraceSelector> getTraceSelectors() {
         return registeredTraceSelectors;
     }
     
@@ -191,13 +178,18 @@ public class Client extends GreenMirrorController implements Observer {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
-     * Adds a <code>Node</code> to the visualizer and set the unique id of the <code>Node</code>
-     * accordingly.
-     * @param node The new <code>Node</code>.
+     * Adds a {@link Node} to the visualizer and sets the unique id of the node accordingly.
+     * It also starts observing the node for changes. If the node is already added, nothing 
+     * happens.
+     * 
+     * @param node the new <code>Node</code>
      */
-    //@ requires node != null && !getNodes().contains(node);
     //@ ensures getNodes().contains(node);
-    public void addNode(Node node) {
+    public void addNode(@NonNull Node node) {
+        if (getNodes().contains(node)) {
+            return;
+        }
+        
         getNodes().add(node);
         node.setId(getNodes().indexOf(node));
         
@@ -222,37 +214,37 @@ public class Client extends GreenMirrorController implements Observer {
     }
     
     /**
-     * Adds a <code>Relation</code> to the visualizer and to the model.
-     * @param relation The new <code>Relation</code>.
+     * Adds a {@link Relation} to the visualizer and to the model.
+     * 
+     * @param relation the new relation
      */
-    //@ requires relation != null;
     //@ ensures relation.getNodeA().hasRelation(relation);
     //@ ensures relation.getNodeB().hasRelation(relation); 
-    public void addRelation(Relation relation) {
+    public void addRelation(@NonNull Relation relation) {
         relation.addToNodes();
         send(new AddRelationCommand(relation));
     }
     
     /**
-     * Remove a <code>Node</code> from the visualizer. It is actually replaced by a <code>NullNode</code>
-     * so no issues occur with the indices of <code>NodeList</code> and <code>id</code>s of <code>Node</code>s.
+     * Removes a {@link Node} from the visualizer. It is actually replaced by a {@link NullNode}
+     * so no issues occur with the indices of {@link NodeList} and <code>id</code>s of nodes.
      * The server will be notified and will handle the removal of relations in its own way.
-     * @param node The <code>Node</code> to remove.
+     * 
+     * @param node the node to remove
      */
-    //@ requires node != null;
-    public void removeNode(Node node) {
-        Integer id = node.getId();
+    public void removeNode(@NonNull Node node) {
+        final Integer id = node.getId();
         // No id means the node isn't part of GreenMirror.
         if (id == null) {
             return;
         }
-        NullNode removedNode = new NullNode(node.getType(), node.getName());
+        final NullNode removedNode = new NullNode(node.getType(), node.getName());
         removedNode.setId(id);
         getNodes().set(id, removedNode);
         
-        // Remove relations.
-        //node.getRelations().forEach(relation -> removeRelation(relation));
-        //TODO: fix this (serverside). Remove from observing list and remove relations.
+        // Remove the current controller instance as an observer and remove relations.
+        node.deleteObserver(this);
+        node.getRelations().removeAll();
         
         // Notify the server.
         send(new RemoveNodeCommand(node));
@@ -261,13 +253,13 @@ public class Client extends GreenMirrorController implements Observer {
     }
     
     /**
-     * Removes a <code>Relation</code> and notifies the visualizer.
-     * @param relation The <code>Relation</code> to remove.
+     * Removes a {@link Relation} and notifies the server.
+     * 
+     * @param relation the relation to remove
      */
-    //@ requires relation != null;
     //@ ensures !relation.getNodeA().hasRelation(relation);
     //@ ensures !relation.getNodeB().hasRelation(relation); 
-    public void removeRelation(Relation relation) {
+    public void removeRelation(@NonNull Relation relation) {
         relation.removeFromNodes();
         send(new RemoveRelationCommand(relation));
     }
@@ -276,15 +268,18 @@ public class Client extends GreenMirrorController implements Observer {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Connect to the server. If <code>port</code> is -1, we just return. This can be used for debug
-     * purposes.
-     * @param host The address of the server.
-     * @param port The port on which the server is listening.
+     * Connects to the server. If <code>port</code> is not between 0 and 65535, we just return. 
+     * This can be used for debug purposes. If the connection was established succesfully,
+     * a new {@link PeerListener} thread is started to listen for incoming data.
+     * 
+     * @param host the address of the server
+     * @param port the port on which the server should be listening
      */
-    //@ requires host != null && port >= -1 && port < 65535;
-    public void connect(InetAddress host, int port) throws SocketTimeoutException, IOException {
+    //@ requires port >= -1 && port < 65535;
+    public void connect(InetAddress host, int port) 
+            throws SocketTimeoutException, IOException {
     
-        if (port == -1) {
+        if (port < 0 || port > 65535) {
             return;
         }
         
@@ -305,8 +300,9 @@ public class Client extends GreenMirrorController implements Observer {
     }
 
     /**
-     * Initialize the model.
-     * @param initializers The instantiated <code>ModelInitializer</code>s.
+     * Initializes the model using all passed {@link ModelInitializer}s.
+     * 
+     * @param initializers the <code>ModelInitializer</code> instances
      */
     public void initializeModel(@NonNull List<ModelInitializer> initializers) {
         for (ModelInitializer initializer : initializers) {
@@ -316,21 +312,21 @@ public class Client extends GreenMirrorController implements Observer {
     }
     
     /**
-     * Validate the transitions on the trace given by <code>selector</code> by checking if there is
-     * registered transition code available.
-     * @param selector The trace supplier.
-     * @return         A list of invalid transitions; <code>null</code> if all transitions on the 
-     *                 trace are valid.
+     * Validates the transitions on the trace given by <code>selector</code> by checking if there is
+     * registered {@link ModelTransition} available.
+     * 
+     * @param selector the trace supplier
+     * @return         a list of invalid transitions; <code>null</code> if all transitions on the 
+     *                 trace are valid
      */
-    //@ requires selector != null;
-    /*@ pure */ public List<String> validateTrace(TraceSelector selector) {
-        List<String> invalidTransitions = new LinkedList<String>();
+    /*@ pure */ public List<String> validateTrace(@NonNull TraceSelector selector) {
+        final List<String> invalidTransitions = new LinkedList<String>();
         for (String traceTransition : selector.getTrace()) {
-            if (getTransitions(traceTransition).isEmpty()) {
+            if (traceTransition != null && getTransitions(traceTransition).isEmpty()) {
                 invalidTransitions.add(traceTransition);
             }
         }
-        //TODO - use lambda function here.
+        
         if (invalidTransitions.isEmpty()) {
             Log.add("Trace validated.");
             return null;
@@ -340,13 +336,16 @@ public class Client extends GreenMirrorController implements Observer {
     }
 
     /**
-     * Execute the trace.
-     * @param traceSelector The <code>TraceSelector</code> that selects the trace.
+     * Executes the trace.
+     * 
+     * @param traceSelector the {@link TraceSelector} that selects the trace
      */
-    //@ requires traceSelector != null;
-    public void executeTrace(TraceSelector traceSelector) {
+    public void executeTrace(@NonNull TraceSelector traceSelector) {
         // Loop through every trace transition.
         for (String traceTransition : traceSelector.getTrace()) {
+            if (traceTransition == null) { // @NonNull formality
+                continue;
+            }
             // And execute the transition.
             for (ModelTransition transition : getTransitions(traceTransition)) {
                 send(new SetAnimationDurationCommand(transition.getDuration()));
@@ -362,9 +361,13 @@ public class Client extends GreenMirrorController implements Observer {
     }
 
     /**
+     * Receives updates from the objects it's observing. In practice, these only are the
+     * GreenMirror {@link Node}s. If they have sent an update to this method, it means
+     * they want the server to know about a change in the model. In that case, this method
+     * forwards the received {@link Command}.
      * 
-     * @param o
-     * @param cmd
+     * @param o   the object it's observing
+     * @param cmd the object the observable passed
      */
     @Override
     public void update(Observable observable, Object cmd) {
@@ -372,19 +375,18 @@ public class Client extends GreenMirrorController implements Observer {
             send((Command) cmd);
             return;
         }
-        if (cmd instanceof String && "request_addition".equals(cmd)) {
-            addNode((Node) observable);
-        }
     }
     
     /**
-     * Let the server know how to initialize the visualizer. This has to be done as the first
-     * command.
-     * @param width    The width of the canvas.
-     * @param height   The height of the canvas.
-     * @param duration The default duration of transitions; -1 for unspecified duration.
-     * @param rotateRigidlyRelatedNodesRigidly
-     *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
+     * Lets the server know with what parameters to initialize the visualizer. This has to be 
+     * done as the first command and is the responsibility of the {@link ModelInitializer}
+     * implementations.
+     * 
+     * @param width    the width of the canvas
+     * @param height   the height of the canvas
+     * @param duration the default duration of transitions; -1 for unspecified duration.
+     * @param rotateRigidlyRelatedNodesRigidly see
+     *                 {@link greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
     public void initializeVisualizer(double width, double height, double duration,
@@ -393,19 +395,26 @@ public class Client extends GreenMirrorController implements Observer {
     }
 
     /**
+     * Handles data received from the peer. In the current version of GreenMirror, no
+     * data is received from the peer, but this could be possible in future versions.
      * 
-     * @param data
+     * @param data    the received data
+     * @param handler the command handler that has been matched with the data
      */
     @Override
     public void handlePeerData(@NonNull String data, CommandHandler handler) {
-        // TODO - implement GMClient.handlePeerData
         throw new UnsupportedOperationException();
     }
     
     
     
     
-    
+    /**
+     * The main entry point for the GreenMirror client. All available options are explained if
+     * --help or -? is passed.
+     * 
+     * @param args the passed command line options
+     */
     public static void main(@NonNull String[] args) {
         
         Log.addOutput(Log.DEFAULT);
@@ -413,7 +422,7 @@ public class Client extends GreenMirrorController implements Observer {
 
 
         // Process the command line startup.
-        boolean successfulStartup = greenmirror.processCommandLine(args);
+        final boolean successfulStartup = greenmirror.processCommandLine(args);
         
         if (successfulStartup) {
             Log.add("We seem to be done. I'm closing down now.");
@@ -423,8 +432,6 @@ public class Client extends GreenMirrorController implements Observer {
         
         // And exit.
         greenmirror.closeStreams();
-        
-        
     }
 
 }

@@ -81,7 +81,7 @@ public class HelpCommandLineOptionHandler implements CommandLineOptionHandler {
         GreenMirrorUtils.addCommandLineVerboseOption(parser);
         
         // Build help string.
-        StringWriter stringWriter = new StringWriter();
+        final StringWriter stringWriter = new StringWriter();
         try {
             parser.printHelpOn(stringWriter);
         } catch (IOException e) {

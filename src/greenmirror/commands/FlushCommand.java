@@ -47,13 +47,6 @@ public class FlushCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Prepare the <code>Command</code>.
-     */
-    public void prepare() {
-        // Nothing to prepare.
-    }
-
-    /**
      * Fetch the raw data that will be sent.
      * @param format The format in which the data will be.
      */

@@ -4,11 +4,11 @@ import greenmirror.server.ToolbarButton;
 import greenmirror.server.Visualizer.PlaybackState;
 
 /**
- * The paused <code>PlaybackState</code>.
+ * The visualizer's paused playback state.
  * 
  * @author Karim El Assal
  */
-public class PausedState extends PlaybackState {
+public class PausedState implements PlaybackState {
 
     @Override
     public void determineButtonOperation(boolean hasPreviousState, boolean hasNextState) {
@@ -19,11 +19,6 @@ public class PausedState extends PlaybackState {
         ToolbarButton.PLAY.setEnabled(hasNextState);
         ToolbarButton.STEP.setEnabled(hasNextState);
         ToolbarButton.STEP_FAST.setEnabled(hasNextState);
-    }
-
-    @Override
-    public boolean isContinuous() {
-        return false;
     }
 
     @Override

@@ -123,13 +123,6 @@ public class InitializationCommand extends Command {
 
     
     // -- Commands ---------------------------------------------------------------------------
-    
-    /**
-     * Nothing to prepare.
-     */
-    public void prepare() {
-        
-    }
 
     /**
      * @param format

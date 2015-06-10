@@ -20,43 +20,31 @@ public class AddNodeCommand extends Command {
 
     // -- Instance variables -----------------------------------------------------------------
 
-    //@ private invariant node != null;
-    private Node node;
+    @NonNull private Node node;
     
 
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initialize the <code>Command</code>.
+     * Initializes the <code>Command</code>.
+     * 
      * @param node The <code>Node</code> that has been added.
      */
-    //@ requires node != null;
     //@ ensures getNode() == node;
-    public AddNodeCommand(Node node) {
+    public AddNodeCommand(@NonNull Node node) {
         this.node = node;
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /**
-     * @return The <code>Node</code> that has been added.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ public Node getNode() {
+    /** @return the <code>Node</code> that has been added */
+    /*@ pure */ @NonNull public Node getNode() {
         return node;
     }
     
     
     // -- Commands ---------------------------------------------------------------------------
-
-    /**
-     * Prepare the <code>Command</code>.
-     */
-    @Override
-    public void prepare() {
-        // Nothing to prepare.
-    }
 
     /**
      * Fetch the raw data that will be sent.

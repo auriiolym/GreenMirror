@@ -2,15 +2,15 @@ package greenmirror.fxpropertywrappers;
 
 import greenmirror.FxPropertyWrapper;
 import greenmirror.Log;
-import greenmirror.fxwrappers.StoredBytesImage;
+import greenmirror.StoredBytesImage;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.util.Base64;
 
 import javafx.scene.image.Image;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A wrapper for the <code>Paint</code> type of FX properties.
@@ -42,8 +42,8 @@ public class ImageFxProperty extends FxPropertyWrapper {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Cast <code>instance</code> to the type represented by this <code>FxPropertyWrapper</code>. This
-     * method only casts <code>Image</code>s, byte arrays and base64 encoded byte arrays 
+     * Cast <code>instance</code> to the type represented by this <code>FxPropertyWrapper</code>. 
+     * This method only casts <code>Image</code>s, byte arrays and base64 encoded byte arrays 
      * (<code>String</code>s). If anything else is received, it returns <code>null</code>.
      * @param instance The instance of the object. Usually this is received from a (JSON) map.
      * @return         The cast instance; <code>null</code> if <code>instance</code> is null.

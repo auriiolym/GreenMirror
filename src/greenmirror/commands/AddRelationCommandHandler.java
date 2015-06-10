@@ -134,11 +134,11 @@ public class AddRelationCommandHandler extends CommandHandler {
 
         // Do this AFTER applying the temporary FX, so the positioning properties are ignored 
         // because they haven't changed yet. 
-        getController().getVisualizer().doPlacement(relation);        
+        getController().getVisualizer().doPlacement(relation);
         
-        // Alter the location of nodes of other, rigid relations.
-        /*TODO: if node A has a rigid relation with another node (on which the current 
-        node A is node B there), change it's location {recursive). */
+        System.err.println(relation);
+        System.err.println(relation.getId());
+        System.err.println(nodeA);
     }
 
 }

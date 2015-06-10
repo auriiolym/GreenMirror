@@ -98,8 +98,8 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
                 throw new DataParseException("The placment data was invalid.");
             }
             
-            
-            
+            //TODO: do something when the old relation wasn't found
+            System.err.println(nodeA.getRelations());
             // Create the Relation objects.
             oldRelation = nodeA.getRelations().withId(oldId).getFirst();
             newRelation = new Relation()

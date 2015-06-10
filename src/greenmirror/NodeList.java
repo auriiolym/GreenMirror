@@ -53,6 +53,7 @@ public class NodeList extends LinkedList<Node> {
      * @return            the next <code>Node</code> in the list; if <code>currentNode</code> is the
      *                    last in the list or <code>currentNode</code> doesn't appear in the list, 
      *                    the first <code>Node</code> will be returned
+     * @throws NullPointerException if <code>this</code> list is empty
      */
     //@ requires this.size() > 0;
     //@ ensures \result != null;
@@ -68,9 +69,10 @@ public class NodeList extends LinkedList<Node> {
      * @return          a new <code>NodeList</code> with a filter applied
      */
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ private NodeList withFilter(@NonNull Predicate<Node> predicate) {
-        return this.stream().filter(predicate)
-                .collect(Collectors.toCollection(NodeList::new));
+    /*@ pure */ @NonNull private NodeList withFilter(@NonNull Predicate<Node> predicate) {
+        final NodeList list = this.stream().filter(predicate)
+                                  .collect(Collectors.toCollection(NodeList::new));
+        return list == null ? new NodeList() : list;
     }
     
     /**
@@ -80,8 +82,7 @@ public class NodeList extends LinkedList<Node> {
      * @param identifier see {@link Identifier}
      * @return           a new <code>NodeList</code> with the matching <code>Node</code>s
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList withIdentifier(@NonNull Identifier identifier) { 
+    /*@ pure */ @NonNull public NodeList withIdentifier(@NonNull Identifier identifier) { 
         return withFilter(node -> 
                     identifier.hasType() ? identifier.getType().equals(node.getType()) : true)
               .withFilter(node ->
@@ -95,8 +96,7 @@ public class NodeList extends LinkedList<Node> {
      * @param identifier see {@link Identifier#Identifier(String)}
      * @return           a new <code>NodeList</code> with the matching <code>Node</code>s
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList withIdentifier(String identifier) {
+    /*@ pure */ @NonNull public NodeList withIdentifier(String identifier) {
         return withIdentifier(new Identifier(identifier));
     }
     
@@ -104,8 +104,7 @@ public class NodeList extends LinkedList<Node> {
      * @param name the name part of a <code>Node.Identifier</code>
      * @return     every <code>Node</code> with <code>name</code> that is on the current list 
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList withName(String name) {
+    /*@ pure */ @NonNull public NodeList withName(String name) {
         final Identifier identifier = new Identifier();
         identifier.setName(name);
         return withIdentifier(identifier);
@@ -115,8 +114,7 @@ public class NodeList extends LinkedList<Node> {
      * @param type the name part of a <code>Node.Identifier</code>
      * @return     every <code>Node</code> of <code>type</code> that is on the current list
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList ofType(String type) {
+    /*@ pure */ @NonNull public NodeList ofType(String type) {
         final Identifier identifier = new Identifier();
         identifier.setType(type);
         return withIdentifier(identifier);
@@ -126,8 +124,7 @@ public class NodeList extends LinkedList<Node> {
      * @param label the label to match for
      * @return      every <code>Node</code> that has <code>label</code> that is on the current list
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList withLabel(String label) {
+    /*@ pure */ @NonNull public NodeList withLabel(String label) {
         return withFilter(node -> node.hasLabel(label));
     }
 
@@ -141,8 +138,8 @@ public class NodeList extends LinkedList<Node> {
      * @throws IllegalArgumentException if <code>direction</code> is invalid
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList withRelationTo(int direction, @NonNull NodeList matchNodes) {
+    /*@ pure */ @NonNull public NodeList withRelationTo(int direction, 
+                                                        @NonNull NodeList matchNodes) {
         return withFilter(node -> {
             for (Node relatedNode : node.getRelatedNodes(direction)) {
                 if (matchNodes.contains(relatedNode)) {
@@ -159,8 +156,7 @@ public class NodeList extends LinkedList<Node> {
      * @see #withRelationTo(int, NodeList)
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList withRelationTo(int direction, @NonNull Node matchNode) {
+    /*@ pure */ @NonNull public NodeList withRelationTo(int direction, @NonNull Node matchNode) {
         return withRelationTo(direction, new NodeList(matchNode));
     }
     
@@ -173,8 +169,7 @@ public class NodeList extends LinkedList<Node> {
      * @throws IllegalArgumentException if <code>direction</code> is invalid
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList withRelation(int direction, @NonNull String relationName) {
+    /*@ pure */ @NonNull public NodeList withRelation(int direction, @NonNull String relationName) {
         return withFilter(node -> node.getRelation(direction, relationName) != null);
     }
     
@@ -184,32 +179,28 @@ public class NodeList extends LinkedList<Node> {
      * @param nodes the <code>Node</code>s that won't be in the result
      * @return      the list not matching <code>nodes</code>
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList without(@NonNull NodeList nodes) {
+    /*@ pure */ @NonNull public NodeList without(@NonNull NodeList nodes) {
         return withFilter(node -> !nodes.contains(node));
     }
     
     /**
      * @see #without(NodeList)
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList without(@NonNull Node... nodes) {
+    /*@ pure */ @NonNull public NodeList without(@NonNull Node... nodes) {
         return without(new NodeList(nodes));
     }
     
     /**
      * @see #without(NodeList)
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList not(@NonNull NodeList nodes) {
+    /*@ pure */ @NonNull public NodeList not(@NonNull NodeList nodes) {
         return without(new NodeList(nodes));
     }
     
     /**
      * @see #without(NodeList)
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList not(@NonNull Node... nodes) {
+    /*@ pure */ @NonNull public NodeList not(@NonNull Node... nodes) {
         return without(new NodeList(nodes));
     }
     

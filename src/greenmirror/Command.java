@@ -68,7 +68,10 @@ public abstract class Command {
     
     /**
      * A method to prepare this <code>Command</code> before the formatted string is 
-     * constructed and retrieved.
+     * constructed and retrieved. Does nothing by default, but subclasses might want to do 
+     * something.
      */
-    public abstract void prepare();
+    public void prepare() {
+        
+    }
 }

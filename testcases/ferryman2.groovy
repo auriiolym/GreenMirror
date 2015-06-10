@@ -68,7 +68,7 @@ addRelations(
 
 
 
-addTransition("load(.*)", { String cargo ->
+addTransition("load_(.*)", { String cargo ->
     switchPlacementRelation(
         new Relation("on").setNodeA(node("cargo:" + cargo))
                           .setNodeB(node("boat"))
@@ -99,6 +99,7 @@ addTransition("unload", {
     }
 });
 addTransition("(.*)_eat_(.*)", {String eater, String eatee ->
+    node("cargo:" + eater).fx().setFitWidth(node("cargo:" + eater).fx().getFitWidth() * 3);
     addRelation(
         new Relation("eats").setNodeA(node("cargo:" + eater))
                             .setNodeB(node("cargo:" + eatee))

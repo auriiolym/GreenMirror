@@ -55,7 +55,7 @@ import javafx.util.Duration;
  *      change the property value on the FX node.</li>
  *  <li>If the user needs to create instances of new types in his Groovy script to make use
  *      of the property, add an import to
- *      {@link greenmirror.client.GroovyScriptModelInitializer#IMPORTS}.</li>
+ *      {@link greenmirror.client.modelinitializers.GroovyScriptModelInitializer#IMPORTS}.</li>
  *  <li>Recompile.</li>
  * </ol>
  * A property can thus be one of two types:
@@ -974,10 +974,9 @@ public abstract class FxWrapper extends Observable implements Cloneable {
             super(duration, node, toValue);
         }
 
-        @Override @NonNull
+        @Override
         protected Double getPropertyValue() {
-            final Double val = Double.valueOf(getNode().getRotate());
-            return val == null ? 0.0 : val;
+            return getNode().getRotate();
         }
 
         @Override

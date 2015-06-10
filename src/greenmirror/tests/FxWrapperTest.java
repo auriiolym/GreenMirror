@@ -6,12 +6,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
 import greenmirror.FxWrapper;
 import greenmirror.StoredBytesImage;
 import greenmirror.fxwrappers.CircleFxWrapper;
 import greenmirror.fxwrappers.ImageFxWrapper;
 import greenmirror.fxwrappers.RectangleFxWrapper;
 import greenmirror.fxwrappers.TextFxWrapper;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,8 +23,6 @@ import javafx.geometry.Point3D;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
-import org.junit.Before;
-import org.junit.Test;
 
 public class FxWrapperTest {
     
@@ -56,7 +57,9 @@ public class FxWrapperTest {
             FxWrapper.getNewInstance("invalid type");
             FxWrapper.getNewInstance("rECTANGLE");
             fail();
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) { 
+            ; 
+        }
     
         // Test valid values.
         assertThat(FxWrapper.getNewInstance("circle"), instanceOf(CircleFxWrapper.class));
@@ -84,11 +87,15 @@ public class FxWrapperTest {
         try {
             rect.setOpacity(-0.00001);
             fail();
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            ;
+        }
         try {
             rect.setOpacity(1.00001);
             fail();
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            ;
+        }
 
         assertThat(rect.getOpacity(), is(0.0));
         
@@ -105,7 +112,9 @@ public class FxWrapperTest {
         try {
             rect.setFill("invalid value");
             fail();
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            ;
+        }
         
         final String lin = "linear-gradient(white, black)";
         assertThat(rect.setFill(lin).getFill(), is(Paint.valueOf(lin)));
@@ -142,7 +151,9 @@ public class FxWrapperTest {
         try {
             rect.setFxToPositionWithMiddlePoint(new Point3D(1, 1, 0));
             fail();
-        } catch (NullPointerException e) {}
+        } catch (NullPointerException e) {
+            ;
+        }
         
         // Test setFromMap(Map)
         final RectangleFxWrapper rect2 = new RectangleFxWrapper();
@@ -163,7 +174,9 @@ public class FxWrapperTest {
         // Test size.
         try {
             circ.setRadius(-100);
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            ;
+        }
         assertThat(circ.setRadius(2).getRadius(), is(2.0));
         assertThat(circ.setDiameter(4).getRadius(), is(2.0));
         
@@ -180,7 +193,9 @@ public class FxWrapperTest {
         try {
             circ.setFxToPositionWithMiddlePoint(new Point3D(1, 1, 0));
             fail();
-        } catch (NullPointerException e) {}
+        } catch (NullPointerException e) {
+            ;
+        }
         
         // Test setFromMap(Map)
         final Map<String, Object> testMap = new LinkedHashMap<String, Object>() {

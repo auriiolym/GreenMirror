@@ -5,10 +5,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * A simple singleton class handling the log.
@@ -26,7 +26,7 @@ public class Log {
      * The default output stream. It overrides the <code>print</code> method to add a timestamp
      * before any string.
      */
-    public static final PrintStream DEFAULT = new PrintStream(System.out) {
+    @NonNull public static final PrintStream DEFAULT = new PrintStream(System.out) {
         
         @Override
         public void print(String str) {
@@ -41,7 +41,7 @@ public class Log {
     @NonNull private static final List<String> entries = new LinkedList<String>();
     
     /** the selected log output streams */
-    @NonNull private static final Set<PrintStream> outputs = new TreeSet<PrintStream>();
+    @NonNull private static final Set<PrintStream> outputs = new HashSet<PrintStream>();
     
     /** whether to log verbose data */
     private static boolean verbose = false;
@@ -161,7 +161,11 @@ public class Log {
      * @param node the relevant node
      * @return     the identifying string in the format: "(id,type:name)"
      */
-    /*@ pure */ @NonNull public static String n(@NonNull Node node) {
-        return "(" + node.getId() + "," + node.getIdentifier() + ")";
+    /*@ pure */ @NonNull public static String n(Node node) {
+        if (node == null) {
+            return "(no node)";
+        } else {
+            return "(" + node.getId() + "," + node.getIdentifier() + ")";
+        }
     }
 }

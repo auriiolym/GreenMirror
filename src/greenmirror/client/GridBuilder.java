@@ -3,13 +3,29 @@ package greenmirror.client;
 import greenmirror.Node;
 import greenmirror.fxwrappers.RectangleFxWrapper;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 /**
- * 
+ * An auxiliary class that makes building grids on the visualizer significantly less tedious. It
+ * uses the builder design pattern, so use it like this:
+ * <code>new GridBuilder("nodes_type:nodes_nameprefix")
+ *                      .setOPTION()
+ *                      .build(xCoordinate, yCoordinate)
+ *                      .getNodes();</code>
+ * This retrieves the nodes that the grid consists of: one node for each cell and one extra for the
+ * background. The cell nodes will get a name consisting of the specified prefix, followed by
+ * the cell number (starting with the number zero). The background node will get a name consisting 
+ * of the specified prefix followed by "background". 
+ * <p>
+ * The only properties that are required are the cell count and the cell width and height. All
+ * other properties have a default value of zero or null. It is highly recommended to set the fill
+ * property of either the cells or the background, because those default to a black color.  
  * 
  * @author Karim El Assal
  */
@@ -18,21 +34,21 @@ public class GridBuilder {
     
     // -- Instance variables -----------------------------------------------------------------
 
-    private String cellNodeType;
-    private String cellNodeNamePrefix;
+    private String nodeType = null;
+    private String nodeNamePrefix = null;
     private int cellCountHorizontal;
     private int cellCountVertical;
     private double cellWidth;
     private double cellHeight;
     private double cellArcWidth = 0;
     private double cellArcHeight = 0;
-    private Paint cellFill;
+    private Paint cellFill = Color.BLACK;
     private double cellSpacing = 0;
     private double borderSizeTop = 0;
     private double borderSizeRight = 0;
     private double borderSizeBottom = 0;
     private double borderSizeLeft = 0;
-    private Paint backgroundFill;
+    private Paint backgroundFill = Color.BLACK;
     private double backgroundArcWidth = 0;
     private double backgroundArcHeight = 0;
     
@@ -41,141 +57,148 @@ public class GridBuilder {
 
     // -- Constructors -----------------------------------------------------------------------
 
+    /**
+     * Starts the gruid builder, directly setting the type property of the nodes and the name 
+     * prefix. Both are optional: an empty string or <code>null</code> value is allowed.
+     * 
+     * @param gridIdentifier the identifier consisting of the type property and the name prefix 
+     *                       the nodes should receive. Optional. See {@link Node.Identifier}
+     */
     public GridBuilder(String gridIdentifier) {
         Node.Identifier identifier = new Node.Identifier(gridIdentifier);
-        setCellNodeType(identifier.getType());
-        setCellNodeNamePrefix(identifier.getName());
+        setNodeType(identifier.getType());
+        setNodeNamePrefix(identifier.getName());
     }
 
 
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @return The cellNodeType.
+     * @return the type property the nodes will receive
      */
-    public String getCellNodeType() {
-        return cellNodeType;
+    public String getNodeType() {
+        return nodeType;
     }
     
     /**
-     * @return The cellNodeNamePrefix.
+     * @return the name prefix the nodes will receive
      */
-    public String getCellNodeNamePrefix() {
-        return cellNodeNamePrefix;
+    public String getNodeNamePrefix() {
+        return nodeNamePrefix;
     }
 
     /**
-     * @return The cellCountHorizontal.
+     * @return the horizontal cell count
      */
     public int getCellCountHorizontal() {
         return cellCountHorizontal;
     }
 
     /**
-     * @return The cellCountVertical.
+     * @return the vertical cell count
      */
     public int getCellCountVertical() {
         return cellCountVertical;
     }
 
     /**
-     * @return The cellWidth.
+     * @return the cell width
      */
     public double getCellWidth() {
         return cellWidth;
     }
 
     /**
-     * @return The cellHeight.
+     * @return the cell height
      */
     public double getCellHeight() {
         return cellHeight;
     }
 
     /**
-     * @return The cellFill.
+     * @return the cell's fill property
      */
     public Paint getCellFill() {
         return cellFill;
     }
 
     /**
-     * @return The cellArcWidth.
+     * @return the cell's arc width.
      */
     public double getCellArcWidth() {
         return cellArcWidth;
     }
 
     /**
-     * @return The cellArcHeight.
+     * @return the cell's arc height.
      */
     public double getCellArcHeight() {
         return cellArcHeight;
     }
 
     /**
-     * @return The cellSpacing.
+     * @return the cell spacing.
      */
     public double getCellSpacing() {
         return cellSpacing;
     }
 
     /**
-     * @return The borderSizeTop.
+     * @return the top border size
      */
     public double getBorderSizeTop() {
         return borderSizeTop;
     }
 
     /**
-     * @return The borderSizeRight.
+     * @return the right border size
      */
     public double getBorderSizeRight() {
         return borderSizeRight;
     }
 
     /**
-     * @return The borderSizeBottom.
+     * @return the bottom border size
      */
     public double getBorderSizeBottom() {
         return borderSizeBottom;
     }
 
     /**
-     * @return The borderSizeLeft.
+     * @return the left border size
      */
     public double getBorderSizeLeft() {
         return borderSizeLeft;
     }
 
     /**
-     * @return The backgroundFill.
+     * @return the background's fill
      */
     public Paint getBackgroundFill() {
         return backgroundFill;
     }
     
     /**
-     * @return The backgroundArcWidth.
+     * @return the background's arc width.
      */
     public double getBackgroundArcWidth() {
         return backgroundArcWidth;
     }
 
     /**
-     * @return The backgroundArcHeight.
+     * @return the background's arc height.
      */
     public double getBackgroundArcHeight() {
         return backgroundArcHeight;
     }
 
     /**
-     * @return The nodes built by this <code>GridBuilder</code>.
-     * @throws IllegalStateException If the grid hasn't been built yet.
+     * @return the nodes built by this <code>GridBuilder</code>.
+     * @throws IllegalStateException if the grid hasn't been built yet
      */
     public Node[] getNodes() {
         if (nodes == null) {
-            throw new IllegalStateException("Build the grid before retrieving the nodes.");
+            throw new IllegalStateException("build the grid before retrieving the nodes");
         }
         return nodes.toArray(new Node[]{});
     }
@@ -184,118 +207,118 @@ public class GridBuilder {
     // -- Setters ----------------------------------------------------------------------------
 
     /**
-     * @param cellNodeType The cellNodeType to set.
+     * @param nodeType the nodeType to set
      */
-    private void setCellNodeType(String cellNodeType) {
-        this.cellNodeType = cellNodeType;
+    private void setNodeType(String nodeType) {
+        this.nodeType = nodeType;
     }
 
     /**
-     * @param cellNodeNamePrefix The cellNodeNamePrefix to set.
+     * @param nodeNamePrefix the nodeNamePrefix to set
      */
-    private void setCellNodeNamePrefix(String cellNodeNamePrefix) {
-        this.cellNodeNamePrefix = cellNodeNamePrefix;
+    private void setNodeNamePrefix(String nodeNamePrefix) {
+        this.nodeNamePrefix = nodeNamePrefix;
     }
 
     /**
-     * @param horizontal The cellCountHorizontal to set.
-     * @param vertical   The cellCountVertical to set.
+     * @param horizontal the cellCountHorizontal to set. Required for building the grid
+     * @param vertical   the cellCountVertical to set.  Required for building the grid
      * @return           <code>this</code>
      */
-    public GridBuilder setCellCount(int horizontal, int vertical) {
+    @NonNull public GridBuilder setCellCount(int horizontal, int vertical) {
         setCellCountHorizontal(horizontal);
         setCellCountVertical(vertical);
         return this;
     }
     
     /**
-     * @param cellCountHorizontal The cellCountHorizontal to set.
+     * @param cellCountHorizontal the cellCountHorizontal to set. Required for building the grid
      * @return                    <code>this</code>
      */
-    public GridBuilder setCellCountHorizontal(int cellCountHorizontal) {
+    @NonNull public GridBuilder setCellCountHorizontal(int cellCountHorizontal) {
         this.cellCountHorizontal = cellCountHorizontal;
         return this;
     }
 
     /**
-     * @param cellCountVertical The cellCountVertical to set.
+     * @param cellCountVertical the cellCountVertical to set. Required for building the grid
      * @return                  <code>this</code>
      */
-    public GridBuilder setCellCountVertical(int cellCountVertical) {
+    @NonNull public GridBuilder setCellCountVertical(int cellCountVertical) {
         this.cellCountVertical = cellCountVertical;
         return this;
     }
     
     /**
-     * @param width  The cellWidth to set.
-     * @param height The cellHeight to set.
+     * @param width  the cellWidth to set. Required for building the grid
+     * @param height the cellHeight to set. Required for building the grid
      * @return       <code>this</code>
      */
-    public GridBuilder setCellSize(double width, double height) {
+    @NonNull public GridBuilder setCellSize(double width, double height) {
         setCellWidth(width);
         setCellHeight(height);
         return this;
     }
 
     /**
-     * @param cellWidth The cellWidth to set.
+     * @param cellWidth the cellWidth to set. Required for building the grid
      * @return          <code>this</code>
      */
-    public GridBuilder setCellWidth(double cellWidth) {
+    @NonNull public GridBuilder setCellWidth(double cellWidth) {
         this.cellWidth = cellWidth;
         return this;
     }
 
     /**
-     * @param cellHeight The cellHeight to set.
+     * @param cellHeight the cellHeight to set. Required for building the grid
      * @return           <code>this</code>
      */
-    public GridBuilder setCellHeight(double cellHeight) {
+    @NonNull public GridBuilder setCellHeight(double cellHeight) {
         this.cellHeight = cellHeight;
         return this;
     }
 
     /**
-     * @param cellFill The cellFill to set.
+     * @param cellFill the cellFill to set
      * @return         <code>this</code>
      */
-    public GridBuilder setCellFill(String cellFill) {
+    @NonNull public GridBuilder setCellFill(String cellFill) {
         return setCellFill(Paint.valueOf(cellFill));
     }
 
     /**
-     * @param cellFill The cellFill to set.
+     * @param cellFill the cellFill to set
      * @return         <code>this</code>
      */
-    public GridBuilder setCellFill(Paint cellFill) {
+    @NonNull public GridBuilder setCellFill(Paint cellFill) {
         this.cellFill = cellFill;
         return this;
     }
 
     /**
-     * @param cellArc The cellArcWidth and cellArcHeight to set.
+     * @param cellArc the cellArcWidth and cellArcHeight to set
      * @return        <code>this</code>
      */
-    public GridBuilder setCellArcs(double cellArc) {
+    @NonNull public GridBuilder setCellArcs(double cellArc) {
         return setCellArcs(cellArc, cellArc);
     }
 
     /**
-     * @param cellArcWidth  The cellArcWidth to set.
-     * @param cellArcHeight The cellArcHeight to set.
+     * @param cellArcWidth  the cellArcWidth to set
+     * @param cellArcHeight the cellArcHeight to set
      * @return              <code>this</code>
      */
-    public GridBuilder setCellArcs(double cellArcWidth, double cellArcHeight) {
+    @NonNull public GridBuilder setCellArcs(double cellArcWidth, double cellArcHeight) {
         this.cellArcWidth = cellArcWidth;
         this.cellArcHeight = cellArcHeight;
         return this;
     }
     
     /**
-     * @param cellSpacing The cellSpacing to set.
+     * @param cellSpacing the cellSpacing to set
      * @return            <code>this</code>
      */
-    public GridBuilder setCellSpacing(double cellSpacing) {
+    @NonNull public GridBuilder setCellSpacing(double cellSpacing) {
         this.cellSpacing = cellSpacing;
         return this;
     }
@@ -304,7 +327,7 @@ public class GridBuilder {
      * @param size The borderSize to set for all sides.
      * @return     <code>this</code>
      */
-    public GridBuilder setBorderSize(double size) {
+    @NonNull public GridBuilder setBorderSize(double size) {
         setBorderSizeTop(size);
         setBorderSizeRight(size);
         setBorderSizeBottom(size);
@@ -317,7 +340,7 @@ public class GridBuilder {
      * @param rightLeftSize The borderSize to set for the right and left sides.
      * @return              <code>this</code>
      */
-    public GridBuilder setBorderSize(double topBottomSize, double rightLeftSize) {
+    @NonNull public GridBuilder setBorderSize(double topBottomSize, double rightLeftSize) {
         setBorderSizeTop(topBottomSize);
         setBorderSizeBottom(topBottomSize);
         setBorderSizeRight(rightLeftSize);
@@ -332,7 +355,7 @@ public class GridBuilder {
      * @param leftSize   The borderSize to set for the left side.
      * @return              <code>this</code>
      */
-    public GridBuilder setBorderSize(double topSize, double rightSize, double bottomSize, 
+    @NonNull public GridBuilder setBorderSize(double topSize, double rightSize, double bottomSize, 
             double leftSize) {
         setBorderSizeTop(topSize);
         setBorderSizeBottom(bottomSize);
@@ -342,72 +365,73 @@ public class GridBuilder {
     }
 
     /**
-     * @param borderSizeTop The borderSizeTop to set.
+     * @param borderSizeTop the borderSizeTop to set
      * @return              <code>this</code>
      */
-    public GridBuilder setBorderSizeTop(double borderSizeTop) {
+    @NonNull public GridBuilder setBorderSizeTop(double borderSizeTop) {
         this.borderSizeTop = borderSizeTop;
         return this;
     }
 
     /**
-     * @param borderSizeRight The borderSizeRight to set.
+     * @param borderSizeRight the borderSizeRight to set
      * @return                <code>this</code>
      */
-    public GridBuilder setBorderSizeRight(double borderSizeRight) {
+    @NonNull public GridBuilder setBorderSizeRight(double borderSizeRight) {
         this.borderSizeRight = borderSizeRight;
         return this;
     }
 
     /**
-     * @param borderSizeBottom The borderSizeBottom to set.
+     * @param borderSizeBottom the borderSizeBottom to set
      * @return                 <code>this</code>
      */
-    public GridBuilder setBorderSizeBottom(double borderSizeBottom) {
+    @NonNull public GridBuilder setBorderSizeBottom(double borderSizeBottom) {
         this.borderSizeBottom = borderSizeBottom;
         return this;
     }
 
     /**
-     * @param borderSizeLeft The borderSizeLeft to set.
+     * @param borderSizeLeft the borderSizeLeft to set
      * @return               <code>this</code>
      */
-    public GridBuilder setBorderSizeLeft(double borderSizeLeft) {
+    @NonNull public GridBuilder setBorderSizeLeft(double borderSizeLeft) {
         this.borderSizeLeft = borderSizeLeft;
         return this;
     }
 
     /**
-     * @param backgroundFill The backgroundFill to set.
+     * @param backgroundFill the backgroundFill to set
      * @return               <code>this</code>
      */
-    public GridBuilder setBackgroundFill(Paint backgroundFill) {
+    @NonNull public GridBuilder setBackgroundFill(Paint backgroundFill) {
         this.backgroundFill = backgroundFill;
         return this;
     }
 
     /**
-     * @param backgroundFill The backgroundFill to set.
+     * @param backgroundFill the backgroundFill to set
      * @return               <code>this</code>
      */
-    public GridBuilder setBackgroundFill(String backgroundFill) {
+    @NonNull public GridBuilder setBackgroundFill(String backgroundFill) {
         return setBackgroundFill(Paint.valueOf(backgroundFill));
     }
 
     /**
-     * @param backgroundArc The backgroundArcWidth and backgroundArcHeight to set.
+     * @param backgroundArc the backgroundArcWidth and backgroundArcHeight to set
      * @return              <code>this</code>
      */
-    public GridBuilder setBackgroundArcs(double backgroundArc) {
+    @NonNull public GridBuilder setBackgroundArcs(double backgroundArc) {
         return setBackgroundArcs(backgroundArc, backgroundArc);
     }
 
     /**
-     * @param backgroundArcWidth  The backgroundArcWidth to set.
-     * @param backgroundArcHeight The backgroundArcHeight to set.
+     * @param backgroundArcWidth  the backgroundArcWidth to set
+     * @param backgroundArcHeight the backgroundArcHeight to set
      * @return                    <code>this</code>
      */
-    public GridBuilder setBackgroundArcs(double backgroundArcWidth, double backgroundArcHeight) {
+    @NonNull public GridBuilder setBackgroundArcs(double backgroundArcWidth, 
+                                                  double backgroundArcHeight) {
         this.backgroundArcWidth = backgroundArcWidth;
         this.backgroundArcHeight = backgroundArcHeight;
         return this;
@@ -416,8 +440,16 @@ public class GridBuilder {
 
     // -- Commands ---------------------------------------------------------------------------
 
-
-    public GridBuilder build(double posX, double posY) {
+    /**
+     * Builds the grid. All properties should have a valid value by the time this method is 
+     * called. Call {@link #getNodes()} to get the created nodes.
+     * 
+     * @param posX the x coordinate where the top left corner of the grid should be placed
+     * @param posY the y coordinate where the top left corner of the grid should be placed
+     * @return     <code>this</code>
+     * @throws IllegalArgumentException if a property has an invalid value 
+     */
+    @NonNull public GridBuilder build(double posX, double posY) {
         
         // First check if all values are valid.
         if (getCellCountHorizontal() <= 0 
@@ -432,25 +464,31 @@ public class GridBuilder {
         
         nodes = new ArrayList<Node>();
         
+        final String namePrefix = getNodeNamePrefix() == null ? "" : getNodeNamePrefix();
+        
         // Build the background.
-        double totalWidth = getBorderSizeLeft() + getBorderSizeRight() + getCellCountHorizontal() 
-                          * getCellWidth() + (getCellCountHorizontal() - 1) * getCellSpacing(); 
-        double totalHeight = getBorderSizeTop() + getBorderSizeBottom() + getCellCountVertical()
-                          * getCellHeight() + (getCellCountVertical() - 1) * getCellSpacing();
-        Node bg = new Node().setType(getCellNodeType()).setName("background").set(
-                new RectangleFxWrapper()
-                    .setPosition(posX, posY)
-                    .setSize(totalWidth, totalHeight)
-                    .setArcWidth(getBackgroundArcWidth())
-                    .setArcHeight(getBackgroundArcHeight())
-                    .setFill(getBackgroundFill()));
+        final double totalWidth = getBorderSizeLeft() 
+                          + getBorderSizeRight() 
+                          + getCellCountHorizontal() * getCellWidth() 
+                          + (getCellCountHorizontal() - 1) * getCellSpacing(); 
+        final double totalHeight = getBorderSizeTop() 
+                          + getBorderSizeBottom() 
+                          + getCellCountVertical() * getCellHeight() 
+                          + (getCellCountVertical() - 1) * getCellSpacing();
+        final Node bg = new Node().setType(getNodeType()).setName(namePrefix + "background").set(
+                                new RectangleFxWrapper()
+                                    .setPosition(posX, posY)
+                                    .setSize(totalWidth, totalHeight)
+                                    .setArcWidth(getBackgroundArcWidth())
+                                    .setArcHeight(getBackgroundArcHeight())
+                                    .setFill(getBackgroundFill()));
         nodes.add(bg);
         
         // Build the cells
         int cellI = 0; // Cell index (and name).
         double currPosX;
         double currPosY;
-        RectangleFxWrapper fxPrototype = ((RectangleFxWrapper) new RectangleFxWrapper()
+        final RectangleFxWrapper fxPrototype = ((RectangleFxWrapper) new RectangleFxWrapper()
                                                         .setSize(getCellWidth(), getCellHeight())
                                                         .setArcWidth(getCellArcWidth())
                                                         .setArcHeight(getCellArcHeight())
@@ -467,9 +505,8 @@ public class GridBuilder {
                 
                 // Create the node and add it to the collection.
                 nodes.add(new Node()
-                           .setType(getCellNodeType())
-                           .setName((getCellNodeNamePrefix() == null ? "" : getCellNodeNamePrefix())
-                                   + String.valueOf(cellI))
+                           .setType(getNodeType())
+                           .setName(namePrefix + String.valueOf(cellI))
                            .set(fxPrototype.clone().setPosition(currPosX, currPosY)));
                 cellI++;
             }

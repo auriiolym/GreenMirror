@@ -114,7 +114,7 @@ public class ModelCommandLineOptionHandler implements CommandLineOptionHandler {
     
     @Override
     public void process(@NonNull GreenMirrorController controller) throws FatalException {
-        Client client = (Client) controller;
+        final Client client = (Client) controller;
 
         // Initialize the model.
         try {

@@ -10,8 +10,8 @@ import javafx.scene.image.Image;
 
 /**
  * An extension of {@link javafx.scene.image.Image} that also saves the bytes of the image itself 
- * in the <code>Image</code> object. This way, it's easier to get a string (base64) representation
- * of the image.
+ * in the <code>Image</code> object. This way, it's easier to get a (base64 encoded) string 
+ * representation of the image.
  * <p>
  * There is one difficulty here: this object can't simply read the bytes from the 
  * <code>InputStream</code> again to retrieve the bytes. The internal pointer messes that up.
@@ -66,7 +66,7 @@ public class StoredBytesImage extends Image {
      * @return            the read bytes
      * @throws IllegalArgumentException if the input stream could not be read
      */
-    public static byte[] readBytes(@NonNull InputStream inputStream) {
+    @NonNull public static byte[] readBytes(@NonNull InputStream inputStream) {
         try {
             final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int read;
@@ -75,9 +75,9 @@ public class StoredBytesImage extends Image {
             }
             return buffer.toByteArray();
             // Other option: return IOUtils.readFully(inputStream, -1, true);
-            // That option leaves an EOFException with the Image.
+            // However that option silently leaves an EOFException with the Image object.
         } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to read image input stream: " 
+            throw new IllegalArgumentException("unable to read image input stream: " 
                     + e.getMessage());
         }
     }

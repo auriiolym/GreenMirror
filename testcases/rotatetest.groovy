@@ -1,4 +1,4 @@
-initialize(700, 400, 5000);
+initialize(700, 400, 3000);
 
 addNode(
     new Node("1").set(fx("rectangle")
@@ -11,13 +11,13 @@ addNodes(
                       .setSize(20, 10))
                  .addRelation(new Relation("on")
                               .setNodeB(node("1"))
-                              .setPlacement(Placement.EDGE_RIGHT_MIDDLE)
+                              .setPlacement(Placement.EDGE_RIGHT)
                               .setRigid(true)),
     new Node("3").set(fx("rectangle")
                       .setSize(20, 10))
                  .addRelation(new Relation("on")
                               .setNodeB(node("1"))
-                              .setPlacement(Placement.EDGE_LEFT_MIDDLE)
+                              .setPlacement(Placement.EDGE_LEFT)
                               .setRigid(true))
 );
 

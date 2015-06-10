@@ -4,6 +4,8 @@ import greenmirror.FxPropertyWrapper;
 
 import java.lang.reflect.Method;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 
 /**
  * A wrapper for the <code>Paint</code> type of FX properties.
@@ -19,20 +21,20 @@ public class BooleanFxProperty extends FxPropertyWrapper {
      * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
-    public BooleanFxProperty(String propertyName) {
+    public BooleanFxProperty(@NonNull String propertyName) {
         super(propertyName);
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    @Override
+    @Override @NonNull 
     public Class<?> getPropertyType() {
         return boolean.class;
     }
 
-    @Override
-    public Method getGetMethod(Class<?> originClass) throws NoSuchMethodException {
+    @Override @NonNull 
+    public Method getGetMethod(@NonNull Class<?> originClass) throws NoSuchMethodException {
         return getGetMethod(originClass, "is");
     }
 

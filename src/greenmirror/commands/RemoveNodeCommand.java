@@ -46,11 +46,6 @@ public class RemoveNodeCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
     
     @Override
-    public void prepare() {
-        // Nothing to prepare.
-    }
-    
-    @Override
     public String getFormattedString(CommunicationFormat format) {
         Log.add("Node removed: " + getNode().toString());
         

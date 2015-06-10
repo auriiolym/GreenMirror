@@ -1,11 +1,15 @@
 package greenmirror;
 
+import greenmirror.placements.NoPlacement;
+
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.LinkedList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * A custom <code>LinkedList&gt;Relation&lt;</code> class which includes some filters.
+ * A custom <code>LinkedList&gt;Relation&lt;</code> class providing specific filters.
  * 
  * @author Karim El Assal
  */
@@ -14,17 +18,28 @@ public class RelationList extends LinkedList<Relation> {
     
     // -- Constructors -----------------------------------------------------------------------
     
+    /** Creates a new, empty list. */
     public RelationList() {
         
     }
     
-    public RelationList(Relation... relations) {
+    /** 
+     * Creates a list from an array of <code>Relation</code>s. 
+     * 
+     * @param relations the relations to add to this <code>RelationList</code>
+     **/
+    public RelationList(@NonNull Relation... relations) {
         for (Relation relation : relations) {
             add(relation);
         }
     }
     
-    public RelationList(RelationList relations) {
+    /**
+     * Creates a list from an existing list.
+     * 
+     * @param relations the relations to add to this <code>RelationList</code>
+     */
+    public RelationList(@NonNull RelationList relations) {
         super(relations);
     }
     
@@ -32,11 +47,10 @@ public class RelationList extends LinkedList<Relation> {
     // -- Queries ----------------------------------------------------------------------------
     
     /**
-     * @return All A Nodes of all relations of this RelationList.
+     * @return all nodes A of all relations on this <code>RelationList</code>
      */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList getNodesA() {
-        NodeList nodes = new NodeList();
+    /*@ pure */ @NonNull public NodeList getNodesA() {
+        final NodeList nodes = new NodeList();
         this.forEach(relation -> { 
             if (!nodes.contains(relation.getNodeA())) {
                 nodes.add(relation.getNodeA());
@@ -46,52 +60,43 @@ public class RelationList extends LinkedList<Relation> {
     }
     
     /**
-     * @param id
-     * @return <code>Relation</code>s with the given <code>id</code>.
+     * @param id the relation id
+     * @return   <code>Relation</code>s with the given <code>id</code>.
      */
-    //@ requires id != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withId(String id) {
+    /*@ pure */ @NonNull public RelationList withId(@NonNull String id) {
         return withFilter(relation -> id.equals(relation.getId()));
     }
     
     /**
-     * @param name
-     * @return <code>Relation</code>s with the given <code>name</code>.
+     * @param name the relation name
+     * @return     <code>Relation</code>s with the given <code>name</code>
      */
-    //@ requires name != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withName(String name) {
+    /*@ pure */ @NonNull public RelationList withName(@NonNull String name) {
         return withFilter(relation -> name.equals(relation.getName()));
     }
 
     /**
-     * @param rigid
-     * @return <code>Relation</code>s with the given <code>rigid</code>ity.
+     * @param rigid the relation rigidity
+     * @return      <code>Relation</code>s with the given <code>rigid</code>ity
      */
-    //@ requires rigid != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withIsRigid(boolean rigid) {
+    /*@ pure */ @NonNull public RelationList withIsRigid(boolean rigid) {
         return withFilter(relation -> relation.isRigid() == rigid);
     }
 
     /**
-     * @param placement
-     * @return <code>Relation</code>s with the given <code>placement</code>.
+     * @param placement the relation placement
+     * @return          <code>Relation</code>s with the given {@link Placement}
      */
-    //@ requires placement != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withPlacement(Placement placement) {
+    /*@ pure */ @NonNull public RelationList withPlacement(@NonNull Placement placement) {
         return withFilter(relation -> relation.getPlacement().equals(placement));
     }
 
     /**
-     * @param placement
-     * @return <code>Relation</code>s with any <code>placement</code> other than <code>NONE</code>.
+     * @return <code>Relation</code>s with any {@link Placement} other than {@link NoPlacement}
      */
     //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
@@ -100,22 +105,19 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @return <code>Relation</code>s with no placement.
+     * @return <code>Relation</code>s with {@link NoPlacement}
      */
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withNoPlacement() {
+    /*@ pure */ @NonNull public RelationList withNoPlacement() {
         return withFilter(relation -> relation.getPlacement().equals(Placement.NONE));
     }
 
     /**
      * @param nodes
-     * @return <code>Relation</code>s that are connected to one of the nodes of <code>nodes</code>.
+     * @return <code>Relation</code>s that are connected to one of the passed nodes
      */
-    //@ requires nodes != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withNodes(NodeList nodes) {
+    /*@ pure */ @NonNull public RelationList withNodes(@NonNull NodeList nodes) {
         return withFilter(relation -> 
                     nodes.contains(relation.getNodeA()) 
                  || nodes.contains(relation.getNodeB()));
@@ -125,10 +127,8 @@ public class RelationList extends LinkedList<Relation> {
      * @param node
      * @return <code>Relation</code>s that are connected to <code>node</code>.
      */
-    //@ requires node != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withNode(Node node) {
+    /*@ pure */ @NonNull public RelationList withNode(@NonNull Node node) {
         return withFilter(relation -> 
                     node.equals(relation.getNodeA()) 
                  || node.equals(relation.getNodeB()));
@@ -136,12 +136,10 @@ public class RelationList extends LinkedList<Relation> {
 
     /**
      * @param nodes
-     * @return <code>Relation</code>s in which node A is one of the nodes of <code>nodes</code>.
+     * @return <code>Relation</code>s in which node A is one of the passed nodes
      */
-    //@ requires nodes != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withNodeA(NodeList nodes) {
+    /*@ pure */ @NonNull public RelationList withNodeA(@NonNull NodeList nodes) {
         return withFilter(relation -> 
                     nodes.contains(relation.getNodeA()));
     }
@@ -150,22 +148,18 @@ public class RelationList extends LinkedList<Relation> {
      * @param node
      * @return <code>Relation</code>s in which node A equals <code>node</code>.
      */
-    //@ requires node != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withNodeA(Node node) {
+    /*@ pure */ @NonNull public RelationList withNodeA(@NonNull Node node) {
         return withFilter(relation -> 
                     node.equals(relation.getNodeA()));
     }
 
     /**
      * @param nodes
-     * @return <code>Relation</code>s in which node B is one of the nodes of <code>nodes</code>.
+     * @return <code>Relation</code>s in which node B is one of the passed nodes
      */
-    //@ requires nodes != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withNodeB(NodeList nodes) {
+    /*@ pure */ @NonNull public RelationList withNodeB(@NonNull NodeList nodes) {
         return withFilter(relation -> 
                     nodes.contains(relation.getNodeB()));
     }
@@ -174,36 +168,34 @@ public class RelationList extends LinkedList<Relation> {
      * @param node
      * @return <code>Relation</code>s in which node B equals <code>node</code>.
      */
-    //@ requires node != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ public RelationList withNodeB(Node node) {
+    /*@ pure */ @NonNull public RelationList withNodeB(@NonNull Node node) {
         return withFilter(relation -> 
                     node.equals(relation.getNodeB()));
     }
     
     /**
-     * @param predicate The filter.
-     * @return          A new <code>RelationList</code> with a filter applied.
+     * @param predicate the filter
+     * @return          a new <code>RelationList</code> with the filter applied
      */
-    //@ requires predicate != null;
-    //@ ensures \result != null;
     //@ ensures \result.size() <= this.size();
-    /*@ pure */ private RelationList withFilter(Predicate<Relation> predicate) {
-        return this.stream().filter(predicate)
-                .collect(Collectors.toCollection(RelationList::new));
+    /*@ pure */ @NonNull private RelationList withFilter(@NonNull Predicate<Relation> predicate) {
+        final RelationList list = this.stream().filter(predicate)
+                                      .collect(Collectors.toCollection(RelationList::new));
+        return list == null ? new RelationList() : list; // just a formality for @NonNull
     }
     
 
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * Remove all <code>Relation</code>s in this <code>RelationList</code>. Also removes this 
+     * Removes all <code>Relation</code>s in this <code>RelationList</code>. Also removes this 
      * <code>Relation</code> from the connected <code>Node</code>s.
      */
     //@ ensures this.size() == 0;
     public void removeAll() {
-        // We iterate of a copy of this <code>RelationList</code>, so we don't get concurrency errors.
+        // We iterate over a copy of this <code>RelationList</code>, so we don't get concurrency 
+        //  errors.
         this.withFilter(relation -> true).forEach(relation -> {
             relation.removeFromNodes();
             this.remove(relation);

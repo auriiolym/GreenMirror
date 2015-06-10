@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
 import greenmirror.FxWrapper;
 import greenmirror.Node;
 import greenmirror.NodeList;
@@ -16,7 +17,6 @@ import greenmirror.Relation;
 import greenmirror.RelationList;
 import greenmirror.fxwrappers.RectangleFxWrapper;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -170,7 +170,9 @@ public class NodesRelationsTest {
         try {
             new NodeList().getCircularNext(null);
             fail();
-        } catch (IndexOutOfBoundsException e) {}
+        } catch (IndexOutOfBoundsException e) {
+            ;
+        }
 
         // withLabel(String)
         assertThat(list.withLabel("label1"), equalTo(new NodeList(n1, n2)));
@@ -188,19 +190,25 @@ public class NodesRelationsTest {
         try {
             n1.fx();
             fail();
-        } catch (IllegalStateException e) {}
+        } catch (IllegalStateException e) {
+            ;
+        }
 
         // Test creation of unknown FxWrapper type.
         try {
             n1.fx("unknown FxWrapper type");
             fail();
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            ;
+        }
         
         // Test creation of FxWrapper with wrong capitalization.
         try {
             n1.fx("rectANGLE");
             fail();
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            ;
+        }
         
         // Test creation of FxWrapper.
         assertThat(n1.fx("rectangle"), is(instanceOf(RectangleFxWrapper.class)));
@@ -210,7 +218,9 @@ public class NodesRelationsTest {
         try {
             n1.fx("circle");
             fail();
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+            ;
+        }
         
         // Test different way of creation.
         FxWrapper fxWrapper = new RectangleFxWrapper();
@@ -303,7 +313,9 @@ public class NodesRelationsTest {
         try {
             r2.setRigid(true);
             fail();
-        } catch (IllegalStateException e) {}
+        } catch (IllegalStateException e) {
+            ;
+        }
         
         // fromRelation(Relation)
         assertThat(new Relation("foo").fromRelation(r1).toString(), equalTo(r1.toString()));

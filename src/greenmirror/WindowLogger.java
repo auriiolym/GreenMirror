@@ -16,7 +16,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
- * The logger that prints entries to a window.
+ * A <code>PrintStream</code> that is used as a log window. It works just like any other
+ * <code>PrintStream</code>, with the exception that it assumes that a JavaFX thread is
+ * available.
  * 
  * @author Karim El Assal
  */
@@ -24,16 +26,16 @@ public class WindowLogger extends PrintStream {
     
     // -- Constants --------------------------------------------------------------------------
     
-    /** The width of the window in pixels. */
+    /** the width of the window in pixels */
     private static final double WIDTH  = 800;
     
-    /** The height of the window in pixels. */
+    /** the height of the window in pixels */
     private static final double HEIGHT = 250;
     
-    /** The title of the window. */
-    private static final String TITLE = "Log";
+    /** the title of the window */
+    private static final String TITLE = "GreenMirror Log";
     
-    /** The CSS style of the javafx.scene.Text nodes. */
+    /** the CSS style of the javafx.scene.Text nodes */
     private static final String TEXTSTYLE = "-fx-font-size: 13px; "
                                           + "-fx-font-family: monospace;";
 
@@ -41,7 +43,7 @@ public class WindowLogger extends PrintStream {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Create a new <code>WindowLogger</code>.
+     * Creates a new <code>WindowLogger</code>.
      */
     public WindowLogger() {
         super(new WindowOutputStream());
@@ -59,20 +61,20 @@ public class WindowLogger extends PrintStream {
         
         // -- Instance variables --------------------------
         
-        /** The JavaFX stage. */
+        /** the JavaFX stage */
         private Stage stage;
         
-        /** The JavaFX node that holds all Text entries of the stage. */
+        /** the JavaFX node that holds all Text entries of the stage */
         private VBox vbox;
         
-        /** The entry of the writer. */
+        /** the entry of the writer */
         private String buffer = "";
         
         
         // -- Constructors --------------------------------
         
         /**
-         * Create a new window.
+         * Creates a new window.
          */
         public WindowOutputStream() {
 
@@ -137,12 +139,12 @@ public class WindowLogger extends PrintStream {
         }
         
         /**
-         * Update certain layout values. Can be used when the window has been resized. This has
-         * to be executed on the JavaFX thread.
+         * Updates certain layout values. Can and should be used when the window has been resized.
+         * This has to be executed on the JavaFX thread.
          */
         private void updateValues() {
             for (javafx.scene.Node node : vbox.getChildren()) {
-                Text textNode = (Text) node;
+                final Text textNode = (Text) node;
                 textNode.setWrappingWidth(stage.getScene().getWidth() - 10);
             }
             vbox.setMinHeight(stage.getScene().getHeight() - 3);
@@ -154,7 +156,7 @@ public class WindowLogger extends PrintStream {
         }
         
         /**
-         * Flush the buffer to the output window.
+         * Flushes the buffer to the output window.
          */
         @Override
         public synchronized void flush() {
@@ -181,12 +183,12 @@ public class WindowLogger extends PrintStream {
                 
             } catch (IllegalStateException e) {
                 Log.addOutput(Log.DEFAULT);
-                Log.add("Something went wrong with adding a log entry to the log window:", e);
+                Log.add("Something went wrong with flushing the buffer to the log window: ", e);
             }
         }
         
         /**
-         * Close the window.
+         * Closes the window.
          */
         @Override
         public void close() {

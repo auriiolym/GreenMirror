@@ -19,6 +19,9 @@ public abstract class DoublePropertyTransition<E extends javafx.scene.Node>
 
     // --- Constructors ----------------------------------------------------------------------    
     
+    /**
+     * @see {@link AbstractTransition}
+     */
     public DoublePropertyTransition(@NonNull Duration duration, E node, Double toValue) {
         super(duration, node, toValue);
     }

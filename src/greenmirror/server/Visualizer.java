@@ -53,7 +53,7 @@ public class Visualizer extends Application implements Caretaker, Originator {
      * 
      * @author Karim El Assal
      */
-    public abstract static class PlaybackState {
+    public interface PlaybackState {
         
         /**
          * The method that determines the toolbar button operation in accordance with 
@@ -61,19 +61,20 @@ public class Visualizer extends Application implements Caretaker, Originator {
          * @param hasPreviousMemento
          * @param hasNextMemento
          */
-        public abstract void determineButtonOperation(boolean hasPreviousMemento, 
-                boolean hasNextMemento);
+        public void determineButtonOperation(boolean hasPreviousMemento, boolean hasNextMemento);
         
         /**
          * @return Whether this <code>PlaybackState</code> is a continuous one.
          */
-        public abstract boolean isContinuous();
+        public default boolean isContinuous() {
+            return false;
+        }
         
         /**
          * @return A simple explanation of this state.
          */
         @Override
-        public abstract String toString();
+        public String toString();
     }
     
     // -- Enumerations -----------------------------------------------------------------------

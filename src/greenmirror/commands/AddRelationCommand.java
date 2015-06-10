@@ -47,16 +47,12 @@ public class AddRelationCommand extends Command {
     
     // --- Setters ---------------------------------------------------------------------------
 
-    public void prepare() {
-        // Nothing to prepare.
-    }
-
     /**
      * Fetch the raw data that will be sent.
      * @param format The format in which the data will be.
      */
     @Override 
-    @NonNull public String getFormattedString(@NonNull CommunicationFormat format) {
+    public String getFormattedString(@NonNull CommunicationFormat format) {
         Log.add("Relation added: " + getRelation().toString());
         
         switch (format) {

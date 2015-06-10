@@ -469,7 +469,7 @@ public class Node extends Observable implements Observer, Cloneable {
             relation.setNodeB(this);
         }
         
-        if (hasPlacementRelation() && relation.getPlacement() != Placement.NONE) {
+        if (hasPlacementRelation() && !relation.getPlacement().equals(Placement.NONE)) {
             //TODO: make this shared code (in Client, for example), so 
             // GreenMirrorGrooyBaseScript#SwitchPlacementRelation(Relation) can use the same.
             

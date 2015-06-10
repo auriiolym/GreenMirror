@@ -3,21 +3,20 @@ package greenmirror.tests;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
 import greenmirror.Placement;
 import greenmirror.fxwrappers.CircleFxWrapper;
 import greenmirror.fxwrappers.RectangleFxWrapper;
 import greenmirror.placements.CornerTopLeftPlacement;
 import greenmirror.placements.CustomPlacement;
 import greenmirror.placements.EdgePlacement;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import javafx.geometry.Point3D;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class PlacementTest {
     
@@ -93,7 +92,7 @@ public class PlacementTest {
         
         // Test placements.
         for (int i = 0; i < testPlacement.length; i++) {
-            
+
             Point3D calcPoint = rect.calculatePoint(testPlacement[i]);
             calcPoint = new Point3D(Math.round(calcPoint.getX()), 
                                     Math.round(calcPoint.getY()), 

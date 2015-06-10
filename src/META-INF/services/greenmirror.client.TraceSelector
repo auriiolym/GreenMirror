@@ -4,4 +4,4 @@
 # The only requirements on any service providers below are the existence of a 
 # zero-argument constructor and the fact that it should implement TraceSelector.
 #
-greenmirror.client.FileTraceSelector
+greenmirror.client.traceselectors.FileTraceSelector

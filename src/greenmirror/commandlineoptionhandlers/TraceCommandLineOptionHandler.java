@@ -95,15 +95,20 @@ public class TraceCommandLineOptionHandler implements CommandLineOptionHandler {
                 throw new IllegalArgumentException("the trace selector was not found.");
             }
         } catch (TraceSelector.PreparationException e) {
-            throw new FatalException("The trace selector gave an exception: " + e.getMessage());
+            throw new FatalException("the trace selector gave an exception: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new FatalException("The parameters are not valid: " + e.getMessage());
+            throw new FatalException("the parameters are not valid: " + e.getMessage());
         }
     }
 
     @Override
     public void process(@NonNull GreenMirrorController controller) throws FatalException {
-        Client client = (Client) controller;
+        final Client client = (Client) controller;
+        
+        final TraceSelector traceSelector = this.traceSelector;
+        if (traceSelector == null) { // @NonNull formality
+            throw new FatalException("the trace selector is null");
+        }
 
         // Check if the trace consists of valid transitions.
         List<String> invalidTraceTransitions = client.validateTrace(traceSelector);

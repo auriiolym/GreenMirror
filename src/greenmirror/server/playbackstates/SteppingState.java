@@ -4,11 +4,11 @@ import greenmirror.server.ToolbarButton;
 import greenmirror.server.Visualizer.PlaybackState;
 
 /**
- * The stepping <code>PlaybackState</code>.
+ * The visualizer's stepping playback state.
  * 
  * @author Karim El Assal
  */
-public class SteppingState extends PlaybackState {
+public class SteppingState implements PlaybackState {
 
     @Override
     public void determineButtonOperation(boolean hasPreviousState, boolean hasNextState) {

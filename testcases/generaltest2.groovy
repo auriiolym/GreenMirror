@@ -115,7 +115,7 @@ addTransition("transition2", 2000, {
     // Create the prototype node and the placements array.
     Node prototypeNode = new Node("c:pl").set(fx("circle")
                                               .setRadius(10)
-                                              .setFill(Color.GREEN));
+                                              .setFill("linear-gradient(to bottom, darkgreen, limegreen)"));
     Placement[] placements = [Placement.MIDDLE, 
                               Placement.RANDOM, 
                               new EdgePlacement(-10), 
@@ -136,16 +136,16 @@ addTransition("transition2", 2000, {
             Placement placement = placements[i].clone();
             Node theNode = prototypeNode.clone();
             theNode.fx().setPosition(400, -200);
-            addNode(theNode);
             if (placement instanceof RandomPlacement) {
-                theNode.fx().setFill(Color.RED);
+                theNode.fx().setFill("linear-gradient(to bottom, red, #FF7A7A)");
             }
             if (placement instanceof EdgePlacement) {
-                theNode.fx().setFill(Color.BLUE);
+                theNode.fx().setFill("linear-gradient(to bottom, blue, #7373FF)");
             }
             if (placement instanceof CustomPlacement) {
                 theNode.fx().setFill(Color.BLACK);
             }
+            addNode(theNode);
             addRelation(
                 new Relation("on").setNodeA(theNode)
                                   .setNodeB(baseNode)

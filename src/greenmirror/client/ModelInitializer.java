@@ -1,8 +1,14 @@
 package greenmirror.client;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 
 /**
- * The interface which defines how model initializers should be structured.
+ * The interface that defines how model initializers should be structured.
+ * <p>
+ * The order of executing is: {@link #setParameter(String)}, {@link #prepare()} and 
+ * {@link #executeInitializer()}. The complete set of available model initializers is first 
+ * prepared before they are all executed.
  * 
  * @author Karim El Assal
  */
@@ -24,33 +30,23 @@ public interface ModelInitializer {
     // -- Queries ----------------------------------------------------------------------------
 
     /**
-     * @return A unique identifier for this <code>ModelInitializer</code>.
+     * @return a unique identifier for this <code>ModelInitializer</code> used on the command line
      */
-    //@ ensures \result != null;
-    public String getIdentifier();
+    @NonNull public String getIdentifier();
     
-    /**
-     * @return A specification of the parameters.
-     */
-    //@ ensures \result != null;
-    public String getParameterSpecification();
+    /** @return a specification of the parameters used in a help message */
+    @NonNull public String getParameterSpecification();
     
-    /**
-     * @return The GreenMirror controller.
-     */
+    /** @return the GreenMirror controller */
     public Client getController();
     
     
     // -- Setters ----------------------------------------------------------------------------
     
-    /**
-     * @param controller The GreenMirror controller to set.
-     */
-    public void setController(Client controller);
+    /** @param controller the GreenMirror controller to set */
+    public void setController(@NonNull Client controller);
     
-    /**
-     * @param parameter Parameter to store.
-     */
+    /** @param parameter parameter to store */
     public void setParameter(String parameter);
     
     
@@ -58,7 +54,8 @@ public interface ModelInitializer {
     
     /**
      * Do some preparing, like retrieving the contents of a file.
-     * @throws PreparationException If something goes wrong during the preparation.
+     * 
+     * @throws PreparationException if something goes wrong during the preparation
      */
     public void prepare() throws PreparationException;
     

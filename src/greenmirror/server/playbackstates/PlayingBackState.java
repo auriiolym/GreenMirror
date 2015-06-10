@@ -4,10 +4,11 @@ import greenmirror.server.ToolbarButton;
 import greenmirror.server.Visualizer.PlaybackState;
 
 /**
+ * The visualizer's playing back playback state.
  * 
  * @author Karim El Assal
  */
-public class PlayingBackState extends PlaybackState {
+public class PlayingBackState implements PlaybackState {
 
     @Override
     public void determineButtonOperation(boolean hasPreviousState, boolean hasNextState) {
