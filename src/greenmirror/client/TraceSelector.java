@@ -54,7 +54,8 @@ public interface TraceSelector {
     
     /**
      * Do some preparing, like retrieving the trace from a file or other class. This method 
-     * should only be called once.
+     * should only be called once. This method might be renamed in the future to something
+     * like <code>selectTrace()</code> or <code>retrieveTrace()</code>.
      * 
      * @throws PreparationException if something goes wrong during the preparation
      */

@@ -17,6 +17,8 @@ import java.util.List;
 
 /**
  * The model initializer that initializes the model through a Groovy script.
+ * <p>
+ * Note that nodes are layered on the visualizer in the order in which they are added.
  * 
  * @author Karim El Assal
  */
@@ -39,6 +41,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     public static final Object[] IMPORTS = new Object[]{
         "greenmirror.*",
         "greenmirror.placements.*",
+        "greenmirror.fxwrappers.*",
         greenmirror.client.GridBuilder.class,
         "javafx.scene.paint.*",
         "javafx.geometry.*",
@@ -88,7 +91,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     }
 
     @Override
-    public void setParameter(@NonNull String parameter) throws IllegalArgumentException {
+    public void setParameter(String parameter) throws IllegalArgumentException {
         
         // Check if the file can be found.
         try {
@@ -184,7 +187,8 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
         } catch (Exception e) {
             List<StackTraceElement> st = Arrays.asList(e.getStackTrace());
             for (StackTraceElement ste : e.getStackTrace()) {
-                if (ste.getFileName().startsWith("Script") 
+                if (ste != null && ste.getFileName() != null 
+                 && ste.getFileName().startsWith("Script") 
                  && ste.getFileName().endsWith(".groovy")) {
                     e.setStackTrace(st.subList(0, st.indexOf(ste) + 1)
                                     .toArray(new StackTraceElement[]{}));

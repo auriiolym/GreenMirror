@@ -520,8 +520,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
                              || rate < 0 &&  fr != null && fr > 0 && to == 0)) {
                 ft.getNode().setVisible(true);
             } else
-            if (!isStarting && (rate > 0 &&  fr != null && fr  > 0 && to == 0
-                             || rate < 0 &&  fr != null && fr == 0 && to  > 0)) {
+            if (!isStarting && (rate > 0 &&   fr != null && fr  > 0  && to == 0
+                             || rate < 0 &&  (fr == null || fr == 0) && to  > 0)) {
                 ft.getNode().setVisible(false);
             }
             return;

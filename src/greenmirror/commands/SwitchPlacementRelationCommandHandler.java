@@ -99,7 +99,6 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
             }
             
             //TODO: do something when the old relation wasn't found
-            System.err.println(nodeA.getRelations());
             // Create the Relation objects.
             oldRelation = nodeA.getRelations().withId(oldId).getFirst();
             newRelation = new Relation()

@@ -1,0 +1,32 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Introduction}{4}
+\contentsline {subsection}{\numberline {1.1}Background}{4}
+\contentsline {subsection}{\numberline {1.2}Glossary}{4}
+\contentsline {subsection}{\numberline {1.3}Stakeholders}{4}
+\contentsline {section}{\numberline {2}Project definition}{5}
+\contentsline {subsection}{\numberline {2.1}Architectural requirements}{5}
+\contentsline {subsection}{\numberline {2.2}Functional requirements}{5}
+\contentsline {subsection}{\numberline {2.3}Performance requirements}{6}
+\contentsline {subsection}{\numberline {2.4}Possible extensions}{6}
+\contentsline {subsection}{\numberline {2.5}Requirements validation}{7}
+\contentsline {subsubsection}{\numberline {2.5.1}The ferryman}{7}
+\contentsline {subsubsection}{\numberline {2.5.2}ConnectFour}{8}
+\contentsline {subsubsection}{\numberline {2.5.3}The dining philosophers problem}{8}
+\contentsline {section}{\numberline {3}General design}{8}
+\contentsline {subsection}{\numberline {3.1}Package structure}{9}
+\contentsline {subsection}{\numberline {3.2}General work-flow}{9}
+\contentsline {subsection}{\numberline {3.3}Detailed work-flow}{10}
+\contentsline {subsection}{\numberline {3.4}Implementation details}{11}
+\contentsline {subsubsection}{\numberline {3.4.1}State and state-transition tracking}{12}
+\contentsline {subsubsection}{\numberline {3.4.2}\lstinline {FxWrapper} and \lstinline {FxPropertyWrapper}}{13}
+\contentsline {subsubsection}{\numberline {3.4.3}Communication between client and server}{14}
+\contentsline {subsubsection}{\numberline {3.4.4}Placement of nodes with respect to other nodes}{15}
+\contentsline {subsubsection}{\numberline {3.4.5}The visualizer's playback states}{16}
+\contentsline {subsubsection}{\numberline {3.4.6}Miscellaneous}{17}
+\contentsline {section}{\numberline {4}Interface design}{18}
+\contentsline {section}{\numberline {5}Validation}{21}
+\contentsline {section}{\numberline {6}Discussion}{21}
+\contentsline {section}{\numberline {7}References}{22}
+\contentsline {section}{\numberline {A}Class diagrams}{23}
+\contentsline {section}{\numberline {B}Activity diagrams}{24}
+\contentsline {section}{\numberline {C}Sequence diagrams}{25}

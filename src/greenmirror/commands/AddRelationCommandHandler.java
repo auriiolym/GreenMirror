@@ -135,10 +135,6 @@ public class AddRelationCommandHandler extends CommandHandler {
         // Do this AFTER applying the temporary FX, so the positioning properties are ignored 
         // because they haven't changed yet. 
         getController().getVisualizer().doPlacement(relation);
-        
-        System.err.println(relation);
-        System.err.println(relation.getId());
-        System.err.println(nodeA);
     }
 
 }

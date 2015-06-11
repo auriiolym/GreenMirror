@@ -179,7 +179,6 @@ public class GreenMirrorGroovyBaseScript extends Script {
      *             {@link greenmirror.Node.Identifier#Identifier(String)}.
      * @return     The newly made (and added) <code>Node</code>.
      */
-    //@ requires identifier != null;
     //@ ensures nodes(identifier).size() > 0;
     public Node addNode(String identifier) {
         return addNode(new Node(identifier));

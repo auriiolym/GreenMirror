@@ -1,4 +1,2 @@
-shapeNodePropertyTest
-durationtest
-transitionparameters:int=123;str=string_param
+rectangleNodePropertyTest
 generalNodePropertyTest

@@ -4,6 +4,7 @@ import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.fxpropertywrappers.StringFxProperty;
 import greenmirror.placements.EdgePlacement;
 import greenmirror.server.DoublePropertyTransition;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import java.lang.reflect.InvocationTargetException;

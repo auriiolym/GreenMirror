@@ -165,7 +165,7 @@ public enum ToolbarButton {
     
     // -- Constants --------------------------------------------------------------------------
     
-    private static final double FAST_RATE = 1000;
+    private static final double FAST_RATE = 50;
     private static final double NORMAL_RATE = 1.0;
     
     

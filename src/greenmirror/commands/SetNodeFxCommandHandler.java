@@ -61,7 +61,7 @@ public class SetNodeFxCommandHandler extends CommandHandler {
             fxMap = (LazyValueMap) map.get("fx");
             break;
         }
-            
+        
             
         // We're assuming here that the FX of the Node has not been set yet.
 
@@ -97,7 +97,6 @@ public class SetNodeFxCommandHandler extends CommandHandler {
             // Add a log entry.
             Log.add("Node " + Log.n(node) + " added to the visualizer.");
         });
-        
         
         // If a position is set, add the fade in transition to the queue.
         if (fxWrapper.isPositionSet()) {
