@@ -98,6 +98,7 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
                 throw new DataParseException("The placment data was invalid.");
             }
             
+            
             //TODO: do something when the old relation wasn't found
             // Create the Relation objects.
             oldRelation = nodeA.getRelations().withId(oldId).getFirst();
@@ -112,14 +113,13 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
                 newRelation.setTemporaryFxOfNodeA(tempFxWrapper);
             }
         }
-        
+
 
         
         oldRelation.removeFromNodes();
         nodeA.addRelation(newRelation);
         
         
-
         
         getController().getVisualizer().doPlacement(newRelation);
         
@@ -135,8 +135,7 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
             // Apply the changes (animated).
             getController().getVisualizer().changeFx(nodeA, 
                         newRelation.getTemporaryFxOfNodeA().toMap());
-        }
-        
+        }      
         
         // Alter the location of nodes of other, rigid relations.
         /*TODO: if node A has a rigid relation with another node (on which the current 

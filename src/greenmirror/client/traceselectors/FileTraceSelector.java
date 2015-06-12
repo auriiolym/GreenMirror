@@ -78,7 +78,9 @@ public class FileTraceSelector implements TraceSelector {
             String line = reader.readLine();
 
             while (line != null) {
-                getTrace().add(line.trim());
+                if (!line.trim().equals("")) {
+                    getTrace().add(line.trim());
+                }
                 line = reader.readLine();
             }
         } catch (IOException e) {

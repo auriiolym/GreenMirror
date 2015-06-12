@@ -1,6 +1,7 @@
 package greenmirror.client.modelinitializers;
 
 import greenmirror.FxWrapper;
+import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.NodeList;
 import greenmirror.Placement;
@@ -365,6 +366,17 @@ public class GreenMirrorGroovyBaseScript extends Script {
         for (Relation relation : relations) {
             removeRelation(relation);
         }
+    }
+    
+    /**
+     * Send all node and relation data to the log. Used for debugging.
+     */
+    public void sendStateToLog() {
+        String str = "Here are all the current nodes with their data.";
+        for (Node node : nodes()) {
+            str += "\n" + node.toString();
+        }
+        Log.add(str);
     }
     
     /**

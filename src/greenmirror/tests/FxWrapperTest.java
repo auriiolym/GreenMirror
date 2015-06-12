@@ -37,7 +37,7 @@ public class FxWrapperTest {
     final String defaultCircleMapValues = "{type=Circle, rotate=0.0, opacity=1.0, fill=0x000000ff"
             + ", centerX=null, centerY=null, radius=null, style=null}";
     final String defaultImageMapValues = "{type=Image, rotate=0.0, opacity=1.0, x=null, y=null, "
-            + "fitWidth=null, fitHeight=null, image=null, style=null, preserveRatio=false}";
+            + "fitWidth=null, fitHeight=null, image=null, style=null, preserveRatio=true}";
     final String defaultTextMapValues = "{type=Text, rotate=0.0, opacity=1.0, fill=0x000000ff, x"
             + "=null, y=null, wrappingWidth=null, text=null, style=null}";
     
@@ -135,7 +135,7 @@ public class FxWrapperTest {
         
         // Test size.
         rect.setWidth(-100);
-        assertThat(rect.getWidth(), is(-100.0)); // Possible, but use at your own risk.
+        assertThat(rect.getWidth(), is(-100.0));
         rect.setSize(100, 100);
         assertThat(rect.getWidth(), is(100.0));
         assertThat(rect.getHeight(), is(100.0));
@@ -233,7 +233,7 @@ public class FxWrapperTest {
         assertThat(((StoredBytesImage) imag.getImage()).getBytes().length, is(2258));
         imag.setImage(null);
         assertThat(imag.getImage(), is(nullValue()));
-        imag.setImageFromFile("testcases/inv-utlogo.png");
+        imag.setImageFromFile("testcases/img/inv-utlogo.png");
         assertThat(((StoredBytesImage) imag.getImage()).getBytes().length, is(2258));
 
         // Test clone.

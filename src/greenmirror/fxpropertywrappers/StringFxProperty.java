@@ -1,5 +1,7 @@
 package greenmirror.fxpropertywrappers;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import greenmirror.FxPropertyWrapper;
 
 
@@ -17,14 +19,14 @@ public class StringFxProperty extends FxPropertyWrapper {
      * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
-    public StringFxProperty(String propertyName) {
+    public StringFxProperty(@NonNull String propertyName) {
         super(propertyName);
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    @Override
+    @Override @NonNull 
     public Class<?> getPropertyType() {
         return String.class;
     }

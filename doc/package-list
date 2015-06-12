@@ -1,0 +1,12 @@
+greenmirror
+greenmirror.client
+greenmirror.client.modelinitializers
+greenmirror.client.traceselectors
+greenmirror.commandlineoptionhandlers
+greenmirror.commands
+greenmirror.fxpropertywrappers
+greenmirror.fxwrappers
+greenmirror.placements
+greenmirror.server
+greenmirror.server.playbackstates
+greenmirror.tests

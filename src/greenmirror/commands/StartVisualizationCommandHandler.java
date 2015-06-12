@@ -3,6 +3,7 @@ package greenmirror.commands;
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
 import greenmirror.Log;
+import greenmirror.Node;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import greenmirror.server.ToolbarButton;

@@ -2,6 +2,8 @@ package greenmirror.fxpropertywrappers;
 
 import greenmirror.FxPropertyWrapper;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * A wrapper for the <code>Double</code> type of FX properties.
  * 
@@ -16,14 +18,14 @@ public class DoubleFxProperty extends FxPropertyWrapper {
      * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
-    public DoubleFxProperty(String propertyName) {
+    public DoubleFxProperty(@NonNull String propertyName) {
         super(propertyName);
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    @Override
+    @Override @NonNull
     public Class<?> getPropertyType() {
         return double.class;
     }

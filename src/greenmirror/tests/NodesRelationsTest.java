@@ -17,34 +17,35 @@ import greenmirror.Relation;
 import greenmirror.RelationList;
 import greenmirror.fxwrappers.RectangleFxWrapper;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
- * Test case for the <code>Node</code> class.
+ * Test case for the {@link Node}, {@link Relation}, {@link NodeList} and {@link RelationList}
+ * classes.
+ * 
  * @author Karim El Assal
  */
 public class NodesRelationsTest {
-    
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
-    Node n1;
-    Node n2;
-    Node n3;
-    Node n4;
-    Node n5;
-    Node n6;
-    Node n7;
-    Node n8;
+    // These initial values are set to remove most of the @NonNull warnings. They have no 
+    // further effect, due to the @Before annotated method of this class.
     
-    Relation r1;
-    Relation r2;
-    Relation r3;
+    @NonNull Node n1 = new Node();
+    @NonNull Node n2 = new Node();
+    @NonNull Node n3 = new Node();
+    @NonNull Node n4 = new Node();
+    @NonNull Node n5 = new Node();
+    @NonNull Node n6 = new Node();
+    @NonNull Node n7 = new Node();
+    @NonNull Node n8 = new Node();
     
-    NodeList list;
+    @NonNull Relation r1 = new Relation();
+    @NonNull Relation r2 = new Relation();
+    @NonNull Relation r3 = new Relation();
+    
+    @NonNull NodeList list = new NodeList();
 
     /**
      * @throws java.lang.Exception
@@ -343,13 +344,5 @@ public class NodesRelationsTest {
         assertThat(n1.getRelations().contains(r1), is(true));
         assertThat(n2.getRelations().contains(r1), is(true));
     }
-
-    
-    
-    
-    
-    
-    
-    
     
 }

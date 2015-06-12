@@ -175,7 +175,7 @@ public class Node extends Observable implements Observer, Cloneable {
      * @return <code>true</code> if this <code>Node</code> has <code>label</code>
      */
     /*@ pure */ public boolean hasLabel(String label) {
-        return getLabels().contains(label);
+        return label == null ? false : getLabels().contains(label);
     }
     
     /**
@@ -433,7 +433,9 @@ public class Node extends Observable implements Observer, Cloneable {
     //@ ensures !hasLabel(label);
     //@ ensures \result == this;
     @NonNull public Node removeLabel(String label) {
-        getLabels().remove(label);
+        if (label != null) {
+            getLabels().remove(label);
+        }
         return this;
     }
 

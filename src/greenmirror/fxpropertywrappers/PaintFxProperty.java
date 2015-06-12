@@ -1,5 +1,7 @@
 package greenmirror.fxpropertywrappers;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import greenmirror.FxPropertyWrapper;
 import javafx.scene.paint.Paint;
 
@@ -17,14 +19,14 @@ public class PaintFxProperty extends FxPropertyWrapper {
      * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
      * @param propertyName The name of the property.
      */
-    public PaintFxProperty(String propertyName) {
+    public PaintFxProperty(@NonNull String propertyName) {
         super(propertyName);
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    @Override
+    @Override @NonNull 
     public Class<?> getPropertyType() {
         return Paint.class;
     }

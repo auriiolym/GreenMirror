@@ -51,7 +51,7 @@ public class ImageFxWrapper extends FxWrapper {
     /** the virtual image value of the FX node */
     private Image image;
     /** the virtual preserveRatio value of the FX node */
-    private Boolean preserveRatio = false;
+    private Boolean preserveRatio = true;
     
 
     // -- Constructors -----------------------------------------------------------------------

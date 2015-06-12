@@ -19,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
@@ -361,8 +363,8 @@ public class Visualizer extends Application implements Caretaker, Originator {
      * @param transitions
      * @return TODO
      */
-    @Override
-    public VisualizerMemento saveToMemento(SequentialTransition transition) {
+    @Override @NonNull 
+    public VisualizerMemento saveToMemento(@NonNull SequentialTransition transition) {
         return new VisualizerMemento(getController().getNodes(), transition);
     }
     

@@ -1,0 +1,8 @@
+durationtest
+transitionparameters:int=123;str=string_param
+addNodesShowcase
+generalNodePropertyTest
+shapeNodePropertyTest
+rectangleNodePropertyTest
+imageNodePropertyTest
+textNodePropertyTest
