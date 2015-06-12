@@ -15,8 +15,8 @@ java -jar GreenMirrorClient.jar --host=<hostname>:<port> --model=<initializerimp
 Again, use **--help** to see specifics about the available options.
 
 ### Test case
-For example, try the following to see the ferryman puzzle:
+Try the following to see the ferryman puzzle:
 ```
 java -jar GreenMirrorServer.jar --port=81
-java -jar GreenMirrorServer.jar --host=localhost:81 --model=groovyscript:testcases/ferryman.java --trace=file:testcases/ferryman.trace
+java -jar GreenMirrorClient.jar --host=localhost:81 --model=groovyscript:testcases/ferryman.java --trace=file:testcases/ferryman.trace
 ```
