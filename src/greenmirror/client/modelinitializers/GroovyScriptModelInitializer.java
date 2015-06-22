@@ -54,7 +54,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     //@ private invariant getController() == controller;
     private Client controller;
 
-    /** the script that will be ran. This includes the user's script and the base class */
+    /** the script that will be run. This includes the user's script and the base class */
     private Script script;
     
     /** the <code>FileReader</code> for the source file */
@@ -83,13 +83,16 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
     
     // -- Setters ----------------------------------------------------------------------------
 
-    /** @param controller the controller to set */
     //@ ensures getController() == controller;
     @Override
     public void setController(@NonNull Client controller) {
         this.controller = controller;
     }
 
+    /**
+     * @param parameter the filename of the user script
+     * @throws IllegalArgumentException if the file could not be found
+     */
     @Override
     public void setParameter(String parameter) throws IllegalArgumentException {
         

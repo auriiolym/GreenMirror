@@ -3,6 +3,11 @@ package greenmirror.placements;
 import greenmirror.Placement;
 import org.eclipse.jdt.annotation.NonNull;
 
+/**
+ * A {@link greenmirror.Placement} on the top left corner.
+ * 
+ * @author Karim El Assal
+ */
 public class CornerTopLeftPlacement extends Placement {
     
     @Override @NonNull

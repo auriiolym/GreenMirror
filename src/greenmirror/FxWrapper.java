@@ -339,7 +339,7 @@ public abstract class FxWrapper extends Observable implements Cloneable {
      * Sets the JavaFX node. This should only be done once: when the JavaFX node is created
      * and added to the visualizer.
      *  
-     * @param node
+     * @param node the JavaFX node
      */
     //@ ensures getFxNode() == node;
     protected void setFxNode(/*@ non_null */ javafx.scene.Node node) {

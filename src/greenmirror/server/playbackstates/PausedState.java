@@ -3,6 +3,8 @@ package greenmirror.server.playbackstates;
 import greenmirror.server.ToolbarButton;
 import greenmirror.server.Visualizer.PlaybackState;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * The visualizer's paused playback state.
  * 
@@ -21,7 +23,7 @@ public class PausedState implements PlaybackState {
         ToolbarButton.STEP_FAST.setEnabled(hasNextState);
     }
 
-    @Override
+    @Override @NonNull
     public String toString() {
         return "paused";
     }

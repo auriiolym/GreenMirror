@@ -269,7 +269,7 @@ public class Node extends Observable implements Observer, Cloneable {
     }
     
     /**
-     * @return the {@link Relation} that specifies the {@link Placement] of this <code>Node</code>;
+     * @return the {@link Relation} that specifies the {@link Placement} of this <code>Node</code>;
      *         <code>null</code> if no placement <code>Relation</code> exists.
      */
     /*@ pure */ public Relation getPlacementRelation() {
@@ -472,9 +472,6 @@ public class Node extends Observable implements Observer, Cloneable {
         }
         
         if (hasPlacementRelation() && !relation.getPlacement().equals(Placement.NONE)) {
-            //TODO: make this shared code (in Client, for example), so 
-            // GreenMirrorGrooyBaseScript#SwitchPlacementRelation(Relation) can use the same.
-            
             final Relation currentPlacementRelation = getPlacementRelation();
             
             // If placement was random, it has been changed to a custom placement, so we need to

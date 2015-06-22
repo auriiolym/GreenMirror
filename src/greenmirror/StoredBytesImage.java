@@ -31,9 +31,9 @@ public class StoredBytesImage extends Image {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * The image can only be retrieved by 
+     * Creates a new instance and retrieves the image from an {@link InputStream}.
      * 
-     * @param inputStream
+     * @param inputStream the source of the image
      */
     public StoredBytesImage(@NonNull InputStream inputStream) {
         super(inputStream);

@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The <code>TraceSelector</code> that selects its trace from a file. In the file, transitions
+ * The {@link TraceSelector} that selects its trace from a file. In the file, transitions
  * should be separated by a newline.
  * 
  * @author Karim El Assal

@@ -80,7 +80,7 @@ public abstract class GreenMirrorController {
      * @param identifier the name/type identifier. See {@link greenmirror.Node.Identifier}
      * @return           the list
      */
-    /*@ pure non_null */ public NodeList getNodes(@NonNull String identifier) {
+    /*@ pure */ @NonNull public NodeList getNodes(@NonNull String identifier) {
         return getNodes().withIdentifier(identifier);
     }
 
@@ -91,9 +91,9 @@ public abstract class GreenMirrorController {
      * @return   the <code>Node</code>
      * @throws IllegalArgumentException if the id was not found
      */
-    /*@ pure */ @NonNull public Node getNode(@NonNull Integer id) {
+    /*@ pure */ @NonNull public Node getNode(Integer id) {
         for (Node node : getNodes()) {
-            if (id.equals(node.getId())) {
+            if (id != null && id.equals(node.getId())) {
                 return node;
             }
         }
@@ -252,7 +252,7 @@ public abstract class GreenMirrorController {
      * @return     <code>true</code> if the startup was successful
      * @see        #getCommandLineOptionHandlers()
      */
-    public boolean processCommandLine(@NonNull String[] args) {
+    public boolean processCommandLine(String[] args) {
         
         final List<CommandLineOptionHandler> usedHandlers =
                                         new LinkedList<CommandLineOptionHandler>();

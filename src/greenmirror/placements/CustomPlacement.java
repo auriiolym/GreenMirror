@@ -8,7 +8,8 @@ import org.eclipse.jdt.annotation.NonNull;
  * A custom placement that relies on the relative position values. They are relative with
  * respect to the middle point of the <code>Node</code>.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     MiddlePlacement
  */
 public class CustomPlacement extends Placement {
 

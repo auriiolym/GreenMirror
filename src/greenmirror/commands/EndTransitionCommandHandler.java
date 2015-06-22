@@ -8,40 +8,26 @@ import greenmirror.server.ServerController;
 import greenmirror.server.Visualizer;
 import groovy.json.JsonOutput;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
- * The handler that handles the signal that we're at the end of a transition. 
+ * The handler that handles the signal that we're at the end of a state-transition. 
  * This command is received from the client.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     EndTransitionCommand
  */
 @ServerSide
 public class EndTransitionCommandHandler extends CommandHandler {
-
-    // -- Queries ----------------------------------------------------------------------------
-    
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
-
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
         
-        
 
-        Visualizer visualizer = getController().getVisualizer();
+        final Visualizer visualizer = ((ServerController) getController()).getVisualizer();
 
         Log.addVerbose("The following animations are saved to transition to state " 
             + (visualizer.getMementoCount() + 1) + ": " 

@@ -175,8 +175,8 @@ public class ImageFxWrapper extends FxWrapper {
      * @return      <code>this</code>
      */
     //@ ensures getFitWidth() == value;
-    @NonNull public ImageFxWrapper setFitWidth(double fitWidth) {
-        this.fitWidth = fitWidth;
+    @NonNull public ImageFxWrapper setFitWidth(double value) {
+        this.fitWidth = value;
         setChanged();
         notifyObservers();
         return this;

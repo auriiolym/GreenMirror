@@ -20,7 +20,10 @@ public abstract class DoublePropertyTransition<E extends javafx.scene.Node>
     // --- Constructors ----------------------------------------------------------------------    
     
     /**
-     * @see {@link AbstractTransition}
+     * @param duration the duration of the transition
+     * @param node     the node to which the transition applies
+     * @param toValue  the 'to' value
+     * @see            AbstractTransition#AbstractTransition(Duration, javafx.scene.Node, Object)
      */
     public DoublePropertyTransition(@NonNull Duration duration, E node, Double toValue) {
         super(duration, node, toValue);

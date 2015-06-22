@@ -9,6 +9,7 @@ import greenmirror.fxpropertywrappers.DoubleFxProperty;
 import greenmirror.fxpropertywrappers.StringFxProperty;
 import greenmirror.server.AbstractTransition;
 import greenmirror.server.DoublePropertyTransition;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -44,9 +45,7 @@ public class TextFxWrapper extends FxShapeWrapper {
 
     // -- Queries ----------------------------------------------------------------------------
 
-    
-    @Override @NonNull
-    protected List<FxPropertyWrapper> getAnimatableProperties() {
+    @Override @NonNull /*@ pure */ protected List<FxPropertyWrapper> getAnimatableProperties() {
         final List<FxPropertyWrapper> supersAnimatableProperties = super.getAnimatableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {
@@ -59,8 +58,7 @@ public class TextFxWrapper extends FxShapeWrapper {
         };
     }
     
-    @Override @NonNull
-    protected List<FxPropertyWrapper> getChangableProperties() {
+    @Override @NonNull /*@ pure */ protected List<FxPropertyWrapper> getChangableProperties() {
         final List<FxPropertyWrapper> supersChangableProperties = super.getChangableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {
@@ -165,8 +163,8 @@ public class TextFxWrapper extends FxShapeWrapper {
      * @return      <code>this</code>
      */
     //@ ensures getWrappingWidth() == value;
-    @NonNull public TextFxWrapper setWrappingWidth(double wrappingWidth) {
-        this.wrappingWidth = wrappingWidth;
+    @NonNull public TextFxWrapper setWrappingWidth(double value) {
+        this.wrappingWidth = value;
         setChanged();
         notifyObservers();
         return this;

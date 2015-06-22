@@ -64,7 +64,7 @@ public abstract class CommandHandler {
 
     /**
      * Returns a one word description of this command handler. For example, an instance of
-     * <code>AddNodeCommandHandler</tt> would let this method return <code>AddNode</code>.
+     * <code>AddNodeCommandHandler</code> would let this method return <code>AddNode</code>.
      * 
      * @return the textual, one word description of the <code>command</code> belonging to this
      *         command handler
@@ -89,7 +89,7 @@ public abstract class CommandHandler {
     // -- Commands ---------------------------------------------------------------------------
 
     /**
-     * The method that actually handles the received <code>Command</code>. The
+     * The method that actually handles the received {@link Command}. The
      * <code>Command</code> is passed via <code>data</code> in the specified
      * communication format. The controller should've already been set.
      * 

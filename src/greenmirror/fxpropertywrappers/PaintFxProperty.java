@@ -1,8 +1,8 @@
 package greenmirror.fxpropertywrappers;
 
+import greenmirror.FxPropertyWrapper;
 import org.eclipse.jdt.annotation.NonNull;
 
-import greenmirror.FxPropertyWrapper;
 import javafx.scene.paint.Paint;
 
 /**
@@ -16,8 +16,8 @@ public class PaintFxProperty extends FxPropertyWrapper {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
-     * @param propertyName The name of the property.
+     * @param propertyName the name of the property
+     * @see greenmirror.FxPropertyWrapper#FxPropertyWrapper(String)
      */
     public PaintFxProperty(@NonNull String propertyName) {
         super(propertyName);

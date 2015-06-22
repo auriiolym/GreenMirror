@@ -6,51 +6,55 @@ import greenmirror.Log;
 import greenmirror.Relation;
 import groovy.json.JsonOutput;
 
-import java.util.LinkedHashMap;
-
 import org.eclipse.jdt.annotation.NonNull;
+
+import java.util.LinkedHashMap;
 
 /**
  * The command to add a relation. This command is sent to the server.
  * 
- * Values sent:
- * name : String      The name of the relation
- * nodeA : int        The id of the first node.
- * nodeB : int        The id of the second node.
- * placement : String The placement data of node A on node B.
- * rigid : boolean    Whether the relation is rigid or not. This value is optional and defaults to
- *                    false.
- * tempFx :   FxWrapper        The temporary appearance of node A.
+ * <table><caption>Values sent:</caption>
+ * <tr><th>variable</th><th>type</th><th>description</th></tr>
+ * <tr><td>name </td><td>String</td><td>      the name of the relation</td></tr>
+ * <tr><td>nodeA </td><td>int</td><td>        the id of the first node</td></tr>
+ * <tr><td>nodeB </td><td>int</td><td>        the id of the second node</td></tr>
+ * <tr><td>placement </td><td>String</td><td> the placement data of node A on node B</td></tr>
+ * <tr><td>rigid </td><td>boolean</td><td>    whether the relation is rigid or not. This value is 
+ *                                            optional and defaults to false</td></tr>
+ * <tr><td>tempFx </td><td>FxWrapper </td><td>the temporary appearance of node A; null if it is 
+ *                                            not set</td></tr>
+ * </table>
+ * 
+ * @author  Karim El Assal
+ * @see     AddRelationCommandHandler
  */
 public class AddRelationCommand extends Command {
     
     // --- Instance variables ----------------------------------------------------------------
     
-    private Relation relation;
+    @NonNull private Relation relation;
     
 
     // --- Constructors ----------------------------------------------------------------------
     
     /**
-     * Create a new <code>AddRelationCommand</code>.
-     * @param relation The newly created <code>Relation</code>.
+     * Initializes this {@link greenmirror.Command}.
+     * 
+     * @param relation the newly created {@link Relation}
      */
-    public AddRelationCommand(Relation relation) {
+    public AddRelationCommand(@NonNull Relation relation) {
         this.relation = relation;
     }
 
     // --- Queries ---------------------------------------------------------------------------
     
-    /*@ pure */ private Relation getRelation() {
+    /** @return the newly created relation */
+    /*@ pure */ @NonNull private Relation getRelation() {
         return relation;
     }
     
     // --- Setters ---------------------------------------------------------------------------
 
-    /**
-     * Fetch the raw data that will be sent.
-     * @param format The format in which the data will be.
-     */
     @Override 
     public String getFormattedString(@NonNull CommunicationFormat format) {
         Log.add("Relation added: " + getRelation().toString());

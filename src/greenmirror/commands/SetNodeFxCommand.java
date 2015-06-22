@@ -6,54 +6,54 @@ import greenmirror.Log;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.LinkedHashMap;
 
 /**
  * The command to set the FX of a node. This command is sent to the server.
  * 
- * Values sent:
- * id : int             The node id
- * fx : FxWrapper     The values of the FX.
+ * <table><caption>Values sent:</caption>
+ * <tr><th>variable</th><th>type</th><th>description</th></tr>
+ * <tr><td>id </td><td>int</td><td>         the node id</td></tr>
+ * <tr><td>fx </td><td>FxWrapper</td><td>   the values of the FX</td></tr>
+ * </table>
+ * 
+ * @author  Karim El Assal
+ * @see     SetNodeFxCommandHandler
  */
 public class SetNodeFxCommand extends Command {
 
     // -- Instance variables -----------------------------------------------------------------
 
-    //@ private invariant node != null;
-    private Node node;
+    @NonNull private Node node;
     
 
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initialize the <code>Command</code>.
-     * @param node The <code>Node</code> of which its appearance has been set.
+     * Initializes this {@link greenmirror.Command}.
+     *
+     * @param node the node of which its appearance will be set
      */
-    //@ requires node != null;
     //@ ensures getNode() == node;
-    public SetNodeFxCommand(Node node) {
+    public SetNodeFxCommand(@NonNull Node node) {
         this.node = node;
     }
 
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /**
-     * @return The <code>Node</code> of which its appearance has been set.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ public Node getNode() {
+    /** @return the node of which its appearance will be set */
+    /*@ pure */ @NonNull public Node getNode() {
         return node;
     }
     
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Fetch the raw data that will be sent.
-     * @param format The format in which the data will be.
-     */
-    public String getFormattedString(CommunicationFormat format) {
+    @Override
+    public String getFormattedString(@NonNull CommunicationFormat format) {
         Log.add("Node " + Log.n(getNode()) + " FX set: " + getNode().getFxWrapper().toString());
         
         switch (format) {

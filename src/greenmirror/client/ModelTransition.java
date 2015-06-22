@@ -43,13 +43,24 @@ public class ModelTransition {
     
     
     // -- Constructors -----------------------------------------------------------------------
+    
+    /**
+     * Creates a new model transition without any values set (yet).
+     */
+    public ModelTransition() {
+        
+    }
 
     /**
      * Creates a new model transition.
      * 
-     * @param regex    A valid regex which compiles into a <code>Pattern</code>.
-     * @param closure  {@link greenmirror.client.ModelTransition#closure}
-     * @param duration {@link greenmirror.client.ModelTransition#duration}
+     * @param regex        a valid regex which compiles into a {@link Pattern}
+     * @param closure      see {@link ModelTransition}
+     * @param duration     see {@link greenmirror.commands.SetAnimationDurationCommand}
+     * @param supplemental whether this transition is supplemental to a previous or next
+     *                     one. If so, the controller won't send an 
+     *                     {@link greenmirror.commands.EndTransitionCommand} after this
+     *                     transition finishes
      */
     //@ requires duration >= -1.0;
     //@ ensures getPattern().equals(Pattern.compile(regex)) && getClosure() == closure;
@@ -57,13 +68,22 @@ public class ModelTransition {
     public ModelTransition(@NonNull String regex, Closure<Object> closure, 
                             double duration, boolean supplemental) {
         setPattern(regex);
-        //this.closure = closure;
         setClosure(closure);
         setDuration(duration);
         setSupplemental(supplemental);
     }
-    
-    public ModelTransition(@NonNull String regex, @NonNull Closure<Object> closure, 
+
+    /**
+     * Creates a new model transition with the <code>supplemental</code> setting set to false.
+     * 
+     * @param regex        a valid regex which compiles into a {@link Pattern}
+     * @param closure      see {@link ModelTransition}
+     * @param duration     see {@link greenmirror.commands.SetAnimationDurationCommand}
+     */
+    //@ requires duration >= -1.0;
+    //@ ensures getPattern().equals(Pattern.compile(regex)) && getClosure() == closure;
+    //@ ensures getDuration() == duration;
+    public ModelTransition(@NonNull String regex, Closure<Object> closure, 
             double duration) {
         this(regex, closure, duration, false);
     }
@@ -88,7 +108,7 @@ public class ModelTransition {
         return duration;
     }
     
-    /** whether this model transition is supplemental to other ones */
+    /** @return whether this model transition is supplemental to other ones */
     /*@ pure */ public boolean isSupplemental() {
         return supplemental;
     }
@@ -115,7 +135,7 @@ public class ModelTransition {
         this.duration = duration;
     }
     
-    /** @param whether this model transition is supplemental to others */
+    /** @param supplemental whether this model transition is supplemental to others */
     //@ ensures isSupplemental() == supplemental;
     public void setSupplemental(boolean supplemental) {
         this.supplemental = supplemental;
@@ -127,10 +147,12 @@ public class ModelTransition {
     /**
      * @param traceTransition a transition given by a trace
      * @return                whether <code>traceTransition</code> is a match for this 
-     *                        <code>ModelTransition</code>
+     *                        <code>ModelTransition</code>; <code>false</code> if 
+     *                        {@link #getPattern()} returns <code>null</code>
      */
+    //@ requires getPattern() != null;
     public boolean executableBy(@NonNull String traceTransition) {
-        return getPattern().matcher(traceTransition).matches();
+        return getPattern() == null ? false : getPattern().matcher(traceTransition).matches();
     }
     
     /**
@@ -143,21 +165,27 @@ public class ModelTransition {
      * @return                 the return value of the <code>Closure</code>; <code>null</code> if
      *                         <code>traceTransition</code> doesn't match the <code>Pattern</code>
      */
+    //@ requires getClosure() != null && getPattern() != null;
     public Object execute(@NonNull String traceTransition) {
+        if (getPattern() == null) { 
+            return null;
+        }
+        
         final Matcher matcher = getPattern().matcher(traceTransition);
-        if (!matcher.matches() || getClosure() == null) {
+        if (getClosure() == null || !matcher.matches()) {
             return null;
         }
 
         final List<Object> arguments = new LinkedList<>();
         final Class<?>[] argumentTypes = getClosure().getParameterTypes();
-        for (int i = 0; i < matcher.groupCount(); i++) {
+        for (int i = 0; i < matcher.groupCount() && i < argumentTypes.length; i++) { 
             // i + 1 because group 0 is the whole string.
             final String matchedArgument = matcher.group(i + 1);
-            // Cast to integer if the user expects an integer, else keep the String type.
+            
             arguments.add(
-                    argumentTypes[i] == int.class || argumentTypes[i] == Integer.class
-                    ? Integer.parseInt(matchedArgument) : matchedArgument
+                // Cast to integer if the user expects an integer, else keep the String type.
+                argumentTypes[i] == int.class || argumentTypes[i] == Integer.class
+                ? Integer.parseInt(matchedArgument) : matchedArgument
             );
         }
         

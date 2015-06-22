@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * A custom <code>List</code> extension to apply specific filters to a list of <code>Node</codes>.
+ * A custom <code>List</code> extension to apply specific filters to a list of <code>Node</code>.
  * 
  * @author Karim El Assal
  */
@@ -93,7 +93,7 @@ public class NodeList extends LinkedList<Node> {
      * Gets a <code>NodeList</code> which contains <code>Node</code>s that correspond to the 
      * <code>identifier</code>.
      * 
-     * @param identifier see {@link Identifier#Identifier(String)}
+     * @param identifier see {@link greenmirror.Node.Identifier#Identifier(String)}
      * @return           a new <code>NodeList</code> with the matching <code>Node</code>s
      */
     /*@ pure */ @NonNull public NodeList withIdentifier(String identifier) {
@@ -130,7 +130,7 @@ public class NodeList extends LinkedList<Node> {
 
     /**
      * Gets <code>Node</code>s that have a {@link Relation} with any of <code>nodes</code> 
-     * in the specified </code>direction</code>.
+     * in the specified <code>direction</code>.
      * 
      * @param direction  see {@link Node#getRelations(int)}
      * @param matchNodes possible <code>Node</code>s on the other end of the <code>Relation</code>
@@ -153,6 +153,10 @@ public class NodeList extends LinkedList<Node> {
     /**
      * The same as {{@link #withRelationTo(int, NodeList)}, but with one <code>Node</code>.
      * 
+     * @param direction  see {@link Node#getRelations(int)}
+     * @param matchNode  possible <code>Node</code> on the other end of the <code>Relation</code>
+     * @return           the matching <code>Node</code>s
+     * @throws IllegalArgumentException if <code>direction</code> is invalid
      * @see #withRelationTo(int, NodeList)
      */
     //@ requires direction == -1 || direction == 0 || direction == 1;
@@ -184,6 +188,8 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
+     * @param nodes the <code>Node</code>s that won't be in the result
+     * @return      the list not matching <code>nodes</code>
      * @see #without(NodeList)
      */
     /*@ pure */ @NonNull public NodeList without(@NonNull Node... nodes) {
@@ -191,6 +197,8 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
+     * @param nodes the <code>Node</code>s that won't be in the result
+     * @return      the list not matching <code>nodes</code>
      * @see #without(NodeList)
      */
     /*@ pure */ @NonNull public NodeList not(@NonNull NodeList nodes) {
@@ -198,6 +206,8 @@ public class NodeList extends LinkedList<Node> {
     }
     
     /**
+     * @param nodes the <code>Node</code> that won't be in the result
+     * @return      the list not matching <code>nodes</code>
      * @see #without(NodeList)
      */
     /*@ pure */ @NonNull public NodeList not(@NonNull Node... nodes) {

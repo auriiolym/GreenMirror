@@ -12,12 +12,9 @@ import java.util.Map;
 
 /**
  * The handler that adds a node. This command is received from the client.
- * <p>
- * Expected data:
- * id : int              The node id
- * identifier : String   The node identifier
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     AddNodeCommand
  */
 @ServerSide
 public class AddNodeCommandHandler extends CommandHandler {
@@ -29,8 +26,8 @@ public class AddNodeCommandHandler extends CommandHandler {
     public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
         
-        int id;
-        String identifier = "";
+        final int id;
+        final String identifier;
         
         switch (format) {
         default: case JSON:
@@ -50,12 +47,13 @@ public class AddNodeCommandHandler extends CommandHandler {
         }
 
         // Create node.
-        Node node = new Node(identifier);
+        final Node node = new Node(identifier);
         node.setId(id);
         
         // Add to the controller.
         getController().getNodes().add(node);
         
+        // Add to log.
         Log.add("Node " + Log.n(node) + " added.");
     }
 

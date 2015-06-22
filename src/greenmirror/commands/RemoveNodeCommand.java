@@ -6,39 +6,43 @@ import greenmirror.Log;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.LinkedHashMap;
 
 /**
  * The command to remove a node. This command is sent to the server.
  * 
- * Values sent:
- * id : int        The node id
+ * <table><caption>Values sent:</caption>
+ * <tr><th>variable</th><th>type</th><th>description</th></tr>
+ * <tr><td>id </td><td>int</td><td>      the node id</td></tr>
+ * </table>
+ * 
+ * @author  Karim El Assal
+ * @see     RemoveNodeCommandHandler
  */
 public class RemoveNodeCommand extends Command {
     
     // -- Instance variables -----------------------------------------------------------------
     
-    private Node node;
+    @NonNull private Node node;
 
     
     // --- Constructors ----------------------------------------------------------------------
 
     /**
-     * Create a new <code>RemoveNodeCommand</code>.
-     * @param node The <code>Node</code> that will be removed from the visualizer.
+     * Initializes this {@link greenmirror.Command}.
+     * 
+     * @param node the node that will be removed from the visualizer
      */
-    //@ requires node != null;
-    public RemoveNodeCommand(Node node) {
+    public RemoveNodeCommand(@NonNull Node node) {
         this.node = node;
     }
 
     // --- Queries ---------------------------------------------------------------------------
     
-    /**
-     * @return The <code>Node</code> that will be removed from the visualizer.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ private Node getNode() {
+    /** @return the node that will be removed from the visualizer */
+    /*@ pure */ @NonNull private Node getNode() {
         return node;
     }
 
@@ -46,7 +50,7 @@ public class RemoveNodeCommand extends Command {
     // -- Commands ---------------------------------------------------------------------------
     
     @Override
-    public String getFormattedString(CommunicationFormat format) {
+    public String getFormattedString(@NonNull CommunicationFormat format) {
         Log.add("Node removed: " + getNode().toString());
         
         switch (format) {

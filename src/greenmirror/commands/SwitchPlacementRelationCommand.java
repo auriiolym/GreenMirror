@@ -6,60 +6,64 @@ import greenmirror.Log;
 import greenmirror.Relation;
 import groovy.json.JsonOutput;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.LinkedHashMap;
 
 /**
  * The command to switch a relation. This command is sent to the server.
  * 
- * Values sent:
- * oldId : String     The unique id of the old relation.
- * name : String      The name of the new relation
- * nodeA : int        The id of the first node.
- * nodeB : int        The id of the second node.
- * placement : String The placement data of node A on node B.
- * rigid : boolean    Whether the relation is rigid or not. This value is optional and 
- *                    defaults to false.
- * tempFx : FxWrapper        The temporary appearance of node A.
+ * <table><caption>Values sent:</caption>
+ * <tr><th>variable</th><th>type</th><th>description</th></tr>
+ * <tr><td>oldId </td><td>String</td><td>           the unique id of the old relation</td></tr>
+ * <tr><td>name </td><td>String</td><td>    the name of the new relation</td></tr>
+ * <tr><td>nodeA </td><td>int</td><td>      the id of the first node</td></tr>
+ * <tr><td>nodeB </td><td>int</td><td>      the id of the second node</td></tr>
+ * <tr><td>placement </td><td>String</td><td>the placement data of node A on node B</td></tr>
+ * <tr><td>rigid </td><td>boolean</td><td>          whether the new relation is rigid or not. 
+ *                                          This value is optional and defaults to false</td></tr>
+ * <tr><td>tempFx </td><td>FxWrapper</td><td>the temporary appearance of node A</td></tr>
+ * </table>
+ * 
+ * @author  Karim El Assal
+ * @see     SwitchPlacementRelationCommandHandler
  */
 public class SwitchPlacementRelationCommand extends Command {
     
     // --- Instance variables ----------------------------------------------------------------
     
-    private Relation oldRelation;
-    private Relation newRelation;
+    @NonNull private Relation oldRelation;
+    @NonNull private Relation newRelation;
     
 
     // --- Constructors ----------------------------------------------------------------------
     
     /**
-     * Create a new <code>AddRelationCommand</code>.
-     * @param oldRelation The old <code>Relation</code>.
-     * @param newRelation The new <code>Relation</code>.
+     * Initializes this {@link greenmirror.Command}.
+     * 
+     * @param oldRelation the old relation
+     * @param newRelation the new relation
      */
-    //@ requires oldRelation != null && newRelation != null;
-    public SwitchPlacementRelationCommand(Relation oldRelation, Relation newRelation) {
+    public SwitchPlacementRelationCommand(@NonNull Relation oldRelation, 
+                                          @NonNull Relation newRelation) {
         this.oldRelation = oldRelation;
         this.newRelation = newRelation;
     }
 
     // --- Queries ---------------------------------------------------------------------------
     
-    /*@ pure */ private Relation getOldRelation() {
+    /*@ pure */ @NonNull private Relation getOldRelation() {
         return this.oldRelation;
     }
     
-    /*@ pure */ private Relation getNewRelation() {
+    /*@ pure */ @NonNull private Relation getNewRelation() {
         return this.newRelation;
     }
     
     // --- Setters ---------------------------------------------------------------------------
 
-    /**
-     * Fetch the raw data that will be sent.
-     * @param format The format in which the data will be.
-     */
-    //@ requires format != null;
-    public String getFormattedString(CommunicationFormat format) {
+    @Override
+    public String getFormattedString(@NonNull CommunicationFormat format) {
         Log.add("Placement relation switched to: " + getNewRelation().toString());
         
         switch (format) {

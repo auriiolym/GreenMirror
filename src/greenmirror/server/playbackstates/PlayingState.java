@@ -3,6 +3,8 @@ package greenmirror.server.playbackstates;
 import greenmirror.server.ToolbarButton;
 import greenmirror.server.Visualizer.PlaybackState;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 /**
  * The visualizer's playing playback state.
  * 
@@ -26,7 +28,7 @@ public class PlayingState implements PlaybackState {
         return true;
     }
 
-    @Override
+    @Override @NonNull
     public String toString() {
         return "playing...";
     }

@@ -5,59 +5,49 @@ import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.Map;
 
+
 /**
- * The handler that sets the duration for the following animations. This command is received from
+ * The handler that sets the duration for the upcoming animations. This command is received from
  * the client.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     SetAnimationDurationCommand
  */
 @ServerSide
 public class SetAnimationDurationCommandHandler extends CommandHandler {
-
-    // -- Queries ----------------------------------------------------------------------------
-    
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
-
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
         
-        double duration;
+        final double duration;
         
         switch (format) {
         default: case JSON:
-            Map<String, Object> map = CommandHandler.parseJson(data);
+            final Map<String, Object> map = CommandHandler.parseJson(data);
+            // Check data existence.
             if (!map.containsKey("duration")) {
                 throw new MissingDataException();
             }
+            
+            // Parse data.
             try {
                 duration = Double.valueOf(String.valueOf(map.get("duration")));
                 if (!(duration >= -1.0)) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
-                throw new DataParseException("The passed duration was not valid.");
+                throw new DataParseException("the duration is invalid: " + map.get("duration"));
             }
         }
 
-        getController().getVisualizer().setCurrentAnimationDuration(duration);
+        ((ServerController) getController()).getVisualizer().setCurrentAnimationDuration(duration);
         Log.add("Current animation duration set to " + duration + "ms.");
     }
 }

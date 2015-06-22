@@ -26,6 +26,8 @@ shapeNodePropertyTest
 rectangleNodePropertyTest
 imageNodePropertyTest
 textNodePropertyTest
+placementRelationTest
+rigidPlacementRelationTest
  */
 
 
@@ -120,9 +122,9 @@ addTransition("addNodesShowcase", {
     // This can also be done with multiple nodes.
     addNodes(
         new Node().set(fx("circle")
-                    .setRadius(5).setPosition(20, 10)),
+                        .setRadius(5).setPosition(20, 10)),
         new Node().set(fx("circle")
-                    .setRadius(5).setPosition(30, 10))
+                        .setRadius(5).setPosition(30, 10))
     );
     
     // One can also add a node and subsequently alter its properties. For this, the reference to the node 
@@ -130,8 +132,8 @@ addTransition("addNodesShowcase", {
     // A few examples:
     addNode("nodeName1")
         .fx("circle")
-         .setRadius(5)
-         .setPosition(40, 10);
+        .setRadius(5)
+        .setPosition(40, 10);
     
     addNode(new Node("nodeName2"))
         .fx("circle")
@@ -252,6 +254,7 @@ addTransition("generalNodePropertyTest", {
     // This is because the Node#set(FxWrapper) method wraps the FX updates in one "set" command, while chaining
     // FX method results in one "set" command adding the node to the visualizer, and multiple "change" commands
     // changing the visual properties.
+    // Non-animatable properties can not be changed after the FX has been added to the visualizer.
 });
 
 
@@ -281,7 +284,7 @@ addTransition("shapeNodePropertyTest", {
     node("r").fx().setFill(Color.GREEN);
     flush();
     
-    // An impossible one: JavaFX can't animate into a gradient (probably because there are so many options).
+    // An impossible one: JavaFX can't animate into a gradient.
     // See your serverside logs for the "Animating of JavaFX node property (...) failed" message.
     // It's not a fatal exception, so GreenMirror continues with nothing more than a log entry. The fill is
     // still green.
@@ -493,7 +496,220 @@ addTransition("textNodePropertyTest", 2000, {
 });
 
 
+/******************************************************************************
+ * Test: different way of adding and removing relations
+ * Note: this doesn't have to happen in a state-transition, because nothing in
+ *       the visualizer has to change.
+ */
 
+// Adding relations.
+addNodes(
+    new Node("female"),
+    new Node("male1"),
+    new Node("male2"),
+);
+
+// Add relation, method 1: add one relation to the controller.
+addRelation(
+    new Relation("likes").setNodeA(node("male1"))
+                         .setNodeB(node("female"))
+);
+
+// Add relation, method 2: add multiple relations to the controller.
+addRelations(
+    new Relation().setNodeA(node("male2"))
+                  .setName("also likes")
+                  .setNodeB(node("female")),
+    new Relation().setNodeA(node("male2"))
+                  .setName("envies")
+                  .setNodeB(node("male1"))
+);
+
+// Add relation, method 3: add relation simultaneously when adding the node.
+addNode(
+    new Node("male0").addRelation(
+                        new Relation("loves").setNodeB(node("female")))
+);
+
+// Now do the check:
+if (node("female").getRelatedNode(-1, "likes") != node("male1")
+ || node("female").getRelatedNode(-1, "also likes") != node("male2")
+ || node("female").getRelatedNode(-1, "loves") != node("male0")
+ || node("male2") .getRelatedNode( 1, "envies") != node("male1")) {
+    fail("adding relations failed");
+}
+
+// Add a relation in which one of the nodes is null.
+try {
+    addRelation(new Relation().setNodeA(node("female")));
+    fail("relation added with just one node");
+} catch (IllegalArgumentException e) {}
+
+// Add a relation with a node that isn't added to the controller.
+try {
+    addRelation(new Relation().setNodeA(node("female")).setNodeB(new Node()));
+    fail("relation with unknown node added")
+} catch (IllegalArgumentException e) {}
+// Which might happen in this scenario (because node n1 isn't added yet):
+try {
+    addNodes(
+        new Node("n1"),
+        new Node("n2").addRelation(new Relation("hates").setNodeB(node("n1")))
+    );
+    fail("relation with unknown node added")
+} catch (IllegalArgumentException e) {}
+
+
+// Remove relation.
+removeRelation(
+    node("male2").getRelation(1, "envies")
+);
+if (node("male2").getRelatedNode(1, "envies") != null) {
+    fail("relation not removed");
+}
+
+// Remove multiple relations.
+removeRelations(
+    node("female").getRelations()
+);
+if (node("male0").getRelation(1, "loves") != null) {
+    fail("relation not removed");
+}
+
+// Relation#removeFromNodes() and Node#getRelations().removeAll() can be used, but will only 
+// remove the relations at the client, not on the server. This is because these changes in the
+// relations won't be passed on to the controller.
+
+
+
+
+/******************************************************************************
+ * Test: adding placement relations (only one simultaneous placement relation is possible)
+ */
+addTransition("placementRelationTest", 2000, {
+    
+    node("t").fx().setText("This tests adding placement relations. ");
+    flush();
+    
+    // Add two base nodes and node that will be placed.
+    addNodes(
+        new Node("b1").set(fx("rectangle")
+                            .setPosition(30, 50)
+                            .setSize(200, 100)
+                            .setFill("linear-gradient(to right, green, black)")),
+        new Node("b2").set(fx("rectangle")
+                            .setPosition(260, 50)
+                            .setSize(200, 100)
+                            .setFill("linear-gradient(to left, green, black)")),
+        new Node("c").set(fx("circle")
+                            .setRadius(10)
+                            .setFill(Color.RED))
+    );
+    flush();
+    
+    // Show node c on the visualizer in the middle of node b1.
+    addRelation(
+        new Relation("on").setNodeA(node("c"))
+                          .setNodeB(node("b1"))
+                          .setPlacement(Placement.MIDDLE)
+    );
+    flush();
+    
+    // Move node c to the middle of node b2.
+    addRelation(
+        new Relation("on").setNodeA(node("c"))
+                          .setNodeB(node("b2"))
+                          .setPlacement(Placement.MIDDLE)
+    );
+    flush();
+    
+    // Verify that the first placement relation has been replaced with the second.
+    if (node("c").getRelations().withPlacement().size() > 1) {
+        fail("node has more than one placement relations");
+    }
+    if (node("c").getRelatedNode(1, "on") != node("b2")) {
+        fail("node has the wrong placement relation");
+    }
+    
+    // The above can also be done in a more explicit way.
+    switchPlacementRelation(
+        node("c").getRelation(1, "on").clone()
+                                      .setPlacement(Placement.EDGE_BOTTOM)
+    );
+    if (node("c").getRelations().size() != 1 || node("b2").getRelations().size() != 1
+     || node("c").getRelations().get(0) != node("b2").getRelations().get(0)
+     || !node("c").getRelations().get(0).getName().equals("on")
+     || !node("c").getRelations().get(0).getPlacement().equals(Placement.EDGE_BOTTOM)
+     || !node("c").hasPlacementRelation()
+     || node("c").getRelations().get(0) != node("c").getPlacementRelation()) {
+        fail("switching placement relations went wrong");
+    }
+    
+    // And add a non-placement relation.
+    addRelation(
+        new Relation().setNodeA(node("c"))
+                      .setName("wants to be on")
+                      .setNodeB(node("b2"))
+    );
+    if (node("c").getRelations != 2 
+     || !node("c").getRelation(1, "wants to be on").getPlacement().equals(Placement.NONE)
+     || node("c").getRelation(1, "on") != node("c").getPlacementRelation()) {
+        fail("adding regular relation went wrong");
+    }
+});
+
+/******************************************************************************
+ * Test: rigid placement relations
+ */
+addTransition("rigidPlacementRelationTest", 2000, {
+    
+    node("t").fx().setText("This tests adding rigid placement relations and verifies that "
+            + "specific placements work. ");
+    flush();
+    
+
+    addNodes(
+        new Node("b:1").set(fx("rectangle")
+                            .setPosition(30, 100)
+                            .setSize(200, 300)
+                            .setFill("linear-gradient(to bottom, white, gray)")
+                            .setArcs(10)),
+        new Node("b:2").set(fx("circle")
+                            .setPosition(340, 220)
+                            .setRadius(60)
+                            .setFill("linear-gradient(to bottom, white, gray)")),
+        new Node("b:3").set(fx("image")
+                            .setPosition(450, 210)
+                            .setImageFromFile("testcases/img/UT_Logo_White_NL_2.png")),
+        new Node("b:4").set(fx("text")
+                            .setPosition(800, 215)
+                            .setText("text node")
+                            .setStyle("-fx-fill: green; -fx-font-size: 16pt; -fx-font-weight: bold;"))
+    );
+    flush();
+    
+    // Test all placements.
+    
+});
+
+/* x Relations in general:
+ * x     adding relations
+ * x     removing relations
+ * x Placement relations:
+ * x     only one placement relation
+ * Rigid placement relations:
+ * 
+ * chained rigid placement relations:
+ * 
+ * test switchPlacementRelation with setNextNodeA and setNextPlacement
+ */
+    
+/* Removed node:
+ *      without FX
+ *      has relations?
+ *      add relation with existing node, check result
+ */
+    
 
 // Relations
 // Test adding a relation with placement when it already has it (should remove the previous placement relation)

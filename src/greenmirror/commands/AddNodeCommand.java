@@ -2,8 +2,10 @@ package greenmirror.commands;
 
 import greenmirror.Command;
 import greenmirror.CommunicationFormat;
+import greenmirror.Log;
 import greenmirror.Node;
 import groovy.json.JsonOutput;
+
 import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.LinkedHashMap;
@@ -12,9 +14,14 @@ import java.util.LinkedHashMap;
 /**
  * The command to add a node. This command is sent to the server.
  * 
- * Values sent:
- * id : int              The node id
- * identifier : String   The node identifier
+ * <table><caption>Values sent:</caption>
+ * <tr><th>variable</th><th>type</th><th>description</th></tr>
+ * <tr><td>id</td><td>int</td><td>the node id</td></tr>
+ * <tr><td>identifier </td><td>String</td><td>the node identifier</td></tr>
+ * </table>
+ * 
+ * @author Karim El Assal
+ * @see    AddNodeCommandHandler
  */
 public class AddNodeCommand extends Command {
 
@@ -26,7 +33,7 @@ public class AddNodeCommand extends Command {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * Initializes the <code>Command</code>.
+     * Initializes this {@link greenmirror.Command}.
      * 
      * @param node The <code>Node</code> that has been added.
      */
@@ -46,13 +53,10 @@ public class AddNodeCommand extends Command {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Fetch the raw data that will be sent.
-     * 
-     * @param format The format in which the data will be.
-     */
     @Override
     public String getFormattedString(@NonNull CommunicationFormat format) {
+        Log.add("Node added: " + getNode().toString());
+        
         switch (format) {
         default: case JSON:
             return JsonOutput.toJson(new LinkedHashMap<String, Object>() {

@@ -6,6 +6,8 @@ import greenmirror.Log;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Map;
 
 import javafx.animation.ParallelTransition;
@@ -14,58 +16,50 @@ import javafx.animation.SequentialTransition;
 import javafx.util.Duration;
 
 /**
- * The handler that creates a new sub-queue of visualizations. 
- * This command is received from the client.
+ * The handler that creates a new sub-queue of visualizations. This command is received 
+ * from the client.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     FlushCommand
  */
 @ServerSide
 public class FlushCommandHandler extends CommandHandler {
-
-    // -- Queries ----------------------------------------------------------------------------
-    
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
-
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
         
-        double delay;
+        final double delay;
         
         switch (format) {
         default: case JSON:
-            Map<String, Object> map = CommandHandler.parseJson(data);
+            final Map<String, Object> map = CommandHandler.parseJson(data);
+            
+            // Check data existence.
             if (!map.containsKey("delay")) {
                 throw new MissingDataException();
             }
+            
+            // Parse data.
             try {
+                // Delay.
                 delay = Double.valueOf(String.valueOf(map.get("delay")));
                 if (!(delay >= 0)) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
-                throw new DataParseException("The passed delay was not valid.");
+                throw new DataParseException("the passed delay was invalid: " + map.get("delay"));
             }
         }
 
+        // Add to log.
         Log.add("A new sub-queue was created with a delay of " + delay + "ms.");
         
         // Make a new sequential transition, but first add a pausing transition.
-        SequentialTransition queue = getController().getVisualizer().getVisualizationsQueue();
+        final SequentialTransition queue = 
+                ((ServerController) getController()).getVisualizer().getVisualizationsQueue();
         queue.getChildren().add(new PauseTransition(Duration.millis(delay)));
         queue.getChildren().add(new ParallelTransition());
     }

@@ -10,10 +10,10 @@ import java.util.Map;
 import javafx.animation.SequentialTransition;
 
 /**
- * A class to store a system state of the visualizer. This class fulfils the memento role of the
+ * A class to store a system state of the visualizer. This class fulfills the memento role of the
  * memento design pattern and contains the originator and caretaker interfaces that should be
  * implemented by classes that accept those roles. More information on the pattern is found
- * {@link https://sourcemaking.com/design_patterns/memento here}.
+ * <a href="https://sourcemaking.com/design_patterns/memento">here</a>.
  * 
  * @author Karim El Assal
  */
@@ -59,7 +59,7 @@ public class VisualizerMemento {
         /**
          * Retrieves a memento from its collection.
          * 
-         * @param index
+         * @param index the index of the state belonging to the memento (0 = state 0)
          * @return      the memento; <code>null</code> if it wasn't found on that index
          */
         public VisualizerMemento getMemento(int index);
@@ -76,7 +76,7 @@ public class VisualizerMemento {
     @NonNull private Map<Integer, Map<String, Object>> nodes = new LinkedHashMap<>();
     
     /** the transition needed to go to the next state */
-    private SequentialTransition transition;
+    @NonNull private SequentialTransition transition;
 
     
     // -- Constructors -----------------------------------------------------------------------
@@ -89,7 +89,7 @@ public class VisualizerMemento {
      * @param transition the data to transition to the next state, which will also be stored in 
      *                   the memento
      */
-    public VisualizerMemento(NodeList nodes, SequentialTransition transition) {
+    public VisualizerMemento(NodeList nodes, @NonNull SequentialTransition transition) {
         /*for (Node node : nodes) {
             
         }*/
@@ -110,7 +110,7 @@ public class VisualizerMemento {
     /**
      * @return the transition needed to go to the next state
      */
-    /*@ pure */ public SequentialTransition getTransition() {
+    /*@ pure */ @NonNull public SequentialTransition getTransition() {
         return this.transition;
     }
 

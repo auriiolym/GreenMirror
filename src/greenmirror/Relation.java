@@ -186,10 +186,10 @@ public class Relation implements Cloneable {
         return this;
     }
     
-    /** removes the reference to node A */
+    /** Removes the reference to node A. */
     //@ ensures getNodeA() == null;
-    private void removeNodeA() {
-        nodeA = null;
+    public void removeNodeA() {
+        this.nodeA = null;
     }
 
     /**
@@ -227,10 +227,10 @@ public class Relation implements Cloneable {
         return this;
     }
     
-    /** removes the reference to node B */
+    /** Removes the reference to node B. */
     //@ ensures getNodeB() == null;
-    private void removeNodeB() {
-        nodeA = null;
+    public void removeNodeB() {
+        this.nodeA = null;
     }
 
     /**
@@ -307,7 +307,8 @@ public class Relation implements Cloneable {
      * Sets the temporary FX of node A. Node A should already have an FX set.
      * 
      * @param fx the FX of node A for the duration of this <code>Relation</code>
-     * @throws  IllegalStateException if node A doesn't have an FX set
+     * @return   <code>this</code>
+     * @throws IllegalStateException if node A doesn't have an FX set
      */
     //@ ensures getTemporaryFxOfNodeA() == fx;
     //@ ensures \result == this;    
@@ -405,7 +406,9 @@ public class Relation implements Cloneable {
     /**
      * Does exactly the same as {@link #passToNextNodeA(NodeList)}, but with node B.
      * 
-     * @see #passToNextNodeA(NodeList)
+     * @param nodes the list containing the current node B and the next
+     * @return      <code>this</code>
+     * @see         #passToNextNodeA(NodeList)
      */
     //@ requires nodes.size() > 1 && nodes.contains(getNodeB());
     //@ ensures \result == this;

@@ -2,40 +2,30 @@ package greenmirror.commands;
 
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
+import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.Relation;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Map;
 
 /**
  * The handler that removes a relation. This command is received from the client.
+ * 
+ * @author  Karim El Assal
+ * @see     RemoveRelationCommand
  */
 @ServerSide
 public class RemoveRelationCommandHandler extends CommandHandler {
-
-
-    // -- Queries ----------------------------------------------------------------------------
     
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
-
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
 
 
@@ -45,8 +35,8 @@ public class RemoveRelationCommandHandler extends CommandHandler {
         switch (format) {
         default: case JSON:
             
-            // Check existence of data.
-            Map<String, Object> map = CommandHandler.parseJson(data);
+            // Check data existence.
+            final Map<String, Object> map = CommandHandler.parseJson(data);
             if (!map.containsKey("id") || !map.containsKey("nodeA")) {
                 throw new MissingDataException();
             }
@@ -54,25 +44,29 @@ public class RemoveRelationCommandHandler extends CommandHandler {
             // Parse data.
             // Relation id.
             final String id = String.valueOf(map.get("id"));
+            if (id == null) {
+                throw new DataParseException("relation id is invalid");
+            }
             try {
-                // node A
-                if ((nodeA = getController().getNode(
-                        Integer.parseInt(String.valueOf(map.get("nodeA"))))) == null) {
-                    throw new DataParseException("Node A was not found on the visualizer.");
-                }
+                // Node A.
+                nodeA = getController().getNode(Integer.parseInt(String.valueOf(map.get("nodeA"))));
             } catch (NumberFormatException e) {
-                throw new DataParseException("The id of node A is invalid.");
+                throw new DataParseException("the id of node A is invalid");
+            } catch (IllegalArgumentException e) {
+                throw new DataParseException("node A is not found on the visualizer");
             }
             
-            // Create the Relation object.
+            // Get the Relation instance.
             relation = nodeA.getRelations().withId(id).getFirst();
         }
         
-
+        // Add log entry.
+        Log.add("Relation removed: " + relation.toString());
         
+
         // Revert the temporary FX of node A.
         if (relation.getTemporaryFxOfNodeA() != null) {
-            getController().getVisualizer().changeFx(nodeA, 
+            ((ServerController) getController()).getVisualizer().changeFx(nodeA, 
                     nodeA.getFxWrapper().getOriginalFxWrapper().toMapWithoutPositionData());
             nodeA.getFxWrapper().saveAsOriginal();
         }

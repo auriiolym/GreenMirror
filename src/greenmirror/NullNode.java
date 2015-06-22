@@ -39,8 +39,8 @@ public class NullNode extends Node {
     /**
      * Creates a new <code>NullNode</code> with its old type and name.
      * 
-     * @param oldType
-     * @param oldName
+     * @param oldType the old type
+     * @param oldName the old name
      */
     //@ ensures oldType == getOldType() && oldName == getOldName();
     public NullNode(String oldType, String oldName) {

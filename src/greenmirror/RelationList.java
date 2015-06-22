@@ -113,8 +113,8 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @param nodes
-     * @return <code>Relation</code>s that are connected to one of the passed nodes
+     * @param nodes these nodes are relevant to the returned relations
+     * @return      <code>Relation</code>s that are connected to one of the passed nodes
      */
     //@ ensures \result.size() <= this.size();
     /*@ pure */ @NonNull public RelationList withNodes(@NonNull NodeList nodes) {
@@ -124,7 +124,7 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @param node
+     * @param node this node is relevant to the returned relations
      * @return <code>Relation</code>s that are connected to <code>node</code>.
      */
     //@ ensures \result.size() <= this.size();
@@ -135,7 +135,7 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @param nodes
+     * @param nodes one of these nodes is node A of the returned relations
      * @return <code>Relation</code>s in which node A is one of the passed nodes
      */
     //@ ensures \result.size() <= this.size();
@@ -145,7 +145,7 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @param node
+     * @param node this node is node A of the returned relations
      * @return <code>Relation</code>s in which node A equals <code>node</code>.
      */
     //@ ensures \result.size() <= this.size();
@@ -155,7 +155,7 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @param nodes
+     * @param nodes one of these nodes is node B of the returned relations
      * @return <code>Relation</code>s in which node B is one of the passed nodes
      */
     //@ ensures \result.size() <= this.size();
@@ -165,7 +165,7 @@ public class RelationList extends LinkedList<Relation> {
     }
 
     /**
-     * @param node
+     * @param node this node is node A of the returned relations
      * @return <code>Relation</code>s in which node B equals <code>node</code>.
      */
     //@ ensures \result.size() <= this.size();

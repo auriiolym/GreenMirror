@@ -96,6 +96,8 @@ public abstract class Placement implements Cloneable {
     // -- Setters ----------------------------------------------------------------------------
     
     /**
+     * Sets the relative position and returns <code>this</code>.
+     * 
      * @param relativePosition the relative position to set
      * @return                 <code>this</code>
      */
@@ -107,11 +109,10 @@ public abstract class Placement implements Cloneable {
     }
     
     /**
-     * Sets the relative position and returns <code>this</code>.
-     * 
      * @param posX the relative x coordinate
      * @param posY the relative y coordinate
      * @return     <code>this</code>
+     * @see        #withRelativePosition(Point3D)
      */
     //@ ensures getRelativePosition().equals(new Point3D(posX, posY, 0));
     //@ ensures \result == this;
@@ -122,8 +123,9 @@ public abstract class Placement implements Cloneable {
     /**
      * @param posX the relative x coordinate
      * @param posY the relative y coordinate
-     * @param posY the relative z coordinate
+     * @param posZ the relative z coordinate
      * @return     <code>this</code>
+     * @see        #withRelativePosition(Point3D)
      */
     //@ ensures getRelativePosition().equals(new Point3D(posX, posY, posZ));
     //@ ensures \result == this;
@@ -163,8 +165,8 @@ public abstract class Placement implements Cloneable {
      *             none was found
      * @throws IllegalArgumentException if <code>data</code> was invalid
      */
-    public static Placement fromData(@NonNull String data) {
-        if (!data.contains(":")) {
+    public static Placement fromData(String data) {
+        if (data == null || !data.contains(":")) {
             throw new IllegalArgumentException("the passed placement data was invalid");
         }
         final String[] dataParts = data.split(":", 2);

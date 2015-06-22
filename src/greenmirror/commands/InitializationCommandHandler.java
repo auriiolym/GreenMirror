@@ -6,6 +6,9 @@ import greenmirror.Log;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import greenmirror.server.ToolbarButton;
+import greenmirror.server.Visualizer;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -30,7 +33,8 @@ import javafx.stage.WindowEvent;
 /**
  * The handler that initializes the visualizer. This command is received from the client.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     InitializationCommand
  */
 @ServerSide
 public class InitializationCommandHandler extends CommandHandler {
@@ -46,16 +50,10 @@ public class InitializationCommandHandler extends CommandHandler {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws DataParseException When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws DataParseException {
-        
 
         final Double width;
         final Double height;
@@ -65,19 +63,20 @@ public class InitializationCommandHandler extends CommandHandler {
         switch (format) {
         default: case JSON:
             Map<String, Object> map = CommandHandler.parseJson(data);
-            // Parse received data.
+            // Check data existence.
             if (!map.containsKey("width") || !map.containsKey("height") 
-                                          || !map.containsKey("defaultTransitionDuration")) {
+                                          || !map.containsKey("defaultAnimationDuration")
+                                          || !map.containsKey("rotateRigidlyRelatedNodesRigidly")) {
                 throw new DataParseException("The received data does not contain the width, "
-                        + "height and/or the default transition duration.");
+                        + "height, default animation duration or the "
+                        + "rotateRigidlyRelatedNodesRigidly setting.");
             }
             
             width = ((BigDecimal) map.get("width")).doubleValue();
             height = ((BigDecimal) map.get("height")).doubleValue();
-            duration = ((BigDecimal) map.get("defaultTransitionDuration")).doubleValue();
+            duration = ((BigDecimal) map.get("defaultAnimationDuration")).doubleValue();
             rotateRigidlyRelatedNodesRigidly 
                 = (Boolean) map.get("rotateRigidlyRelatedNodesRigidly");
-            
             
             if (!(width > 0 
                     && height > 0 
@@ -98,43 +97,44 @@ public class InitializationCommandHandler extends CommandHandler {
     
     
     private void initialize(double width, double height) {
-        getController().getVisualizer().executeOnCorrectThread(() -> {
+        final Visualizer visualizer = getController().getVisualizer();
+        if (visualizer == null) { // @NonNull annotation formality
+            throw new RuntimeException("Visualizer is null");
+        }
+        visualizer.executeOnCorrectThread(() -> {
             
             final double toolbarHeight = 30;
             
             // Create window.
-            Stage stage = new Stage();
+            final Stage stage = new Stage();
             stage.setTitle("GreenMirror Visualizer");
-            getController().getVisualizer().setStage(stage);
-            
-
+            visualizer.setStage(stage);
             
             // ToolBar.
-            ToolBar toolBar = new ToolBar();
+            final ToolBar toolBar = new ToolBar();
             toolBar.setOrientation(Orientation.HORIZONTAL);
             toolBar.setPrefHeight(toolbarHeight);
             // Add toolBar buttons.
             for (ToolbarButton button : ToolbarButton.values()) {
-                button.setVisualizer(getController().getVisualizer());
-                button.build();
-                toolBar.getItems().add(button.getPane());
+                button.setVisualizer(visualizer);
+                toolBar.getItems().add(button.build());
             }
             // Add status info.
-            Text playbackInfo = new Text();
+            final Text playbackInfo = new Text();
             playbackInfo.setId("playbackInfo");
             toolBar.getItems().add(playbackInfo);
             // Add spacer.
-            Region spacer = new Region();
+            final Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
             toolBar.getItems().add(spacer);
             // Add stateInfo node.
-            Text stateInfo = new Text();
+            final Text stateInfo = new Text();
             stateInfo.setId("stateInfo");
             toolBar.getItems().add(stateInfo);
             
             
             // Visualizer.
-            Pane vis = new Pane();
+            final Pane vis = new Pane();
             vis.setMaxWidth(Region.USE_PREF_SIZE);
             vis.setMaxHeight(Region.USE_PREF_SIZE);
             vis.setPrefSize(width, height);
@@ -144,7 +144,7 @@ public class InitializationCommandHandler extends CommandHandler {
             
             
             // Root Node
-            VBox root = new VBox();
+            final VBox root = new VBox();
             root.setSpacing(0);
             root.getChildren().addAll(toolBar, vis);
             
@@ -153,17 +153,18 @@ public class InitializationCommandHandler extends CommandHandler {
             stage.setOnHidden(new EventHandler<WindowEvent>() {
                 @Override
                 public void handle(WindowEvent arg0) {
-                    getController().getVisualizer().reset();
+                    visualizer.reset();
                 }
             });
 
             // Finish up and display.
-            Scene scene = new Scene(root, width, height + toolbarHeight, 
+            final Scene scene = new Scene(root, width, height + toolbarHeight, 
                     Paint.valueOf("linear-gradient(to bottom, #F5F5F5, #C2C2C2)"));
             stage.setScene(scene);
             stage.show();
-            getController().getVisualizer().updateMementoNumberInfo();
+            visualizer.updateMementoNumberInfo();
             
+            // Add to log
             Log.add("Visualizer initialized with width " + width + "px and height " 
                     + height + "px.");
 

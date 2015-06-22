@@ -10,71 +10,79 @@ import greenmirror.server.ServerController;
 import greenmirror.server.Visualizer;
 import groovy.json.internal.LazyValueMap;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Map;
 
 import javafx.util.Duration;
 
 /**
- * The handler that sets the FX of a node. This command is received from the client.
+ * The handler that sets the initial FX of a node. This command is received from the client.
+ * 
+ * @author  Karim El Assal
+ * @see     SetNodeFxCommand
  */
 @ServerSide
 public class SetNodeFxCommandHandler extends CommandHandler {
 
-    // -- Queries ----------------------------------------------------------------------------
-    
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
-
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
         
         final Node node;
         final LazyValueMap fxMap;
+        final String fxType;
         
         switch (format) {
         default: case JSON:
-            Map<String, Object> map = CommandHandler.parseJson(data);
+            final Map<String, Object> map = CommandHandler.parseJson(data);
+            // Check data existence.
             if (!map.containsKey("id") || !map.containsKey("fx")
                     || !(map.get("fx") instanceof LazyValueMap)
                     || !((LazyValueMap) map.get("fx")).containsKey("type")) {
                 throw new MissingDataException();
             }
-            node = getController().getNode((int) map.get("id"));
-            if (node == null) {
-                throw new DataParseException("Unknown Node with id " + map.get("id"));
+            
+            // Parse data.
+            try {
+                // Node id.
+                node = getController().getNode(Integer.parseInt(String.valueOf(map.get("id"))));
+            } catch (NumberFormatException e) {
+                throw new DataParseException("the id of the node is invalid: " + map.get("id"));
+            } catch (IllegalArgumentException e) {
+                throw new DataParseException("the node with id " + map.get("id") + " is not "
+                        + "found on the visualizer");
             }
             
+            // FX map.
             fxMap = (LazyValueMap) map.get("fx");
+            
+            fxType = String.valueOf(fxMap.get("type"));
+            if (fxType == null) {
+                throw new DataParseException("FX type is null");
+            }
             break;
         }
         
             
-        // We're assuming here that the FX of the Node has not been set yet.
+        // We're assuming here that the FX of the node has not been set yet.
 
-        final Visualizer visualizer = getController().getVisualizer();
+        final Visualizer visualizer = ((ServerController) getController()).getVisualizer();
         final Duration duration = Duration.millis(visualizer.getCurrentAnimationDuration());
+        if (duration == null) { // @NonNull annotation formality.
+            throw new RuntimeException("Duration.millis(double) returned null");
+        }
             
         // Get new instance.
         final FxWrapper fxWrapper;
         try {
-            fxWrapper = node.fx(String.valueOf(fxMap.get("type")));
+            fxWrapper = node.fx(fxType);
         } catch (IllegalArgumentException e) {
-            throw new DataParseException("An unknown FX type was selected or the FX was "
-                    + "already set.");
+            throw new DataParseException("an unknown FX type was selected or the FX was "
+                    + "already set to a different type");
         }
         
         // Set the initial values in the wrapper.
@@ -88,7 +96,7 @@ public class SetNodeFxCommandHandler extends CommandHandler {
         // At this point, it's invisible.
         fxWrapper.setFxNodeValuesFromMap(fxMap);
         fxNode.setOpacity(0);
-        fxNode.setVisible(false); // Is updated before each fade animation.
+        fxNode.setVisible(false); // This is updated before each fade animation.
         
         // Add the FX Node to the stage.
         visualizer.executeOnCorrectThread(() -> {
@@ -103,7 +111,5 @@ public class SetNodeFxCommandHandler extends CommandHandler {
             visualizer.addToVisualizationsQueue(
                     fxWrapper.animateOpacity(0.0, fxWrapper.getOpacity(), duration));
         }
-
     }
-
 }

@@ -32,7 +32,8 @@ public abstract class Command {
 
     /**
      * Returns a one word description of this command. For example, an instance of
-     * <code>AddNodeCommand</tt> would let this method return <code>AddNode</code>.
+     * {@link greenmirror.commands.AddNodeCommand} would let this method return 
+     * "<code>AddNode</code>".
      * 
      * @return the textual, one word description of this command
      */
@@ -42,10 +43,11 @@ public abstract class Command {
     }
 
     /**
-     * Returns this <code>Command</code> as a formatted string which will be sent to the server in
-     * the specified format.
+     * Returns this {@link Command} as a formatted string in the specified format, which 
+     * will be sent to the server.
      * 
-     * @param format The communication format.
+     * @param format the communication format
+     * @return       the formatted string
      * @see          CommunicationFormat
      */
     public abstract String getFormattedString(@NonNull CommunicationFormat format);
@@ -56,7 +58,7 @@ public abstract class Command {
     /**
      * Stores the GreenMirror controller.
      * 
-     * @param controller
+     * @param controller the controller
      */
     //@ ensures getController() == controller;
     public void setController(@NonNull GreenMirrorController controller) {
@@ -71,7 +73,5 @@ public abstract class Command {
      * constructed and retrieved. Does nothing by default, but subclasses might want to do 
      * something.
      */
-    public void prepare() {
-        
-    }
+    public void prepare() {}
 }

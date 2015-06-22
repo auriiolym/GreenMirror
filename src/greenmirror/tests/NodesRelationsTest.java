@@ -47,11 +47,8 @@ public class NodesRelationsTest {
     
     @NonNull NodeList list = new NodeList();
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         list = new NodeList();
         
         list.add(n1 = new Node("type1:name1"));

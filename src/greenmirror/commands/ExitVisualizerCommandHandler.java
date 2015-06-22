@@ -5,12 +5,16 @@ import greenmirror.CommunicationFormat;
 import greenmirror.Log;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
+import greenmirror.server.Visualizer;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
- * The handler that handles the signal that we're at the end of a transition. 
+ * The handler that handles the signal that the visualizer should terminate. 
  * This command is received from the client.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     ExitVisualizerCommand
  */
 @ServerSide
 public class ExitVisualizerCommandHandler extends CommandHandler {
@@ -18,20 +22,17 @@ public class ExitVisualizerCommandHandler extends CommandHandler {
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
+        
+        final Visualizer visualizer = ((ServerController) getController()).getVisualizer(); 
 
-        ((ServerController) getController()).getVisualizer().executeOnCorrectThread(() -> {
+        visualizer.executeOnCorrectThread(() -> {
             Log.add("Exit command reveived from the client.");
-            ((ServerController) getController()).getVisualizer().getStage().close();
+            if (visualizer.getStage() != null) {
+                visualizer.getStage().close();
+            }
         });
     }
 }

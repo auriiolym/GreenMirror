@@ -4,15 +4,12 @@ import greenmirror.FxWrapper;
 import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.NodeList;
-import greenmirror.Placement;
 import greenmirror.Relation;
+import greenmirror.RelationList;
 import greenmirror.client.Client;
 import greenmirror.client.ModelTransition;
 import greenmirror.commands.FlushCommand;
 import greenmirror.commands.SetAnimationDurationCommand;
-import greenmirror.commands.SwitchPlacementRelationCommand;
-import greenmirror.placements.CustomPlacement;
-import greenmirror.placements.RandomPlacement;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.Script;
@@ -29,9 +26,7 @@ public class GreenMirrorGroovyBaseScript extends Script {
 
     // -- Instance variables -----------------------------------------------------------------
     
-    /**
-     * The controller.
-     */
+    /** the controller */
     //@ private invariant controller != null;
     private Client controller;
 
@@ -45,8 +40,8 @@ public class GreenMirrorGroovyBaseScript extends Script {
      */
     //@ requires binding != null && binding.hasVariable("GreenMirrorController");
     //@ ensures getController() != null;
-    public GreenMirrorGroovyBaseScript(Binding binding) {
-        setController((Client) binding.getVariable("GreenMirrorController"));
+    public GreenMirrorGroovyBaseScript(@NonNull Binding binding) {
+        this.controller = (Client) binding.getVariable("GreenMirrorController");
     }
     
     
@@ -59,23 +54,10 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     // -- Queries ----------------------------------------------------------------------------
 
-    /**
-     * @return The controller.
-     */
+    /** @return the controller */
     //@ ensures \result != null;
     /*@ pure */ private Client getController() {
         return controller;
-    }
-    
-    // -- Setters ----------------------------------------------------------------------------
-
-    /**
-     * @param controller The controller to set.
-     */
-    //@ requires controller != null;
-    //@ ensures getController() == controller;
-    private void setController(Client controller) {
-        this.controller = controller;
     }
     
     
@@ -84,51 +66,79 @@ public class GreenMirrorGroovyBaseScript extends Script {
     // -- Groovy script: initializers ---------------------
 
     /**
-     * Initialize the visualizer.
-     * @param width  The width of the canvas.
-     * @param height The height of the canvas.
+     * Initializes the visualizer with only the width and height.
+     * 
+     * @param width  the width of the canvas
+     * @param height the height of the canvas
+     * @throws IllegalArgumentException if the width and/or height are zero or negative
      */
     //@ requires width > 0 && height > 0;
     public void initialize(double width, double height) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("width and/or height are invalid");
+        }
         initialize(width, height, -1.0, true);
     }
     
     /**
-     * Initialize the visualizer.
-     * @param width    The width of the canvas.
-     * @param height   The height of the canvas.
-     * @param duration The default duration for transitions (in milliseconds); -1 for 
-     *                 unspecified duration; 0 if you don't want animations to play
+     * Initializes the visualizer with a default animation duration set.
+     * 
+     * @param width  the width of the canvas
+     * @param height the height of the canvas
+     * @param duration the default duration for animations (in milliseconds); see 
+     *                 {@link SetAnimationDurationCommand} for details
+     * @throws IllegalArgumentException if the width and/or height are zero or negative, or if 
+     *                                  the duration is invalid
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
     public void initialize(double width, double height, double duration) {
+        if (width <= 0 || height <= 0 || duration < 1.0) {
+            throw new IllegalArgumentException("width, height and/or duration are invalid");
+        }
         initialize(width, height, duration, true);
     }
     
     /**
-     * Initialize the visualizer.
-     * @param width    The width of the canvas.
-     * @param height   The height of the canvas.
-     * @param rotateRigidlyRelatedNodesRigidly
-     *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
+     * Initializes the visualizer with the <code>rotateRigidlyRelatedNodesRigidly</code> setting
+     * (see {@link greenmirror.commands.InitializationCommand}).
+     * 
+     * @param width  the width of the canvas
+     * @param height the height of the canvas
+     * @param rotateRigidlyRelatedNodesRigidly see 
+     *                                  {@link greenmirror.commands.InitializationCommand}
+     * @throws IllegalArgumentException if the width and/or height are zero or negative
+     * @see greenmirror.commands.InitializationCommand
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
     public void initialize(double width, double height, boolean rotateRigidlyRelatedNodesRigidly) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("width and/or height are invalid");
+        }
         initialize(width, height, -1.0, rotateRigidlyRelatedNodesRigidly);
     }
     
     /**
-     * Initialize the visualizer.
-     * @param width    The width of the canvas.
-     * @param height   The height of the canvas.
-     * @param duration The default duration for transitions (in milliseconds); -1 for 
-     *                 unspecified duration; 0 if you don't want animations to play
-     * @param rotateRigidlyRelatedNodesRigidly
-     *                 {@see greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
+     * Initializes the visualizer with both the default animation duration and the
+     * <code>rotateRigidlyRelatedNodesRigidly</code> setting set
+     * (see {@link greenmirror.commands.InitializationCommand}).
+     * 
+     * @param width  the width of the canvas
+     * @param height the height of the canvas
+     * @param duration the default duration for animations (in milliseconds); see 
+     *                 {@link SetAnimationDurationCommand} for details
+     * @param rotateRigidlyRelatedNodesRigidly see 
+     *                                  {@link greenmirror.commands.InitializationCommand}
+     * @throws IllegalArgumentException if the width and/or height are zero or negative, or if 
+     *                                  the duration is invalid
+     * @see     greenmirror.commands.InitializationCommand
+     * @see     greenmirror.commands.SetAnimationDurationCommand
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
     public void initialize(double width, double height, double duration, 
             boolean rotateRigidlyRelatedNodesRigidly) {
+        if (width <= 0 || height <= 0 || duration < -1.0) {
+            throw new IllegalArgumentException("width, height and/or duration are invalid");
+        }
         getController().initializeVisualizer(width, height, duration, 
                 rotateRigidlyRelatedNodesRigidly);
     }
@@ -136,37 +146,34 @@ public class GreenMirrorGroovyBaseScript extends Script {
     
     // -- Groovy script: queries --------------------------
 
-    /**
-     * @return (A copy of) the list of <code>Node</code>s on the visualizer.
-     */
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList nodes() {
+    /** @return (a copy of) the list of {@link Node}s on the visualizer */
+    /*@ pure */ @NonNull public NodeList nodes() {
         return new NodeList(getController().getNodes());
     }
     
     /**
-     * Get a list of <code>Node</code>s on the visualizer with a specific identifier.
-     * @param identifier {@link greenmirror.Node.Identifier#Identifier(String)}
-     * @return           A list in which every <code>Node</code> corresponds to <code>identifier</code>.
+     * Gets a list of {@link Node}s on the visualizer with a specific identifier.
+     * 
+     * @param identifier see {@link Node.Identifier#Identifier(String)}
+     * @return          a list in which every <code>Node</code> corresponds to 
+     *                  <code>identifier</code>
      */
-    //@ requires identifier != null;
-    //@ ensures \result != null;
-    /*@ pure */ public NodeList nodes(String identifier) {
+    /*@ pure */ @NonNull public NodeList nodes(@NonNull String identifier) {
         return getController().getNodes(identifier);
     }
 
     /**
-     * Get the first node on the visualizer that corresponds to <code>identifier</code>.
-     * @param identifier {@link greenmirror.Node.Identifier#Identifier(String)}
-     * @return           The <code>Node</code>.
-     * @throws IllegalArgumentException If the Node was not found.
+     * Gets the first node on the visualizer that corresponds to <code>identifier</code>.
+     * 
+     * @param identifier see {@link Node.Identifier#Identifier(String)}
+     * @return           the {@link Node}
+     * @throws IllegalArgumentException if the node was not found
      */
-    //@ requires identifier != null;
-    /*@ pure */ public Node node(String identifier) {
-        NodeList list = nodes(identifier);
+    /*@ pure */ public Node node(@NonNull String identifier) {
+        final NodeList list = nodes(identifier);
         if (list.isEmpty()) {
-            throw new IllegalArgumentException("No nodes were found that correspond to the "
-                    + "identifier \"" + identifier + "\".");
+            throw new IllegalArgumentException("no nodes were found that correspond to the "
+                    + "identifier \"" + identifier + "\"");
         }
         return list.getFirst();
     }
@@ -175,136 +182,162 @@ public class GreenMirrorGroovyBaseScript extends Script {
     // -- Groovy script: commands -------------------------
 
     /**
-     * Add a node with identifier <code>name</code> to the visualizer.
-     * @param identifier The identifier of the node. See 
-     *             {@link greenmirror.Node.Identifier#Identifier(String)}.
-     * @return     The newly made (and added) <code>Node</code>.
+     * Adds a node with <code>identifier</code> to the visualizer.
+     * 
+     * @param identifier the identifier of the node. See {@link Node.Identifier#Identifier(String)}
+     * @return           the newly created (and added) {@link Node}
      */
     //@ ensures nodes(identifier).size() > 0;
-    public Node addNode(String identifier) {
+    @NonNull public Node addNode(String identifier) {
         return addNode(new Node(identifier));
     }
 
     /**
-     * Add a node to the visualizer.
-     * @param node The new <code>Node</code>.
-     * @return     The newly added <code>Node</code>.
+     * Adds a node to the visualizer.
+     * 
+     * @param node the new {@link Node}
+     * @return     the newly added <code>Node</code>
      */
-    //@ requires node != null;
-    //@ ensures \result == node;
-    public Node addNode(Node node) {
+    @NonNull public Node addNode(@NonNull Node node) {
         getController().addNode(node);
         return node;
     }
     
     /**
-     * Add as many nodes as you want in one statement.
-     * @param nodes An array of nodes.
+     * Adds as many nodes as are passed, in one statement.
+     * 
+     * @param nodes an array of {@link Node}s
      */
-    public void addNodes(Node... nodes) {
+    public void addNodes(@NonNull Node... nodes) {
         for (Node node : nodes) {
-            addNode(node);
+            if (node != null) {
+                addNode(node);
+            }
         }
     }
     
     /**
-     * Add a <code>Relation</code>.
-     * @param relation
+     * Adds a {@link Relation} to the controller and the visualizer. If it's a placement
+     * relation and the node A already has a placement relation, it gets overwritten.
+     * 
+     * @param relation the relation to add
      */
-    //@ requires relation != null;
+    //@ requires relation.getNodeA() != null;
+    //@ requires relation.getNodeB() != null;
     //@ ensures relation.getNodeA().hasRelation(relation);
     //@ ensures relation.getNodeB().hasRelation(relation); 
-    public void addRelation(Relation relation) {
+    public void addRelation(@NonNull Relation relation) {
         getController().addRelation(relation);
     }
     
     /**
-     * Add multiple <code>Relation</code>s.
-     * @param relations
+     * Adds multiple {@link Relation}s.
+     * 
+     * @param relations the relations to add
+     * @see   #addRelation(Relation)
      */
-    public void addRelations(Relation... relations) {
+    public void addRelations(@NonNull Relation... relations) {
         for (Relation relation : relations) {
-            addRelation(relation);
+            if (relation != null) {
+                addRelation(relation);
+            }
         }
     }
     
-    
-    public void switchPlacementRelation(Relation newRelation) {
-        Node nodeA = newRelation.getNodeA();
-        if (!nodeA.hasPlacementRelation() || newRelation.getPlacement() == Placement.NONE) {
-            addRelation(newRelation);
-            return;
-        }
-        Relation currentPlacementRelation = nodeA.getPlacementRelation();
-        
-        // If placement was random, it has been changed to a custom placement, so we need to
-        // address it as such (coordinate details are irrelevant at this point).
-        if (currentPlacementRelation.getPlacement() instanceof RandomPlacement) {
-            currentPlacementRelation.setPlacement(new CustomPlacement());
-        }
-        
-        getController().send(
-                new SwitchPlacementRelationCommand(currentPlacementRelation, newRelation));
-        currentPlacementRelation.removeFromNodes();
-        newRelation.addToNodes();
+    /**
+     * This is a synonym of {@link #addRelation(Relation)}, because {@link #addRelation(Relation)}
+     * replaces the placement relation if the passed relation also is a placement relation.
+     * 
+     * @param newRelation the new relation
+     * @see   #addRelation(Relation)
+     */
+    public void switchPlacementRelation(@NonNull Relation newRelation) {
+        addRelation(newRelation);
     }
 
     /**
-     * Add a transition to the list of possible transitions.
-     * @param transitionRegex The (regex) string that indicates the transition name.
-     * @param code            The code that will be executed when the transition executes.
+     * Adds to the list of possible state-transitions a new transition with a default 
+     * animation duration and a false <code>supplemental</code> setting. 
+     * See {@link #addTransition(String, double, boolean, Closure)}.
+     * 
+     * @param transitionRegex the (regex) string that indicates the transition labels it 
+     *                        should match 
+     * @param code            the code that will be executed when the transition executes
+     * @see                   #addTransition(String, double, boolean, Closure)
      */
-    //@ requires transitionRegex != null && code != null;
-    public void addTransition(String transitionRegex, Closure<Object> code) {
-        getController().getTransitions().add(
-                new ModelTransition(transitionRegex, code, -1.0));
+    public void addTransition(@NonNull String transitionRegex, @NonNull Closure<Object> code) {
+        addTransition(transitionRegex, -1.0, false, code);
     }
 
     /**
-     * Add a transition to the list of possible transitions.
-     * @param transitionRegex The (regex) string that indicates the transition name.
-     * @param duration        {@link greenmirror.client.ModelTransition#duration}
-     * @param code            The code that will be executed when the transition executes.
+     * Adds to the list of possible state-transitions a new transition with an animation 
+     * duration and a false <code>supplemental</code> setting. 
+     * See {@link #addTransition(String, double, boolean, Closure)}.
+     * 
+     * @param transitionRegex the (regex) string that indicates the transition labels it 
+     *                        should match 
+     * @param duration        see {@link greenmirror.commands.SetAnimationDurationCommand}
+     * @param code            the code that will be executed when the transition executes
+     * @see                   #addTransition(String, double, boolean, Closure)
      */
-    //@ requires transitionRegex != null && duration >= -1.0 && code != null;
-    public void addTransition(String transitionRegex, double duration, 
-                              Closure<Object> code) {
-        getController().getTransitions().add(
-                new ModelTransition(transitionRegex, code, duration));
+    //@ requires duration >= -1.0;
+    public void addTransition(@NonNull String transitionRegex, double duration, 
+                              @NonNull Closure<Object> code) {
+        addTransition(transitionRegex, duration, false, code);
     }
-    
-    public void addTransition(String transitionRegex, double duration, 
-                              boolean supplemental, Closure<Object> code) {
+
+    /**
+     * Adds to the list of possible state-transitions a new transition with an animation 
+     * duration and a <code>supplemental</code> setting. 
+     * 
+     * @param transitionRegex the (regex) string that indicates the transition labels it 
+     *                        should match 
+     * @param duration        see {@link greenmirror.commands.SetAnimationDurationCommand}
+     * @param supplemental    whether this transition is supplemental to a previous or next
+     *                        one. If so, the controller won't send an 
+     *                        {@link greenmirror.commands.EndTransitionCommand} after this
+     *                        transition finishes
+     * @param code            the code that will be executed when the transition executes
+     * @see                   #addTransition(String, double, boolean, Closure)
+     * @see                   greenmirror.client.ModelTransition
+     */
+    //@ requires duration >= -1.0;
+    public void addTransition(@NonNull String transitionRegex, double duration, 
+                              boolean supplemental, @NonNull Closure<Object> code) {
         getController().getTransitions().add(
                 new ModelTransition(transitionRegex, code, duration, supplemental));
     }
     
     /**
-     * Set the duration of all single (upcoming) animations. This means that when <code>flush()</code>
-     * is used, the total duration is doubled. If <code>-1</code> is passed, the duration is set to the
-     * default (as determined by the default duration per transition or for the whole visualizer).
-     * @param duration The duration in milliseconds; <code>-1</code> to set it to default; 0 if 
-     *                 you don't want the animation to play
+     * Sets the duration of all single (upcoming) animations. This means that when 
+     * {@link #flush()} is used, the total duration is doubled. If <code>-1</code> 
+     * is passed, the duration is set to the default value. See
+     * {@link greenmirror.commands.SetAnimationDurationCommand} for details on the default 
+     * value.
+     *  
+     * @param duration the duration in milliseconds; <code>-1</code> to set it to default; 0 if 
+     *                 you don't want the animation to play at all
+     * @see            greenmirror.commands.SetAnimationDurationCommand
      */
     //@ requires duration >= -1.0;
     public void setAnimationDuration(double duration) {
-        getController().send(new SetAnimationDurationCommand(duration));;
+        getController().send(new SetAnimationDurationCommand(duration));
     }
     
     /**
-     * Create a new <code>FxWrapper</code>.
-     * @param type The type of the <code>FxWrapper</code>.
-     * @return     The <code>FxWrapper</code> instance.
-     * @throws IllegalArgumentException If the type was invalid.
+     * Creates a new {@link FxWrapper}.
+     * 
+     * @param type the type of the <code>FxWrapper</code>
+     * @return     the <code>FxWrapper</code> instance
+     * @throws IllegalArgumentException if the type was invalid
      */
-    //@ requires type != null;
-    public FxWrapper fx(@NonNull String type) {
+    @NonNull public FxWrapper fx(@NonNull String type) {
         return FxWrapper.getNewInstance(type);
     }
     
     /**
      * Flushes the animations: all upcoming animations will be animated after the previous ones 
-     * (and not in parallel, as is the default).
+     * (and not in parallel, as is the default) without delay.
      */
     public void flush() {
         flush(0);
@@ -314,62 +347,82 @@ public class GreenMirrorGroovyBaseScript extends Script {
      * Flushes the animations: all upcoming animations will be animated after the previous ones 
      * (and not in parallel, as is the default). Also, a delay is added after the previous 
      * animations.
+     * 
+     * @param delay the delay in miliseconds
      */
     public void flush(double delay) {
         getController().send(new FlushCommand(delay));
     }
     
     /**
-     * Remove a <code>Node</code> from the visualizer.
-     * @param node
+     * Removes a {@link Node} from the visualizer.
+     * 
+     * @param node the node to remove
      */
-    //@ requires node != null;
     //@ ensures !getController().getNodes().contains(node);
-    public void removeNode(Node node) {
+    public void removeNode(@NonNull Node node) {
         getController().removeNode(node);
     }
 
     /**
-     * Remove all <code>Node</code>s from <code>nodeList</code> from the visualizer.
-     * @param nodeList The <code>Node</code>s that will be removed.
+     * Removes all {@link Node}s on <code>nodeList</code> from the visualizer.
+     * 
+     * @param nodeList the nodes that will be removed
      */
-    //@ requires nodes != null;
-    //@ ensures nodes().size() == \old(nodes().size()) - nodes.size();
-    public void removeNodes(NodeList nodeList) {
-        nodeList.forEach(node -> removeNode(node));
+    //@ ensures nodes().size() == \old(nodes().size()) - nodeList.size();
+    public void removeNodes(@NonNull NodeList nodeList) {
+        for (Node node : nodeList) {
+            if (node != null) {
+                removeNode(node);
+            }
+        }
     }
 
     /**
-     * Remove all passed <code>Node</code>s from the visualizer.
-     * @param nodes The <code>Node</code>s that will be removed.
+     * Removes all passed {@link Node}s from the visualizer.
+     * 
+     * @param nodes the nodess that will be removed
      */
-    public void removeNodes(Node... nodes) {
+    //@ ensures nodes().size() == \old(nodes().size()) - nodes.size();
+    public void removeNodes(@NonNull Node... nodes) {
         removeNodes(new NodeList(nodes));
     }
     
     /**
-     * Remove a <code>Relation</code> from the visualizer.
-     * @param relation
+     * Removes a {@link Relation} from the visualizer.
+     * 
+     * @param relation the relation; if <code>null</code> is passed, nothing happens
      */
-    //@ requires relation != null;
-    //@ ensures !relation.getNodeA().hasRelation(relation);
-    //@ ensures !relation.getNodeB().hasRelation(relation); 
+    //@ ensures relation != null ? !relation.getNodeA().hasRelation(relation) : true;
+    //@ ensures relation != null ? !relation.getNodeB().hasRelation(relation) : true; 
     public void removeRelation(Relation relation) {
         getController().removeRelation(relation);
     }
     
     /**
-     * Remove all passed <code>Relation</code>s from the visualizer.
-     * @param relations
+     * Removes all passed {@link Relation}s from the visualizer.
+     * 
+     * @param relations the relations to remove
      */
     public void removeRelations(Relation... relations) {
-        for (Relation relation : relations) {
-            removeRelation(relation);
+        if (relations != null) {
+            for (Relation relation : relations) {
+                removeRelation(relation);
+            }
         }
     }
     
     /**
-     * Send all node and relation data to the log. Used for debugging.
+     * Removes all passed {@link Relation}s from the visualizer.
+     * 
+     * @param relations the relations to remove
+     */
+    public void removeRelations(RelationList relations) {
+        removeRelations(relations.toArray(new Relation[]{}));
+    }
+    
+    /**
+     * Sends all node and relation data to the log. Used for debugging.
      */
     public void sendStateToLog() {
         String str = "Here are all the current nodes with their data.";
@@ -380,13 +433,21 @@ public class GreenMirrorGroovyBaseScript extends Script {
     }
     
     /**
-     * Fail!
+     * Lets the script fail by throwing an {@link IllegalStateException}.
+     * 
+     * @throws IllegalStateException because that's the purpose of this method
      */
     public void fail() {
-        throw new IllegalStateException("Your Groovy script encountered a fail() call.");
+        throw new IllegalStateException("your Groovy script encountered a fail() call");
     }
-    
+
+    /**
+     * Let the script fail by throwing an {@link IllegalStateException} with a message.
+     * 
+     * @param msg the message indicating why the script failed
+     * @throws IllegalStateException because that's the purpose of this method
+     */
     public void fail(String msg) {
-        throw new IllegalStateException("Your Groovy script encountered a fail: " + msg);
+        throw new IllegalStateException("your Groovy script encountered a fail: " + msg);
     }
 }

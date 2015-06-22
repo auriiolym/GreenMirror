@@ -1,14 +1,13 @@
 package greenmirror.fxpropertywrappers;
 
 import greenmirror.FxPropertyWrapper;
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.lang.reflect.Method;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 
 /**
- * A wrapper for the <code>Paint</code> type of FX properties.
+ * A wrapper for the <code>Boolean</code> type of FX properties.
  * 
  * @author Karim El Assal
  */
@@ -18,8 +17,8 @@ public class BooleanFxProperty extends FxPropertyWrapper {
     // -- Constructors -----------------------------------------------------------------------
 
     /**
-     * @see greenmirror.FxPropertyWrapper#FxPropertyTypeWrapper(String)
-     * @param propertyName The name of the property.
+     * @param propertyName the name of the property
+     * @see greenmirror.FxPropertyWrapper#FxPropertyWrapper(String)
      */
     public BooleanFxProperty(@NonNull String propertyName) {
         super(propertyName);

@@ -2,67 +2,67 @@ package greenmirror.commands;
 
 import greenmirror.CommandHandler;
 import greenmirror.CommunicationFormat;
+import greenmirror.Log;
 import greenmirror.Node;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
 import groovy.json.internal.LazyValueMap;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 
 /**
- * The handler that notifies the server that the FX of node should be changed. This command 
+ * The handler that notifies the server that the FX of a node should be changed. This command 
  * is received from the client.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     ChangeNodeFxCommand
  */
 @ServerSide
 public class ChangeNodeFxCommandHandler extends CommandHandler {
-
-    // -- Queries ----------------------------------------------------------------------------
-    
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
-
     
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
         
-        Node node;
-        Map<String, Object> fxMap = new LinkedHashMap<>();
+        final Node node;
+        final Map<String, Object> fxMap = new LinkedHashMap<>();
         
         switch (format) {
         default: case JSON:
-            Map<String, Object> map = CommandHandler.parseJson(data);
+            final Map<String, Object> map = CommandHandler.parseJson(data);
+            // Check data existence.
             if (!map.containsKey("id") || !map.containsKey("fx")
                     || !(map.get("fx") instanceof LazyValueMap)) {
                 throw new MissingDataException();
             }
-            node = getController().getNode((int) map.get("id"));
-            if (node == null) {
-                throw new DataParseException("Unknown Node with id " + map.get("id"));
+            
+            // Parse data.
+            try {
+                // Node id.
+                node = getController().getNode(Integer.parseInt(String.valueOf(map.get("id"))));
+            } catch (NumberFormatException e) {
+                throw new DataParseException("the id of the node is invalid: " + map.get("id"));
+            } catch (IllegalArgumentException e) {
+                throw new DataParseException("the node with id " + map.get("id") + " is not "
+                        + "found on the visualizer");
             }
             
+            // FX.
             fxMap.putAll((LazyValueMap) map.get("fx"));
             break;
         }
         
-        // We're assuming here that the FX of the Node has been set.
+        // We're assuming here that the FX of the node has previously been set (using 
+        //  SetNodeFxCommand).
+        ((ServerController) getController()).getVisualizer().changeFx(node, fxMap);
         
-        getController().getVisualizer().changeFx(node, fxMap);
+        // Add to log.
+        Log.add("FX of node " + Log.n(node) + " changed to: " + fxMap.toString());
     }
 }

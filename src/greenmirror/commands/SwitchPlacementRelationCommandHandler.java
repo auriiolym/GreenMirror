@@ -8,99 +8,88 @@ import greenmirror.Placement;
 import greenmirror.Relation;
 import greenmirror.ServerSide;
 import greenmirror.server.ServerController;
+import greenmirror.server.Visualizer;
 import groovy.json.internal.LazyValueMap;
+
+import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.Map;
 
 /**
- * The handler that adds a relation. This command is received from the client.
+ * The handler that switches a placement relation. This command is received from the client.
  * 
- * @author Karim El Assal
+ * @author  Karim El Assal
+ * @see     SwitchPlacementRelationCommand
  */
 @ServerSide
 public class SwitchPlacementRelationCommandHandler extends CommandHandler {
 
-
-    // -- Queries ----------------------------------------------------------------------------
-    
-    @Override
-    //@ ensures \result != null;
-    /*@ pure */ public ServerController getController() {
-        return (ServerController) super.getController();
-    }
-
-    
+ 
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Handle the received command. 
-     * @param format The format in which the data is received.
-     * @param data   The (raw) received data.
-     * @throws MissingDataException When the data is incomplete.
-     * @throws DataParseException   When parsing the data went wrong.
-     */
-    //@ requires getController() != null && format != null && data != null;
-    public void handle(CommunicationFormat format, String data) 
+    @Override
+    public void handle(@NonNull CommunicationFormat format, @NonNull String data) 
             throws MissingDataException, DataParseException {
 
 
-        Relation oldRelation;
-        Relation newRelation;
-        Node nodeA;
+        final Relation oldRelation;
+        final Relation newRelation;
+        final Node nodeA;
         
         switch (format) {
         default: case JSON:
+            final Map<String, Object> map = CommandHandler.parseJson(data);
             
-            // Check existence of variables.
-            Map<String, Object> map = CommandHandler.parseJson(data);
+            // Check data existence.
             if (!map.containsKey("oldId") || !map.containsKey("name") || !map.containsKey("nodeA") 
              || !map.containsKey("nodeB") || !map.containsKey("placement") 
              || !map.containsKey("rigid") || !map.containsKey("tempFx")) {
                 throw new MissingDataException();
             }
 
-            String oldId;
-            String name;
-            Node nodeB;
-            Placement placement;
-            boolean rigid;
-            LazyValueMap tempFxMap = null;
+            final String oldId;
+            final String name;
+            final Node nodeB;
+            final Placement placement;
+            final boolean rigid;
+            final LazyValueMap tempFxMap;
             
             // Parse data.
-            // old id.
+            // Old id.
             oldId = String.valueOf(map.get("oldId"));
-            // rigidity.
+            if (oldId == null) {
+                throw new DataParseException("old relation id is invalid");
+            }
+            
+            // Rigidity.
             rigid = Boolean.valueOf(String.valueOf(map.get("rigid")));
-            // tempFx.
+            // Temporary FX.
             tempFxMap = (LazyValueMap) map.get("tempFx");
             try {
-                // node A
-                if ((nodeA = getController().getNode(
-                        Integer.parseInt(String.valueOf(map.get("nodeA"))))) == null) {
-                    throw new DataParseException("Node A was not found on the visualizer.");
-                }
-                // node B
-                if ((nodeB = getController().getNode(
-                        Integer.parseInt(String.valueOf(map.get("nodeB"))))) == null) {
-                    throw new DataParseException("Node B was not found on the visualizer.");
-                }
+                // Node A.
+                nodeA = getController().getNode(Integer.parseInt(String.valueOf(map.get("nodeA"))));
+                // Node B.
+                nodeB = getController().getNode(Integer.parseInt(String.valueOf(map.get("nodeB"))));
             } catch (NumberFormatException e) {
-                throw new DataParseException("The id of node A and/or B is invalid.");
+                throw new DataParseException("the id of node A and/or B is invalid");
+            } catch (IllegalArgumentException e) {
+                throw new DataParseException("node A and/or B are not found on the visualizer");
             }
+            
             try {
-                // name, placement.
+                // Name and placement.
                 if ((name = String.valueOf(map.get("name"))) == null 
                         || (placement = Placement.fromData(String.valueOf(
                                 map.get("placement")))) == null) {
-                    throw new DataParseException("The name and/or placement data was null.");
+                    throw new DataParseException("the name and/or placement data is null");
                 }
             } catch (IllegalArgumentException e) {
-                throw new DataParseException("The placment data was invalid.");
+                throw new DataParseException("the placment data is invalid");
             }
             
             
             //TODO: do something when the old relation wasn't found
-            // Create the Relation objects.
+            // Get the old relation instance and create the new relation. 
             oldRelation = nodeA.getRelations().withId(oldId).getFirst();
             newRelation = new Relation()
                             .setName(name)
@@ -108,38 +97,54 @@ public class SwitchPlacementRelationCommandHandler extends CommandHandler {
                             .setPlacement(placement)
                             .setRigid(rigid);
             if (tempFxMap != null && nodeA.getFxWrapper() != null) {
-                FxWrapper tempFxWrapper = nodeA.getFxWrapper().clone();
+                final FxWrapper tempFxWrapper = nodeA.getFxWrapper().clone();
                 tempFxWrapper.setFromMap(tempFxMap);
                 newRelation.setTemporaryFxOfNodeA(tempFxWrapper);
             }
         }
 
 
+        final Visualizer visualizer = ((ServerController) getController()).getVisualizer();
         
+        
+        // Remove old relation.
         oldRelation.removeFromNodes();
         nodeA.addRelation(newRelation);
         
         
+        /*
+         * cases:
+         *  1. no old temp fx, no new temp fx: do nothing
+         *  2. no old temp fx,    new temp fx: save current as original, change to new
+         *  3.    old temp fx, no new temp fx: revert to original
+         *  4.    old temp fx,    new temp fx:                           change to new
+         */
         
-        getController().getVisualizer().doPlacement(newRelation);
-        
-        //TODO: account for already set tempFx from the previous relation.
-        // Change node A's FX according to the tempFx.
-        if (newRelation.getTemporaryFxOfNodeA() != null) {
-            // We're assuming here that the FX of the Node itself has been set.
-            
-            // Save the current FX as the original, so we can revert back when the relation is 
-            //  removed.
+        // Case 3: revert to original FX.
+        if (oldRelation.getTemporaryFxOfNodeA() != null 
+         && newRelation.getTemporaryFxOfNodeA() == null) {
+            visualizer.changeFx(nodeA, 
+                    nodeA.getFxWrapper().getOriginalFxWrapper().toMapWithoutPositionData());
             nodeA.getFxWrapper().saveAsOriginal();
+        }
+        
+        // Cases 2 and 4: change node A's FX according to the tempFx.
+        if (newRelation.getTemporaryFxOfNodeA() != null) {
+            // We're assuming here that the FX of the Node itself has been set (which 
+            //  is checked around line 95).
+            
+            // Case 2: save the current FX as the original, so we can revert back when the 
+            //  relation is removed.
+            if (oldRelation.getTemporaryFxOfNodeA() == null) {
+                nodeA.getFxWrapper().saveAsOriginal();
+            }
             
             // Apply the changes (animated).
-            getController().getVisualizer().changeFx(nodeA, 
+            visualizer.changeFx(nodeA, 
                         newRelation.getTemporaryFxOfNodeA().toMap());
-        }      
-        
-        // Alter the location of nodes of other, rigid relations.
-        /*TODO: if node A has a rigid relation with another node (on which the current 
-        node A is node B there), change it's location {recursive). */
-    }
+        }
 
+        
+        visualizer.doPlacement(newRelation);
+    }
 }

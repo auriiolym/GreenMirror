@@ -42,8 +42,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
 
     // -- Queries ----------------------------------------------------------------------------
 
-    @Override
-    @NonNull protected List<FxPropertyWrapper> getAnimatableProperties() {
+    @Override @NonNull /*@ pure */ protected List<FxPropertyWrapper> getAnimatableProperties() {
         final List<FxPropertyWrapper> supersAnimatableProperties = super.getAnimatableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {
@@ -55,8 +54,7 @@ public class CircleFxWrapper extends FxShapeWrapper {
         };
     }
 
-    @Override
-    @NonNull protected List<FxPropertyWrapper> getChangableProperties() {
+    @Override @NonNull /*@ pure */ protected List<FxPropertyWrapper> getChangableProperties() {
         final List<FxPropertyWrapper> supersChangableProperties = super.getChangableProperties();
         return new ArrayList<FxPropertyWrapper>() {
             {

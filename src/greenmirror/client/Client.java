@@ -196,9 +196,6 @@ public class Client extends GreenMirrorController implements Observer {
         // Add this controller to the list of Observers.
         node.addObserver(this);
         
-        // Add to log.
-        Log.add("Node added: " + node.toString());
-        
         // Notify the server.
         send(new AddNodeCommand(node));
         
@@ -209,20 +206,42 @@ public class Client extends GreenMirrorController implements Observer {
         
         // If any relations have already been set, also notify the server.
         for (Relation relation : node.getRelations()) {
-            send(new AddRelationCommand(relation));
+            if (relation != null) {
+                send(new AddRelationCommand(relation));
+            }
         }
     }
     
     /**
-     * Adds a {@link Relation} to the visualizer and to the model.
+     * Adds a {@link Relation} to the visualizer and to the model. After some validity checks,
+     * it adds the relation via {@link Node#addRelation(Relation)}. This means that if
+     * <code>relation</code> is a placement relation, it replaces the previous placement
+     * relation.
      * 
-     * @param relation the new relation
+     * @param relation the new relation with both nodes set and both nodes should be known to 
+     *                 the controller (this <code>Client</code> instance)
+     * @throws IllegalArgumentException if one of the two nodes of the relation is 
+     *                                  <code>null</code> or one of the two nodes isn't known
+     *                                  to the controller
      */
+    //@ requires relation.getNodeA() != null;
+    //@ requires relation.getNodeB() != null;
     //@ ensures relation.getNodeA().hasRelation(relation);
     //@ ensures relation.getNodeB().hasRelation(relation); 
     public void addRelation(@NonNull Relation relation) {
-        relation.addToNodes();
-        send(new AddRelationCommand(relation));
+        if (relation.getNodeA() == null || relation.getNodeB() == null) {
+            throw new IllegalArgumentException("relation should have both nodes set");
+        }
+        if (!getNodes().contains(relation.getNodeA()) 
+                || !getNodes().contains(relation.getNodeB())) {
+            throw new IllegalArgumentException("related nodes should both be known with the "
+                    + "controller");
+        }
+        
+        // Add the relation to the node. This uses all the checks concerning placement relations.
+        final Node nodeA = relation.getNodeA();
+        relation.removeNodeA();
+        nodeA.addRelation(relation);
     }
     
     /**
@@ -232,6 +251,7 @@ public class Client extends GreenMirrorController implements Observer {
      * 
      * @param node the node to remove
      */
+    //@ ensures !getNodes().contains(node);
     public void removeNode(@NonNull Node node) {
         final Integer id = node.getId();
         // No id means the node isn't part of GreenMirror.
@@ -253,13 +273,17 @@ public class Client extends GreenMirrorController implements Observer {
     }
     
     /**
-     * Removes a {@link Relation} and notifies the server.
+     * Removes a {@link Relation} and notifies the server. If <code>relation</code> is 
+     * <code>null</code>, nothing happens.
      * 
      * @param relation the relation to remove
      */
-    //@ ensures !relation.getNodeA().hasRelation(relation);
-    //@ ensures !relation.getNodeB().hasRelation(relation); 
-    public void removeRelation(@NonNull Relation relation) {
+    //@ ensures relation != null ? !relation.getNodeA().hasRelation(relation) : true;
+    //@ ensures relation != null ? !relation.getNodeB().hasRelation(relation) : true; 
+    public void removeRelation(Relation relation) {
+        if (relation == null) {
+            return;
+        }
         relation.removeFromNodes();
         send(new RemoveRelationCommand(relation));
     }
@@ -273,7 +297,9 @@ public class Client extends GreenMirrorController implements Observer {
      * a new {@link PeerListener} thread is started to listen for incoming data.
      * 
      * @param host the address of the server
-     * @param port the port on which the server should be listening
+     * @param port the port on which the server should be listening (between 0 and 65535)
+     * @throws SocketTimeoutException if the connection to the server timed out
+     * @throws IOException            if something went wrong with creating the streams
      */
     //@ requires port >= -1 && port < 65535;
     public void connect(InetAddress host, int port) 
@@ -366,8 +392,8 @@ public class Client extends GreenMirrorController implements Observer {
      * they want the server to know about a change in the model. In that case, this method
      * forwards the received {@link Command}.
      * 
-     * @param o   the object it's observing
-     * @param cmd the object the observable passed
+     * @param observable the object it's observing
+     * @param cmd        the object the observable passed
      */
     @Override
     public void update(Observable observable, Object cmd) {
@@ -386,7 +412,7 @@ public class Client extends GreenMirrorController implements Observer {
      * @param height   the height of the canvas
      * @param duration the default duration of transitions; -1 for unspecified duration.
      * @param rotateRigidlyRelatedNodesRigidly see
-     *                 {@link greenmirror.server.Visualizer#getRotateRigidlyRelatedNodesRigidly()}
+     *                 {@link greenmirror.server.Visualizer#isRotateRigidlyRelatedNodesRigidly()}
      */
     //@ requires width > 0 && height > 0 && duration >= -1.0;
     public void initializeVisualizer(double width, double height, double duration,

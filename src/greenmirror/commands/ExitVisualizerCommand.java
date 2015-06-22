@@ -4,34 +4,21 @@ import greenmirror.Command;
 import greenmirror.CommunicationFormat;
 import groovy.json.JsonOutput;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.LinkedHashMap;
 
 /**
- * The command that signals that the visualizer should exit.
- * This command is sent to the server.
+ * The command that signals that the visualizer should exit. This command is sent to the server.
  * 
- * Values sent:
- * none
+ * Values sent: none
  */
 public class ExitVisualizerCommand extends Command {
 
-    // -- Instance variables -----------------------------------------------------------------
-    
-
-    // -- Constructors -----------------------------------------------------------------------
-
-    
-    // -- Queries ----------------------------------------------------------------------------
-    
-    
     // -- Commands ---------------------------------------------------------------------------
 
-    /**
-     * Fetch the raw data that will be sent.
-     * @param format The format in which the data will be.
-     */
-    //@ requires format != null;
-    public String getFormattedString(CommunicationFormat format) {
+    @Override
+    public String getFormattedString(@NonNull CommunicationFormat format) {
         switch (format) {
         default: case JSON:
             return JsonOutput.toJson(new LinkedHashMap<String, Double>() {

@@ -21,7 +21,7 @@ import java.util.List;
  * <b>options</b>. For example:
  *      <code>greenmirror.client.Client --option1 --option2</code>
  * All parameters belonging to options are called <b>arguments</b>. For example:
- *      <code>greenmirror.client.Client --option1=argument1 -o argument2 
+ *      <code>greenmirror.client.Client --option1=argument1 -o argument2</code>
  * 
  * @author Karim El Assal
  * @see <a href="https://pholser.github.io/jopt-simple/">JOpt Simple</a>
