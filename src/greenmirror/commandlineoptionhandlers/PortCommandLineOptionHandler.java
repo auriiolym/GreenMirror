@@ -86,7 +86,10 @@ public class PortCommandLineOptionHandler implements CommandLineOptionHandler {
     @Override
     public void process(@NonNull GreenMirrorController controller) throws FatalException {
         // Set port.
-        ((ServerController) controller).setPort(port);
+        final Integer port = this.port;
+        if (port != null) { // @NonNull annotation formality.
+            ((ServerController) controller).setPort(port);
+        }
     }
 
     @Override @NonNull 

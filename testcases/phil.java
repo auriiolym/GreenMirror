@@ -1,5 +1,5 @@
 // The dining philosophers
-initialize(1000, 700, false);
+initialize(500, 380, false);
 
 // Set duration for initialization.
 setAnimationDuration(10);
@@ -10,13 +10,13 @@ int amount = 4;
 // Prototype philosopher.
 final Node phil_prototype = new Node("phil:").set(fx("image")
                                                   .setImageFromFile("testcases/img/phil_thinking.png")
-                                                  .setFitWidth(100)
+                                                  .setFitWidth(65)
                                                   .setPreserveRatio(true));
 
 // Add table and the space around the table.
 addNodes(
-    new Node("at_table").set(fx("circle").setRadius(200).setPosition(500, 350).setFill(Color.BROWN).setOpacity(0.7)),
-    new Node("around_table").set(fx("circle").setRadius(300).setPosition(500, 350).setOpacity(0.001)),
+    new Node("at_table").set(fx("circle").setRadius(100).setPosition(250, 195).setFill(Color.BROWN).setOpacity(0.7)),
+    new Node("around_table").set(fx("circle").setRadius(150).setPosition(250, 195).setOpacity(0.001)),
 );
 
 // Add philosophers and place them, and add forks.

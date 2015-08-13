@@ -1,0 +1,68 @@
+%--------------------------------------------------------------------------------
+%----------------------------------------------------------------------
+\section{Service extension instructions}\label{app:ext}
+This appendix gives instructions on how to extend several components of the GreenMirror framework. These components have been specifically designed to be easily extensible with as few steps as possible. The final, omitted step after adding an extension is to recompile, so the extension can be used. This section is meant for developers, although \cref{app:ext;sub:modelinitializer,app:ext;sub:traceselector} are mainly meant for tool owners. Both of these stakeholder groups are assumed to have sufficient understanding of the Java programming language to comprehend these instructions. Most extensible components make use of the \lstinline{java.util.ServiceLoader} injector. More in-depth details about implementing new code is available in the JavaDocs on the repository of this project.
+%--------------------------------------------------------------------------------
+\subsection{\texttt{ModelInitializer}}\label{app:ext;sub:modelinitializer}
+\begin{enumerate}
+  \item Implement \lstinline{greenmirror.client.ModelInitializer}, making sure that it has a zero-argument constructor.
+  \item Add the fully-qualified binary class name of your new class with a new line to the file \lstinline{META-INF/services/greenmirror.client.ModelInitializer}.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{TraceSelector}}\label{app:ext;sub:traceselector}
+\begin{enumerate}
+  \item Implement \lstinline{greenmirror.client.TraceSelector}, making sure that it has a zero-argument constructor.
+  \item Add the fully-qualified binary class name of your new class with a new line to the file \lstinline{META-INF/services/greenmirror.client.TraceSelector}.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{FxWrapper}}\label{app:ext;sub:fxwrapper}
+\begin{enumerate}
+  \item Extend \lstinline{greenmirror.FxWrapper} or \lstinline{greenmirror.FxShapeWrapper} if the JavaFX node type your new class is representing is an extension of \lstinline{javafx.scene.shape.Shape}. In either case make sure that it has a zero-argument constructor.
+  \item Add the JavaFX node properties you want to support (see \cref{app:ext;sub:fxpropertywrapper}).
+  \item Add the fully-qualified binary class name of your new class with a new line to the file \lstinline{META-INF/services/greenmirror.FxWrapper}.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{FxPropertyWrapper}}\label{app:ext;sub:fxpropertywrapper}
+\begin{enumerate}
+  \item Extend \lstinline{greenmirror.FxPropertyWrapper}.
+  \item Support for this FX property type is being added to support a specific FX property of an \lstinline{FxWrapper} subclass. An entry must be added to one of two methods of the relevant \lstinline{FxWrapper} subclass. If the FX property can be animated, add an entry to the \lstinline{getAnimatableProperties()} method. If the property can only be set once, add it to the \lstinline{getChangableProperties()} method.
+  \item Add one or more get-methods to the \lstinline{FxWrapper} subclass.
+  \item Add one or more set-methods to the \lstinline{FxWrapper} subclass. The type of the argument of the primary set-method depends on what the relevant \lstinline{FxPropertyWrapper}'s \lstinline{getPropertyType()} method returns.
+  \item If the property can be animated, but hasn't got a \lstinline{javafx.animate.Transition} implementation yet, create it. The abstract \lstinline{AbstractTransition} and \lstinline{DoublePropertyTransition} classes have been created to provide several often used methods when extending \lstinline{javafx.animate.Transition}.
+  \item If the property can be animated, add the animate method that returns the \lstinline{javafx.animate.Transition} that changes the value of the property when played.
+  \item If the user needs access to the new property type in the Groovy model initializer, add an entry to the \lstinline{IMPORTS} constant of the \lstinline{greenmirror.client.modelinitializers.GroovyScriptModelInitializer} class.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{Placement}}\label{app:ext;sub:placement}
+\begin{enumerate}
+  \item Extend \lstinline{greenmirror.Placement}, making sure that it has a zero-argument constructor.
+  \item If the placement has no further parameters (such as the angle parameter of \lstinline{EdgePlacement}), add a public constant to \lstinline{greenmirror.Placement} holding an instance of your new class.
+  \item Add support for the new placement by adding the necessary calculations to the \lstinline{calculatePoint(Placement)} methods of all implemented \lstinline{FxWrapper}s and to the static \lstinline{calculatePointOnRectangle(double, double, Placement)} method of the \lstinline{FxWrapper} class. 
+  \item Add the fully-qualified binary class name of your new class with a new line to the file \lstinline{META-INF/services/greenmirror.Placement}.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{Command}}\label{app:ext;sub:command}
+\begin{enumerate}
+  \item Extend \lstinline{greenmirror.Command}.
+  \item Add a corresponding \lstinline{CommandHandler}. See \cref{app:ext;sub:commandhandler}.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{CommandHandler}}\label{app:ext;sub:commandhandler}
+\begin{enumerate}
+  \item Extend \lstinline{greenmirror.CommandHandler}, making sure that it has a zero-argument constructor and that its \lstinline{getCommand()} method returns the same string as the \lstinline{Command} class that this handler is meant to handle.
+  \item Add at least one of the \lstinline{@ClientSide} and \lstinline{@ServerSide} annotations, indicating on which "side" the command should be handled.
+  \item Add the fully-qualified binary class name of your new class with a new line to the file \lstinline{META-INF/services/greenmirror.CommandHandler}.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{CommandLineOptionHandler}}\label{app:ext;sub:cloh}
+\begin{enumerate}
+  \item Implement \lstinline{greenmirror.CommandLineOptionHandler}, making sure that it has a zero-argument constructor.
+  \item Add at least one of the \lstinline{@ClientSide} and \lstinline{@ServerSide} annotations, indicating on which "side" the command line option should become available.
+  \item Add the fully-qualified binary class name of your new class with a new line to the file \lstinline{META-INF/services/greenmirror.CommandLineOptionHandler}.
+\end{enumerate}
+%--------------------------------------------------------------------------------
+\subsection{\texttt{Log}}\label{app:ext;sub:log}
+\begin{enumerate}
+  \item Extend \lstinline{java.io.PrintStream}.
+  \item Add a \lstinline{Log.addOutput(instance);} statement to the entry point of the component you want to add it to. The entry point of the client is the static \lstinline{main(String[])} method of the \lstinline{greenmirror.client.Client} class. The entry point of the server is the \lstinline{start(Stage)} method of the \lstinline{greenmirror.server.Visualizer} class.
+\end{enumerate}

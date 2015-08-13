@@ -1,0 +1,60 @@
+\begin{thebibliography}{10}
+
+\bibitem{aalbertsberg2015}
+A.~Aalbertsberg.
+\newblock Dynamic visualization of state transition systems.
+\newblock
+  \url{https://github.com/Vaeil/StateTransAnimation/blob/master/report/report.pdf},
+  2015.
+
+\bibitem{dijkstra1968}
+E.W. Dijkstra.
+\newblock Co-operating sequential processes.
+\newblock {\em F. Genuys (ed.): Programming Languages}, pages 43--112, 1968.
+
+\bibitem{fayad1997}
+Mohamed Fayad and Douglas~C. Schmidt.
+\newblock Object-oriented application frameworks.
+\newblock {\em Commun. ACM}, 40(10):32--38, October 1997.
+
+\bibitem{groovy}
+Groovy: A multi-faceted language for the java platform.
+\newblock \url{http://groovy-lang.org/}.
+
+\bibitem{joptsimple}
+P.~Holser.
+\newblock {JOpt} simple: A java library for parsing command line options.
+\newblock \url{https://pholser.github.io/jopt-simple/}.
+
+\bibitem{huth2004}
+M.~Huth and M.~Ryan.
+\newblock {\em Logic in Computer Science: Modelling and Reasoning about
+  Systems}.
+\newblock Cambridge University Press, 2004.
+
+\bibitem{junit}
+Junit: a simple framework to write repeatable tests.
+\newblock \url{http://junit.org/}.
+
+\bibitem{kuchana2004}
+P.~Kuchana.
+\newblock {\em Software architecture design patterns in Java}.
+\newblock CRC Press, 2004.
+
+\bibitem{markiewicz2001}
+Marcus~Eduardo Markiewicz and Carlos J.~P. de~Lucena.
+\newblock Object oriented framework development.
+\newblock {\em Crossroads}, 7(4):3--9, July 2001.
+
+\bibitem{rensink2004}
+A.~Rensink.
+\newblock The {GROOVE} simulator: A tool for state space generation.
+\newblock {\em Applications of Graph Transformations with Industrial
+  Relevance}, pages 479--485, 2004.
+
+\bibitem{sourcemaking}
+A.~Shvets.
+\newblock {\em Design Patterns Explained Simply}.
+\newblock Sourcemaking.com.
+
+\end{thebibliography}

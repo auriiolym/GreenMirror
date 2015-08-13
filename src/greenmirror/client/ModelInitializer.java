@@ -6,7 +6,7 @@ import org.eclipse.jdt.annotation.NonNull;
 /**
  * The interface that defines how model initializers should be structured.
  * <p>
- * The order of executing is: {@link #setParameter(String)}, {@link #prepare()} and 
+ * The order of execution is: {@link #setParameter(String)}, {@link #prepare()} and 
  * {@link #executeInitializer()}. The complete set of available model initializers is first 
  * prepared before they are all executed.
  * 

@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
  * <tr><th>variable</th><th>type</th><th>description</th></tr>
  * <tr><td>width </td><td>int</td><td>      the width of the window</td></tr>
  * <tr><td>height </td><td>int</td><td>     the height of the window</td></tr>
- * <tr><td>defaultAnimationDuration </td><td>String</td><td>
+ * <tr><td>defaultAnimationDuration </td><td>double</td><td>
  *                      the default time animations will take. See
  *                      {@link SetAnimationDurationCommand} for details</td></tr>
  * <tr><td>rotateRigidlyRelatedNodesRigidly </td><td>boolean</td><td>

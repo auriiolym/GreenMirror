@@ -53,6 +53,9 @@ public class ServerController extends GreenMirrorController {
     /** the port the server will be listening on */
     private Integer port;
     
+    
+    private ServerSocket serverSocket;
+    
 
     // -- Constructors -----------------------------------------------------------------------
     
@@ -99,7 +102,7 @@ public class ServerController extends GreenMirrorController {
     /** @return The ip address of this computer or "?unknown?" if it couldn't be found */
     @NonNull private String getHostAddress() {
         try {
-            String iaddr = InetAddress.getLocalHost().getHostAddress();
+            final String iaddr = InetAddress.getLocalHost().getHostAddress();
             if (iaddr == null) {
                 throw new UnknownHostException();
             }
@@ -107,6 +110,11 @@ public class ServerController extends GreenMirrorController {
         } catch (UnknownHostException e) {
             return "?unknown?";
         }
+    }
+    
+    /** @return the server socket; <code>null</code> if not set */
+    public ServerSocket getServerSocket() {
+        return this.serverSocket;
     }
     
     
@@ -126,12 +134,12 @@ public class ServerController extends GreenMirrorController {
     public void listenForConnections() {
         new Thread(() -> {
             try {
-                final ServerSocket serverSock = new ServerSocket(getPort());
+                serverSocket = new ServerSocket(getPort());
                 Log.add("Server is running on " + getHostAddress() + ":" + getPort() + ".");
                 Log.add("Waiting for incoming connections...");
                 
                 // Waiting for a connection...
-                setSocket(serverSock.accept());
+                setSocket(getServerSocket().accept());
         
                 // Open the input and output streams from and to the server.
                 setStreamIn(new BufferedReader(
@@ -145,9 +153,9 @@ public class ServerController extends GreenMirrorController {
                 // Start listening for incoming data from the peer.
                 startPeerListener(new PeerListener(this));
                 
-                serverSock.close();
+                getServerSocket().close();
             } catch (IOException e) {
-                Log.add("Unable to start server on port " + getPort() + ". The following "
+                Log.add("Unable to (re)start server on port " + getPort() + ". The following "
                         + "exception was thrown: " + e.getMessage());
             }
         }).start();
@@ -182,12 +190,31 @@ public class ServerController extends GreenMirrorController {
             Log.add("Data was missing in the following received command: " + data);
         }
     }
-    
-    /** Closes the streams and start listening for connections again if wanted */
+
     @Override
     public void closeStreams() {
+        if (getServerSocket() != null) {
+            try {
+                getServerSocket().close();
+            } catch (IOException e) {
+                Log.add("An IOException occured while closing server socket: ", e);
+            }
+        }
         super.closeStreams();
-        relistenForConnections();
+    }
+    
+    /**
+     * Exit the server application.
+     */
+    public void exit() {
+        // Close the visualizer.
+        if (getVisualizer().getStage() != null) {
+            getVisualizer().getStage().setOnHidden(null);
+            getVisualizer().getStage().close();
+            getVisualizer().setStage(null);
+        }
+        // Close connections. This results in termination of the server.
+        closeStreams();
     }
 
 }

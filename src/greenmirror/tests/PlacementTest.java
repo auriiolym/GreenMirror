@@ -205,16 +205,5 @@ public class PlacementTest {
         final double avgY = yvalues.stream().mapToDouble(d -> d).average().orElse(0);
         assertTrue(avgX < 51 && avgX > 49);
         assertTrue(avgY < 51 && avgY > 49);
-        
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

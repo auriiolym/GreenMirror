@@ -4,6 +4,7 @@ import groovy.lang.Closure;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,7 +14,8 @@ import java.util.regex.Pattern;
  * A class that stores the execution of state-transitions. These instances should be defined 
  * by the model initializers. Whenever a transition is encountered on a trace that matches the 
  * pattern of an instance of <code>ModelTransition</code>, the code from the closure is executed
- * and that should actually execute the state-transition. 
+ * and that should actually execute the state-transition. If the code (the <code>Closure</code>
+ * returns boolean <code>false</code>, further state-transitions are cancelled. 
  * This class is only used on the client side.
  * 
  * @author Karim El Assal
@@ -189,6 +191,21 @@ public class ModelTransition {
             );
         }
         
-        return getClosure().call(arguments);
+        // Remove redundant stacktrace: leave everything from the point where the exception
+        // was thrown to the line in the Groovy script.
+        try {
+            return getClosure().call(arguments);
+        } catch (Exception e) {
+            final List<StackTraceElement> st = Arrays.asList(e.getStackTrace());
+            for (StackTraceElement ste : e.getStackTrace()) {
+                if (ste != null && ste.getFileName() != null 
+                 && ste.getFileName().startsWith("Script") 
+                 && ste.getFileName().endsWith(".groovy")) {
+                    e.setStackTrace(st.subList(0, st.indexOf(ste) + 1)
+                                    .toArray(new StackTraceElement[]{}));
+                }
+            }
+            throw e;
+        }
     }
 }

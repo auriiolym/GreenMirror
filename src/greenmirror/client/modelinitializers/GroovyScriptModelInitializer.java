@@ -188,7 +188,7 @@ public class GroovyScriptModelInitializer implements ModelInitializer {
         try {
             script.run();
         } catch (Exception e) {
-            List<StackTraceElement> st = Arrays.asList(e.getStackTrace());
+            final List<StackTraceElement> st = Arrays.asList(e.getStackTrace());
             for (StackTraceElement ste : e.getStackTrace()) {
                 if (ste != null && ste.getFileName() != null 
                  && ste.getFileName().startsWith("Script") 

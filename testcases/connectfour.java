@@ -1,5 +1,5 @@
 // ConnectFour
-initialize(600, 700);
+initialize(600, 630);
 
 // Create the board
 addNodes(
@@ -12,7 +12,7 @@ addNodes(
         .setBorderSize(3, 20, 20, 20)
         .setBackgroundFill("linear-gradient(to bottom, #5252FF, #2626FF)")
         .setBackgroundArcs(8)
-        .build(50, 200)
+        .build(50, 160)
         .getNodes()
 );
 
@@ -69,7 +69,7 @@ addTransition("move(\\d+)", { Integer column ->
                             .setNodeB(node("cf:cell_" + column))
                             .setPlacement(Placement.EDGE_TOP);
 
-    Relation inCell =       new Relation("inCell")
+    Relation inCell =      new Relation("inCell")
                             .setNodeA(mark)
                             .setNodeB(node("cf:cell_" + cell))
                             .setPlacement(Placement.MIDDLE);
@@ -88,5 +88,4 @@ addTransition("move(\\d+)", { Integer column ->
     switchPlacementRelation(
         nextRel.clone().setName("has").setNodeB(node("turn"))
     );
-    
 });

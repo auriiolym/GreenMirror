@@ -12,7 +12,7 @@ addNodes(
                                 .setSize(200, 300)
                                 .setPosition(150, 0)
                                 .setFill("linear-gradient(to right, #00F0F0 0%, #00DEDE 50%, #00F0F0 100%)")),
-    new Node("bank:left").set(fx("Rectangle")
+    new Node("bank:right").set(fx("Rectangle")
                                 .setSize(150, 300)
                                 .setPosition(350, 0)
                                 .setFill("linear-gradient(to left, darkgreen 0%, limegreen 92.5%, #00F0F0 100%)"))

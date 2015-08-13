@@ -1,0 +1,14 @@
+durationTest
+transitionparameters:int=123;str=string_param
+addNodesShowcase
+setFxTest
+generalNodePropertyTest
+shapeNodePropertyTest
+rectangleNodePropertyTest
+imageNodePropertyTest
+textNodePropertyTest
+relationShowcase
+placementRelationTest
+rigidPlacementRelationTest
+chainedRigidPlacementRelationTest
+removeNodesTest

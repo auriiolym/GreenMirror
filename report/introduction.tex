@@ -1,0 +1,85 @@
+%--------------------------------------------------------------------------------
+%----------------------------------------------------------------------
+\section{Introduction}\label{sec:intro}
+This report describes the GreenMirror framework: a tool for visualizing and animating state-transition models. The current section contains background information needed to understand this project and the rest of the report. \Cref{sec:ferryman} gives an example of the usage of the GreenMirror application. The example model is the ferryman puzzle and shows how one can switch from a state space generation tool to the GreenMirror tool. The features of the application and their usage are described in \cref{sec:features}, which is particularly useful for the end-users of GreenMirror. \Cref{sec:design} follows with a description about how the design and implementation of the GreenMirror framework look like and is useful for future developers and also in part for tool owners. Validation of the system is described in \cref{sec:validation} and this report concludes with \cref{sec:discussion} discussing the developed system and providing suggestions for future improvements. This report has been written for anyone who wants to use the GreenMirror tool, which is why the current structure has been chosen: first can be seen why the system has been developed, then what the possibilities of the system are and finally how the system is developed and how the project was defined.
+%--------------------------------------------------------------------------------
+\subsection{Background}\label{sec:intro;sub:bg}
+State-transition models describe the discrete dynamic behaviour of a system or process. Such a model defines how the state of a system changes as the result of a trigger, and following its set of model rules. In the field of computer science, these models are used for system verification and analysis. Verification and analysis are done, for example, to confirm and prove a process can not enter a deadlock state. One way of analysing a state-transition model is by analysing its \emph{state space}, which a state space generation tool such as GROOVE \cite{rensink2004} can generate. 
+\par State spaces can become huge, complex and difficult to analyse. The research group Formal Methods and Tools\footnote{\url{http://fmt.cs.utwente.nl/}} of the University of Twente has set out to develop a framework based on the Java programming language and the JavaFX library that enables researchers to analyse state-transition models using a different approach. The idea is to visualize the system state and animate the state-transitions of a user-specified state-transition model with the goal of gaining a better understanding of the model and its flaws.
+\par The first step in the development of this framework has been made by Alex Aalbertsberg \cite{aalbertsberg2015}. This report describes how his framework has been redesigned and how it has implemented more extensive features. The current version has been named \emph{GreenMirror}. Although the project is far from complete, hopefully these contributions will eventually lead to better state-transition model research.
+%--------------------------------------------------------------------------------
+\subsection{Glossary}\label{sec:intro;sub:glos}
+Some terms in this report can be ambiguous or unclear in their meaning. For that reason, the following glossary is provided which will make their meaning definitive.
+\begin{description}
+\item[The application] This refers to the GreenMirror application as used by the user to reach the goal as intended by the developer. It is a compiled version of the source code that is the GreenMirror framework.
+\item[The framework] This refers to the application in development and specifically its source code.
+\item[GreenMirror] The name of this project. It does not have a profound meaning, it is chosen to be a short designation to indicate that this project is meant in certain contexts.
+\item[FX] This refers to the visual appearance linked to a GreenMirror node (which can, but does not per se equal the corresponding JavaFX node).
+\item[JavaFX] The visualization library of the Java programming language.
+\item[JavaFX node] A visual node of JavaFX. See "node".
+\item[JavaFX transition] The animation of a JavaFX node property from one value to another. A JavaFX transition is always meant when talking about an animation in a JavaFX context.
+\item[The (researched/user-defined) model] The model that the user wants to visualize and research using the GreenMirror application.
+\item[(GreenMirror) node] The term "node" is used for two types of nodes: for a node in the model: a GreenMirror node; and a node of JavaFX. When speaking simply of a node, a GreenMirror node is intended. In any other case, the words "JavaFX node" will be used. It is also possible both a GreenMirror and its corresponding JavaFX node are meant. In that case, it will be clear from the context. It shall be made clear explicitly if other types of nodes are meant anywhere in this report.
+\item[State] The state of a user-defined model.
+\item[State-transition] A transition from one state of the user-defined model to another. In the visualizer, this can contain multiple JavaFX transitions.
+\item[State-transition model] A model that describes how a system transitions from one state to another.
+\item[Trace] A sequence of state-transitions.
+\item[User] The user is the researcher that uses the framework to visualize certain models (see \cref{sec:intro;sub:stakeh}).
+\item[Visualizer] The component of the GreenMirror application that actually visualizes the states and the state-transitions.
+\end{description}
+%--------------------------------------------------------------------------------
+\subsection{Stakeholders}\label{sec:intro;sub:stakeh}
+It is assumed that any stakeholder knows what he is doing when interacting with the system in the sense that the stakeholder knows about the context and the tools he is using. There are three ways of interaction, so the groups of stakeholders are divided as such.
+\begin{description}
+\item[\textbf{The user}] The end-user, or "user" for short, is the stakeholder that uses the application for its main purpose: visualizing models. The "user" can also be renamed "the visualization builder", but in this report the term "user" will be retained. The user is expected to have a basic understanding of programming in general and specifically of the Java language. The user can also be one who only sees the visualization, but does not build it, in which case he can be renamed "the visualization viewer". This type of user will be considered the same as the "end-user" and will be taken into account by making the user interface of the visualization as straightforward as possible.
+\item[\textbf{The state space tool owner}] Researchers might want to connect their own state space tool to the GreenMirror framework. The development of a suitable interface for this is taken into account in the design of the framework. Any person that writes a new extension to connect his state space tool to the GreenMirror framework is called a "state space tool owner", or "tool owner" for short, and will be considered in the design and development phases.
+\item[\textbf{The developer}] The GreenMirror framework is intended to be extended and otherwise improved over time. The developers that will do so are also seen as a relatively small group of stakeholders. To extend and improve the framework developers will need an in-depth understanding of the framework, contrary to tool owners who only need to understand the interface between their tool and the framework. Hence, large part of this report is written for developers.
+\end{description}
+%--------------------------------------------------------------------------------
+\subsection{Project definition}\label{sec:intro;sub:project}%\label{sec:project;sub:req}\label{sec:project}
+The main goal of this project is to make it possible for researchers to visually analyse the temporal behaviour of state-transition models. These models are already defined and might have already been visualized and analysed in a different way. Several requirements and use cases have been defined that mark the scope of this project. Furthermore, three test cases have been chosen that GreenMirror must be able to visualize. The ultimate goal for a final version of this tool is to be able to create and alter state-transition models from a visualizer or other kind of graphical user interface. This means that not only should the tool turn a model into visualizations, but also it should also, eventually, be able to turn visualizations into a model. This unfortunately lies beyond the scope of this project.
+\par The requirements of this project have been divided into architectural, functional and performance requirements and are listed in \cref{tab:req}. The architectural requirements are defined for the framework, so they are also inherent to the application. The developer is the main stakeholder concerning the architectural requirements, since he has most to gain from a well-defined software system. The tool owner is also an important stakeholder, but mostly in the extensibility requirement. The architectural requirements are fairly general and vague, but are important and have to be stated nevertheless. All functional requirements relate to the application, seeing as the application contains functionality and the framework does not. Therefore, the user is the main stakeholder in these requirements. In general, the application has to be \emph{flexible}. The user is assumed to be a researcher, which implies that the user wants to have as much freedom as possible in deciding what the application does, how it works and what it gives as output. This notion is the basis for all functional requirements. The performance requirements also relate to the application and primarily concern the smooth and uninterrupted execution of visualizations. All requirements are formulated, sorted (in groups of the requirement type) and prioritized according to the \emph{MoSCoW} method.
+\begin{longtable}{ |l p{12.3cm}| }
+\caption{project GreenMirror requirements}\label{tab:req} \\ 
+\hline\multicolumn{2}{|l|}{\textbf{Architectural requirements}} \\ 
+\hline\multirow{2}{*}{\requirement\label{req:extensible}} & \vspace{-2px}\emph{\textbf{The framework must be easily extensible.}} \newline Future research might require new functionalities, so a developer or tool owner must be able to extend easily instead of heavily modify the source code. Fayad \& Schmidt \cite{fayad1997} call these extensibility points "hot spots". \\
+& \usecase\label{uc:extend}: as a developer (or tool owner), I want to be able to extend the framework with as less source code alterations as possible. \vspace{3px}\\ 
+\hline\multirow{2}{*}{\requirement\label{req:maintainable}} & \vspace{-2px}\emph{\textbf{The framework must be maintainable.}} \newline A developer must have little to no effort in understanding the source code when improvements or extensions are developed. Programmed structures and patterns must be easily recognizable and well documented. \vspace{3px}\\
+\hline\pagebreak\hline\multicolumn{2}{|l|}{\textbf{Functional requirements}} \\
+\hline\multirow{2}{*}{\requirement\label{req:aware_model}} & \vspace{-2px}\emph{\textbf{The application must become aware of the researched model}} and how to visualize it. \newline This process is divided into several parts, although it still treated as one requirement.
+    \begin{itemize}\renewcommand\labelitemi{--}
+    \item\vspace{-5px} The application must become aware of the initial nodes and relations the researched model is composed of. 
+    \item\vspace{-5px} The application must become aware of how these initial nodes and relations should be visualized. 
+    \item\vspace{-5px} The application must become aware of how state-transitions should be visualized. 
+    \vspace{2px}\end{itemize} \\
+& \usecase\label{uc:model_aware}: as a user, I want to choose how the application becomes aware of my model. \\
+& \usecase\label{uc:model_source}: as a user, I want to choose the source the application retrieves my model from. \vspace{3px}\\
+\hline\multirow{2}{*}{\requirement\label{req:aware_trace}} & \vspace{-2px}\emph{\textbf{The application must become aware of the trace}}. \\
+& \usecase\label{uc:trace_source}: as a user, I want to choose the source that the application retrieves my trace from. \vspace{3px}\\
+\hline\multirow{2}{*}{\requirement\label{req:show_vis}} & \vspace{-2px}\emph{\textbf{The application must generate visualizations of the user's model progressing through the state-transitions on the trace.}} \newline Additionally, the following sub-requirements are defined:
+	\begin{itemize}\renewcommand\labelitemi{--}
+    \item\vspace{-5px} \requirement\label{req:show_vis_geom}: \emph{\textbf{the application must visualize simple geometric shapes}}, such as rectangles and circles.
+    \item\vspace{-5px} \requirement\label{req:show_vis_text}: \emph{\textbf{the application must visualize text nodes}}.
+    \item\vspace{-5px} \requirement\label{req:show_vis_imag}: \emph{\textbf{the application must visualize images}}.
+    \item\vspace{-5px} \requirement\label{req:show_vis_anim}: \emph{\textbf{the application must visualize simple animations}}, such as node movement and creation.
+    \item\vspace{-5px} \requirement\label{req:show_vis_plac}: \emph{\textbf{the application must visualize the placement of nodes with respect to other nodes}}, without receiving coordinates from the user.
+	\vspace{2px}\end{itemize} \\
+& \usecase\label{uc:vis}: as a user, I want to view the visualizations that the application generated from my model. \vspace{3px}\\
+\hline\multirow{2}{*}{\requirement\label{req:log}} & \vspace{-2px}\emph{\textbf{The application should provide a detailed log}} about all relevant events. \newline This helps in debugging, in improving the application and in analysing the researched model. \\
+& \usecase\label{uc:log}: as a user, I want to view a detailed log. \vspace{3px}\\
+\hline\multirow{2}{*}{\requirement\label{req:browse}} & \vspace{-2px}\emph{\textbf{The application should be able to browse back and forth between the visualized states}}, while consistently seeing the proper visualization and without errors or reduced performance. This way the user doesn't have to rerun the complete application on each examination of the model. \\
+& \usecase\label{uc:browse}: as a user, I want to browse back and forth between the visualized states of my model. \vspace{3px}\\
+\hline\pagebreak\hline\multicolumn{2}{|l|}{\textbf{Performance requirements}} \\
+\hline\multirow{2}{*}{\requirement\label{req:nodelay}} & \vspace{-2px}\emph{\textbf{The application should transition from state to state without noticeable delay}} caused by memory or processing problems. \newline This requirement only applies to the point in time where the model has been completely loaded into GreenMirror. \vspace{3px}\\
+\hline\multirow{2}{*}{\requirement\label{req:nocrash}} & \vspace{-2px}\emph{\textbf{The application should not crash}} or terminate otherwise while transitioning from state to state. \newline This requirement only applies to the point in time where the model has been successfully loaded into GreenMirror and all model logic has been deemed valid and without errors. \vspace{3px}\\
+\hline
+\end{longtable}
+\par The first test case is the ferryman puzzle as discussed in \cref{sec:ferryman}. The second test case is the well-known game ConnectFour. The third is the \emph{Dining Philosophers problem} (Dijkstra~\cite{dijkstra1968}), which is often used to illustrate concurrency problems such as shared resources and deadlock scenarios. The problem scenario consists of a certain amount of forks and an equal amount of philosophers that sit around a table. Each philosopher has a plate of spaghetti in front of him and each pair of philosophers has a fork between them. The goal is to come up with a fair way for each philosopher to eat and not die of starvation. The following constraints are in place.
+\begin{enumerate}
+\item Philosophers do only one of three things: think, be hungry or eat. They do not communicate with each other.
+\item A philosopher needs two forks to eat and can only use the two forks on his immediate sides.
+\item When a philosopher is thinking, he does not have forks and does not do anything at all.
+\item When a philosopher gets hungry, he tries to obtain the two forks on his sides and will wait for their availability. He will not put down his first fork before he gets to eat.
+\item After a philosopher is done eating, he releases the two forks.
+\end{enumerate}
+The forks represent shared resources in a concurrency problem. The constraints represent synchronization measures. A deadlock can, for example, occur when all philosophers get hungry at the same time and pick up the fork on their right.

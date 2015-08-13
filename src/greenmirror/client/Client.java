@@ -362,22 +362,29 @@ public class Client extends GreenMirrorController implements Observer {
     }
 
     /**
-     * Executes the trace.
+     * Executes the trace. If the {@link ModelTransition}'s <code>Closure</code> returns
+     * boolean <code>false</code>, further state-transitions are cancelled.
      * 
      * @param traceSelector the {@link TraceSelector} that selects the trace
      */
     public void executeTrace(@NonNull TraceSelector traceSelector) {
         // Loop through every trace transition.
-        for (String traceTransition : traceSelector.getTrace()) {
+        transitionloop: for (String traceTransition : traceSelector.getTrace()) {
             if (traceTransition == null) { // @NonNull formality
                 continue;
             }
             // And execute the transition.
             for (ModelTransition transition : getTransitions(traceTransition)) {
                 send(new SetAnimationDurationCommand(transition.getDuration()));
-                transition.execute(traceTransition);
+                final Object result = transition.execute(traceTransition);
                 if (!transition.isSupplemental()) {
                     send(new EndTransitionCommand());
+                }
+                if (Boolean.FALSE.equals(result)) {
+                    Log.add("Transition " + traceTransition + " issued an abort: this was "
+                            + "the last transition.");
+                    break transitionloop;
+                } else {
                     Log.add("Transition " + traceTransition + " executed.");
                 }
             }

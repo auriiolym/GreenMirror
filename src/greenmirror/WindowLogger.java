@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -14,6 +15,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  * A <code>PrintStream</code> that is used as a log window. It works just like any other
@@ -43,10 +45,14 @@ public class WindowLogger extends PrintStream {
     // -- Constructors -----------------------------------------------------------------------
     
     /**
-     * Creates a new <code>WindowLogger</code>.
+     * Creates a new <code>WindowLogger</code> and attaches an <code>onHidden</code> event 
+     * handler. 
+     * 
+     * @param onHidden the event handler that will be executed when the window is closed;
+     *                 <code>null</code> if none should be executed
      */
-    public WindowLogger() {
-        super(new WindowOutputStream());
+    public WindowLogger(EventHandler<WindowEvent> onHidden) {
+        super(new WindowOutputStream(onHidden));
     }
     
     
@@ -75,13 +81,16 @@ public class WindowLogger extends PrintStream {
         
         /**
          * Creates a new window.
+         * 
+         * @param onHidden the event handler that is executes when the window is closed
          */
-        public WindowOutputStream() {
+        public WindowOutputStream(EventHandler<WindowEvent> onHidden) {
 
             try {
                 Runnable startWindow = () -> {
                     stage = new Stage();
                     stage.setTitle(TITLE);
+                    stage.setOnHidden(onHidden);
                     
                     ScrollPane scrollpane = new ScrollPane();
                     scrollpane.setFitToWidth(true);

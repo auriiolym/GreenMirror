@@ -27,10 +27,12 @@ import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Point3D;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 /**
@@ -719,16 +721,19 @@ public class Visualizer extends Application implements Caretaker, Originator {
     @Override
     public void start(Stage primaryStage) {
         final String[] args = getParameters().getRaw().toArray(new String[]{});
-
-        // Open the log window.
-        Log.addOutput(new WindowLogger());
-        Log.addOutput(Log.DEFAULT);
-        
         
         // Start controller.
         this.controller = new ServerController(this);
         getController().setCommunicationFormat(CommunicationFormat.JSON);
         
+        // Open the log window.
+        Log.addOutput(new WindowLogger(new EventHandler<WindowEvent>() {
+            // On log window close, exit.
+            @Override public void handle(WindowEvent a0) {
+                getController().exit();
+            }
+        }));
+        Log.addOutput(Log.DEFAULT);
 
         // Process the command line startup.
         boolean successfulStartup = getController().processCommandLine(args);
@@ -764,8 +769,6 @@ public class Visualizer extends Application implements Caretaker, Originator {
         setPlaybackState(new PausedState());
         setDefaultAnimationDuration(DEFAULT_ANIMATION_DURATION);
         setCurrentAnimationDuration(-1.0);
-        
-        getController().relistenForConnections();
     }
     
     /**

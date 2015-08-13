@@ -1,0 +1,17 @@
+load_goat
+cross
+unload
+cross
+load_wolf
+cross
+unload
+load_goat
+cross
+unload
+load_cabb
+cross
+unload
+cross
+load_goat
+cross
+unload

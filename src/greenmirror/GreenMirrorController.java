@@ -218,19 +218,23 @@ public abstract class GreenMirrorController {
     //@ ensures getSocket() == null && getStreamIn() == null && getStreamOut() == null;
     public synchronized void closeStreams() {
         try {
-            getSocket().close();
-            getStreamIn().close();
-            getStreamOut().close();
-            setSocket(null);
-            setStreamIn(null);
-            setStreamOut(null);
+            if (getSocket() != null) {
+                getSocket().close();
+                setSocket(null);
+            }
+            if (getStreamIn() != null) {
+                getStreamIn().close();
+                setStreamIn(null);
+            }
+            if (getStreamOut() != null) {
+                getStreamOut().close();
+                setStreamOut(null);
+            }
             
             Log.add("The connection with the peer has been closed.\n");
         } catch (IOException e) {
             Log.add("An IOException occured while closing the connection with the peer: ", e);
             // Don't do anything further with this.
-        } catch (NullPointerException e) {
-            // Streams have already been closed, don't do anything.
         }
     }
 

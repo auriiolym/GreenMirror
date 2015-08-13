@@ -154,6 +154,7 @@ public class InitializationCommandHandler extends CommandHandler {
                 @Override
                 public void handle(WindowEvent arg0) {
                     visualizer.reset();
+                    getController().relistenForConnections();
                 }
             });
 
